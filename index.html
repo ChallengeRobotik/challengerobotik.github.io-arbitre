@@ -10,20 +10,33 @@
 
     <style>
         /* Base Styles */
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --header-border: #cccccc;
+            --button-bg: #007bff;
+            --button-text: #ffffff;
+            --button-hover: #0056b3;
+        }
+
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             transition: background-color 0.4s, color 0.4s;
         }
 
         .card {
-            background-color: #ffffff;
+            background-color: var(--card-bg);
             padding: 25px;
             margin: 20px auto;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             max-width: 1200px;
+            transition: background-color 0.4s, box-shadow 0.4s;
         }
 
         header {
@@ -31,19 +44,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid;
+            border-bottom: 2px solid var(--header-border);
+            background-color: var(--card-bg);
         }
         
-        /* Style du Logo SVG */
         .logo-container {
             display: flex;
             align-items: center;
         }
         .logo-svg {
-            height: 40px; /* Taille du logo */
+            height: 40px;
             width: auto;
             margin-right: 15px;
         }
+        /* Styles SVG pour les thèmes */
+        .logo-svg .st0 { fill: #007BFF; }
+        .logo-svg .st1 { fill: #FFC107; }
+        .logo-svg .st2 { fill: #FFFFFF; }
+
 
         button {
             padding: 10px 15px;
@@ -51,29 +69,42 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: background-color 0.3s, transform 0.1s;
+            transition: background-color 0.3s, transform 0.1s, color 0.3s;
             margin-left: 10px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
         }
 
         button:hover {
             transform: translateY(-1px);
+            background-color: var(--button-hover);
         }
 
         input[type="text"], input[type="password"], input[type="number"], select {
             padding: 10px;
             margin: 8px 0;
-            border: 1px solid #ccc;
+            border: 1px solid var(--header-border);
             border-radius: 4px;
             width: 100%;
             box-sizing: border-box;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        /* Désactiver le style de l'input désactivé pour la symétrie */
+        input:disabled {
+            opacity: 1; 
+            background-color: var(--card-bg); 
+            color: var(--text-color); 
+            cursor: default;
         }
 
-        h1, h2, h3 { margin-top: 0; }
+        h1, h2, h3 { margin-top: 0; color: var(--text-color); }
 
         .error-message { color: red; font-weight: bold; }
         .success-message { color: green; font-weight: bold; }
 
-        /* --- GRILLES DE SCORING (Ajustement Alignement) --- */
+        /* --- GRILLES DE SCORING --- */
         .scoring-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -84,8 +115,7 @@
         .team-scoring {
             padding: 20px;
             border-radius: 8px;
-            transition: background-color 0.4s, background-size 0.4s; 
-            /* Assure que les cadres s'alignent par le haut */
+            transition: background-color 0.4s; 
             display: flex;
             flex-direction: column;
         }
@@ -94,9 +124,8 @@
             text-align: center;
         }
 
-        /* Conteneurs pour aligner les listes d'inputs */
         #inputsA, #inputsB {
-            flex-grow: 1; /* Permet aux listes de prendre la place restante et de s'aligner */
+            flex-grow: 1; 
         }
         
         .score-item {
@@ -104,7 +133,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 8px 0;
-            border-bottom: 1px dashed #ccc;
+            border-bottom: 1px dashed var(--header-border);
         }
         .score-item:last-child { border-bottom: none; }
 
@@ -113,15 +142,14 @@
             font-weight: bold;
             margin-top: 15px;
             padding: 10px;
-            border-top: 2px solid;
+            border-top: 2px solid var(--header-border);
             text-align: center;
         }
 
-        /* --- Espacement Validation (Ajustement) --- */
         .final-validation-area {
-            margin-top: 40px; /* Plus d'espace */
+            margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid var(--header-border);
             text-align: center;
         }
         
@@ -130,15 +158,14 @@
             margin: 5px;
         }
 
-
-        /* --- HISTORIQUE DES MATCHS (Amélioration Propreté) --- */
+        /* --- HISTORIQUE DES MATCHS --- */
         #history-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
         #history-table th, #history-table td {
-            border: 1px solid #ddd;
+            border: 1px solid var(--header-border);
             padding: 10px;
             text-align: left;
         }
@@ -146,20 +173,21 @@
             background-color: #f8f8f8;
             font-weight: bold;
         }
-        /* Mettre en valeur les scores */
+        .dark-mode #history-table th {
+            background-color: #333;
+        }
         #history-body tr td:nth-child(2),
         #history-body tr td:nth-child(4) {
             font-weight: bold;
             text-align: center;
         }
-        /* Mettre en valeur le vainqueur */
         #history-body tr td:nth-child(5) {
             font-weight: 700;
             color: #007bff;
         }
 
 
-        /* --- Menu Pénalités Cachable et autres styles (Identique au précédent) --- */
+        /* --- Menu Pénalités Cachable et autres styles --- */
         .penalty-toggle {
             cursor: pointer;
             background-color: #f0f0f0;
@@ -170,11 +198,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #333;
         }
+        .dark-mode .penalty-toggle {
+            background-color: #444;
+            color: #eee;
+        }
+
         .penalty-content {
             display: none;
             padding: 0 10px;
-            border: 1px solid #eee;
+            border: 1px solid var(--header-border);
             border-radius: 0 0 4px 4px;
         }
         .penalty-content.active {
@@ -187,25 +221,75 @@
             border-radius: 8px;
             background-color: #fff3e0;
         }
+        .dark-mode #equality-resolution {
+            background-color: #5d4037;
+            border-color: #ff9800;
+        }
         .equality-btn {
             margin-top: 10px;
-            width: 48%; /* Ajusté pour l'alignement */
+            width: 48%;
             background-color: orange;
             color: white;
         }
         .equality-btn:hover {
             background-color: darkorange;
         }
-        /* ... autres styles de thèmes (omission pour la concision) ... */
         
-        /* Thèmes: j'ai omis les définitions de thèmes complètes ici pour éviter la répétition, elles restent comme dans la version précédente pour le light/dark/animated */
+        /* --- THÈMES --- */
         /* Fond des équipes en mode CLAIR */
         .light-mode .team-A { background-color: rgba(0, 100, 255, 0.1); }
         .light-mode .team-B { background-color: rgba(255, 200, 0, 0.1); }
+
         /* Fond des équipes en mode SOMBRE */
+        .dark-mode {
+            --bg-color: #2c3e50;
+            --card-bg: #34495e;
+            --text-color: #ecf0f1;
+            --header-border: #5a7a9a;
+            --button-bg: #1abc9c;
+            --button-text: #2c3e50;
+            --button-hover: #16a085;
+        }
         .dark-mode .team-A { background-color: rgba(0, 100, 255, 0.3); }
         .dark-mode .team-B { background-color: rgba(255, 200, 0, 0.3); }
-        /* Fond des équipes en mode DÉGRADÉ ANIMÉ (gardé le même style d'animation) */
+        .dark-mode .logo-svg .st0 { fill: #1abc9c; }
+        .dark-mode .logo-svg .st1 { fill: #f1c40f; }
+        .dark-mode input:disabled {
+            background-color: var(--card-bg); 
+            color: var(--text-color); 
+        }
+
+        /* Fond des équipes en mode DÉGRADÉ ANIMÉ */
+        @keyframes gradient-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animated-mode {
+            --bg-color: #3a1c71;
+            --card-bg: #2c3e50;
+            --text-color: #ffffff;
+            --header-border: #7f8c8d;
+            --button-bg: #e74c3c;
+            --button-text: #ffffff;
+            --button-hover: #c0392b;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient-bg 15s ease infinite;
+        }
+        .animated-mode .card {
+            background-color: rgba(52, 73, 94, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .animated-mode .team-A { background-color: rgba(41, 128, 185, 0.5); }
+        .animated-mode .team-B { background-color: rgba(243, 156, 18, 0.5); }
+        .animated-mode .logo-svg .st0 { fill: #3498db; }
+        .animated-mode .logo-svg .st1 { fill: #f39c12; }
+        .animated-mode input:disabled {
+            background-color: var(--card-bg); 
+            color: var(--text-color); 
+        }
+
 
     </style>
 </head>
@@ -291,7 +375,7 @@
                 <div id="score-teamB" class="team-scoring team-B">
                     <h3>Équipe 2: <span id="nameB-score"></span></h3>
                     <div id="inputsB">
-                         </div>
+                        </div>
                     <div class="score-summary team-B-summary">Score Actuel: <span id="currentScoreB" data-final-score="0">0</span> pts</div>
                 </div>
             </div>
@@ -511,7 +595,7 @@
             });
         }
         
-        // --- Randomisation Avancée (NEW) ---
+        // --- Randomisation Avancée (Identique) ---
         function randomizeTeams() {
             const teams = getTeamList();
             const history = getMatchHistory();
@@ -614,21 +698,30 @@
         }
 
 
-        // --- 5. LOGIQUE DE SCORING DYNAMIQUE (Identique) ---
+        // --- 5. LOGIQUE DE SCORING DYNAMIQUE (Mise à jour pour la symétrie du temps) ---
 
         function generateScoreInputs(teamId) {
             const container = document.getElementById(`inputs${teamId}`);
             container.innerHTML = '';
             
-            if (teamId === 'A') {
-                const timeInput = document.createElement('div');
-                timeInput.className = 'score-item';
-                timeInput.innerHTML = `
-                    <span>Temps Réalisé (s)</span>
-                    <input type="number" id="time-input" min="0" max="${MAX_TIME}" oninput="calculateScore('A'); calculateScore('B')" value="${MAX_TIME}">
-                `;
-                container.appendChild(timeInput);
-            }
+            // --- NOUVEAUTÉ : Affichage du Temps Réalisé des deux côtés pour la symétrie ---
+            const timeInputContainer = document.createElement('div');
+            timeInputContainer.className = 'score-item';
+            
+            const isTeamA = teamId === 'A';
+            // Seul l'input de l'équipe A est actif (modifiable)
+            const inputDisabled = isTeamA ? '' : 'disabled'; 
+            // L'input B a un ID différent pour la lecture et le ciblage
+            const inputId = isTeamA ? 'time-input' : 'time-input-B-display'; 
+            // Seul l'input A déclenche le recalcul des scores
+            const onInputEvent = isTeamA ? `oninput="calculateScore('A'); calculateScore('B')"` : '';
+            
+            timeInputContainer.innerHTML = `
+                <span>Temps Réalisé (s)</span>
+                <input type="number" id="${inputId}" min="0" max="${MAX_TIME}" ${onInputEvent} value="${MAX_TIME}" ${inputDisabled}>
+            `;
+            container.appendChild(timeInputContainer);
+            // -----------------------------------------------------------------
             
             SCORING_RULES.actions.forEach(rule => {
                 const item = document.createElement('div');
@@ -672,11 +765,21 @@
             container.appendChild(penaltyContent);
             
             calculateScore(teamId);
+            
+            // Si c'est l'équipe B, s'assurer que sa valeur est synchronisée lors de la génération
+            if (!isTeamA) {
+                const teamBTimeDisplay = document.getElementById('time-input-B-display');
+                const teamATimeInput = document.getElementById('time-input');
+                if(teamBTimeDisplay && teamATimeInput) {
+                    teamBTimeDisplay.value = teamATimeInput.value;
+                }
+            }
         }
         
         function handleForfeit(teamId) {
             const forfeitInput = document.querySelector(`#inputs${teamId} input[data-rule-id="forfeit"]`);
-            const inputs = document.querySelectorAll(`#inputs${teamId} input:not([data-rule-id="forfeit"])`);
+            // Exclure les champs de temps
+            const inputs = document.querySelectorAll(`#inputs${teamId} input:not([data-rule-id="forfeit"]):not(#time-input):not(#time-input-B-display)`); 
             
             const isDisabled = forfeitInput.checked;
             
@@ -693,15 +796,28 @@
 
         function calculateScore(teamId) {
             let score = 0;
+            // Toujours lire la valeur du temps depuis l'input de l'équipe A
+            const timeInputA = document.getElementById('time-input'); 
+            const timeValue = parseFloat(timeInputA ? timeInputA.value : MAX_TIME) || MAX_TIME;
+            
+            // --- NOUVEAUTÉ : Synchroniser l'affichage du temps de l'équipe B ---
+            const timeInputBDisplay = document.getElementById('time-input-B-display'); 
+            if (timeInputBDisplay) {
+                 timeInputBDisplay.value = timeValue;
+            }
+            // -----------------------------------------------------------------
+
+
             const teamInputs = document.querySelectorAll(`#inputs${teamId} input[type="checkbox"]:not([data-rule-id="forfeit"]), #inputs${teamId} input[type="number"]`);
-            const timeInput = document.getElementById('time-input');
             const forfeitInput = document.querySelector(`#inputs${teamId} input[data-rule-id="forfeit"]`);
             
-            const timeValue = parseFloat(timeInput ? timeInput.value : MAX_TIME) || MAX_TIME;
             let isForfeit = forfeitInput ? forfeitInput.checked : false;
             
             teamInputs.forEach(input => {
                 const ruleId = input.dataset.ruleId;
+                
+                // Ignorer l'input du temps (Team A est l'input principal, Team B est l'affichage)
+                if (input.id === 'time-input' || input.id === 'time-input-B-display') return;
                 
                 if (input.type === 'checkbox' && input.checked) {
                     const rule = SCORING_RULES.actions.find(r => r.id === ruleId) || SCORING_RULES.penalties.find(r => r.id === ruleId);
@@ -868,7 +984,7 @@
             });
         }
         
-        // --- Envoi de Message Manuel (NEW) ---
+        // --- Envoi de Message Manuel (Identique) ---
         function sendManualDiscordMessage() {
             const message = document.getElementById('manual-message').value.trim();
             const statusElement = document.getElementById('manual-message-status');
@@ -905,7 +1021,7 @@
             });
         }
         
-        // --- Téléchargement du Résultat (.txt) (NEW) ---
+        // --- Téléchargement du Résultat (.txt) (Identique) ---
         function downloadMatchResult() {
             const match = getMatchData();
             
@@ -978,7 +1094,7 @@ VAINQUEUR DÉCLARÉ: ${match.winner}
 
         document.addEventListener('DOMContentLoaded', checkAuth);
         
-        // --- SÉCURITÉ NAVIGATEUR ---
+        // --- SÉCURITÉ NAVIGATEUR (Identique) ---
         document.addEventListener('contextmenu', event => event.preventDefault());
         
         document.onkeydown = function(e) {
