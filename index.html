@@ -2,1107 +2,462 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Système de Scoring Robotique ArbiBot</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Système d'Arbitrage Officiel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* Base Styles */
         :root {
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --header-border: #cccccc;
-            --button-bg: #007bff;
-            --button-text: #ffffff;
-            --button-hover: #0056b3;
+            --primary-blue: #0062ff;
+            --primary-green: #10b981;
+            --danger: #ef4444;
+            --discord: #5865F2;
+            --bg-dark: #050505;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.4s, color 0.4s;
+        body.theme-light { 
+            --bg-dark: #f8fafc; --glass: rgba(255, 255, 255, 0.9); 
+            --glass-border: rgba(0, 0, 0, 0.08); --text-main: #0f172a; --text-dim: #64748b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; color: var(--text-main); background-color: var(--bg-dark); transition: var(--transition); }
+
+        .score-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 16px; border-radius: 12px; margin-bottom: 4px;
+            border: 1px solid transparent; transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .score-row:hover { background: rgba(255,255,255,0.05); }
+
+        .score-row.active {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--primary-green);
+        }
+
+        .checkbox-container {
+            position: relative; width: 28px; height: 28px;
+        }
+
+        .checkbox-custom {
+            appearance: none; width: 100%; height: 100%;
+            border: 2px solid var(--text-dim); border-radius: 8px;
+            cursor: pointer; transition: var(--transition); outline: none;
+        }
+
+        .checkbox-custom:checked {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+        }
+
+        .checkbox-custom:checked::after {
+            content: ""; position: absolute; left: 10px; top: 5px;
+            width: 6px; height: 12px; border: solid white;
+            border-width: 0 3px 3px 0; transform: rotate(45deg);
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 20px 0; margin-bottom: 30px; border-bottom: 1px solid var(--glass-border);
         }
 
         .card {
-            background-color: var(--card-bg);
-            padding: 25px;
-            margin: 20px auto;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
-            transition: background-color 0.4s, box-shadow 0.4s;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px); border-radius: 24px; padding: 24px; margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        header {
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--header-border);
-            background-color: var(--card-bg);
-        }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-        }
-        .logo-svg {
-            height: 40px;
-            width: auto;
-            margin-right: 15px;
-        }
-        /* Styles SVG pour les thèmes */
-        .logo-svg .st0 { fill: #007BFF; }
-        .logo-svg .st1 { fill: #FFC107; }
-        .logo-svg .st2 { fill: #FFFFFF; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
 
-
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.1s, color 0.3s;
-            margin-left: 10px;
-            background-color: var(--button-bg);
-            color: var(--button-text);
+        input, select, textarea {
+            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+            color: inherit; padding: 14px; border-radius: 12px; font-family: inherit;
         }
 
-        button:hover {
-            transform: translateY(-1px);
-            background-color: var(--button-hover);
+        .btn {
+            cursor: pointer; border: none; border-radius: 12px; font-weight: 700;
+            padding: 12px 20px; transition: var(--transition);
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-success { background: var(--primary-green); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); }
+        .btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+
+        .team-card.blue { border-top: 5px solid var(--primary-blue); }
+        .team-card.green { border-top: 5px solid var(--primary-green); }
+
+        .big-score { font-size: 56px; font-weight: 800; text-align: center; margin: 20px 0; font-variant-numeric: tabular-nums; }
+
+        #login-page {
+            position: fixed; inset: 0; z-index: 9999; background: #020617;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
         }
 
-        input[type="text"], input[type="password"], input[type="number"], select {
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid var(--header-border);
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-        }
-        
-        /* Désactiver le style de l'input désactivé pour la symétrie */
-        input:disabled {
-            opacity: 1; 
-            background-color: var(--card-bg); 
-            color: var(--text-color); 
-            cursor: default;
-        }
-
-        h1, h2, h3 { margin-top: 0; color: var(--text-color); }
-
-        .error-message { color: red; font-weight: bold; }
-        .success-message { color: green; font-weight: bold; }
-
-        /* --- GRILLES DE SCORING --- */
-        .scoring-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .team-scoring {
-            padding: 20px;
-            border-radius: 8px;
-            transition: background-color 0.4s; 
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .team-scoring h3 {
-            text-align: center;
-        }
-
-        #inputsA, #inputsB {
-            flex-grow: 1; 
-        }
-        
-        .score-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px dashed var(--header-border);
-        }
-        .score-item:last-child { border-bottom: none; }
-
-        .score-summary {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-top: 15px;
-            padding: 10px;
-            border-top: 2px solid var(--header-border);
-            text-align: center;
-        }
-
-        .final-validation-area {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid var(--header-border);
-            text-align: center;
-        }
-        
-        .final-validation-area button {
-            width: auto;
-            margin: 5px;
-        }
-
-        /* --- HISTORIQUE DES MATCHS --- */
-        #history-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        #history-table th, #history-table td {
-            border: 1px solid var(--header-border);
-            padding: 10px;
-            text-align: left;
-        }
-        #history-table th {
-            background-color: #f8f8f8;
-            font-weight: bold;
-        }
-        .dark-mode #history-table th {
-            background-color: #333;
-        }
-        #history-body tr td:nth-child(2),
-        #history-body tr td:nth-child(4) {
-            font-weight: bold;
-            text-align: center;
-        }
-        #history-body tr td:nth-child(5) {
-            font-weight: 700;
-            color: #007bff;
-        }
-
-
-        /* --- Menu Pénalités Cachable et autres styles --- */
-        .penalty-toggle {
-            cursor: pointer;
-            background-color: #f0f0f0;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #333;
-        }
-        .dark-mode .penalty-toggle {
-            background-color: #444;
-            color: #eee;
-        }
-
-        .penalty-content {
-            display: none;
-            padding: 0 10px;
-            border: 1px solid var(--header-border);
-            border-radius: 0 0 4px 4px;
-        }
-        .penalty-content.active {
-            display: block;
-        }
-        #equality-resolution {
-            margin-top: 20px;
-            padding: 15px;
-            border: 2px solid orange;
-            border-radius: 8px;
-            background-color: #fff3e0;
-        }
-        .dark-mode #equality-resolution {
-            background-color: #5d4037;
-            border-color: #ff9800;
-        }
-        .equality-btn {
-            margin-top: 10px;
-            width: 48%;
-            background-color: orange;
-            color: white;
-        }
-        .equality-btn:hover {
-            background-color: darkorange;
-        }
-        
-        /* --- THÈMES --- */
-        /* Fond des équipes en mode CLAIR */
-        .light-mode .team-A { background-color: rgba(0, 100, 255, 0.1); }
-        .light-mode .team-B { background-color: rgba(255, 200, 0, 0.1); }
-
-        /* Fond des équipes en mode SOMBRE */
-        .dark-mode {
-            --bg-color: #2c3e50;
-            --card-bg: #34495e;
-            --text-color: #ecf0f1;
-            --header-border: #5a7a9a;
-            --button-bg: #1abc9c;
-            --button-text: #2c3e50;
-            --button-hover: #16a085;
-        }
-        .dark-mode .team-A { background-color: rgba(0, 100, 255, 0.3); }
-        .dark-mode .team-B { background-color: rgba(255, 200, 0, 0.3); }
-        .dark-mode .logo-svg .st0 { fill: #1abc9c; }
-        .dark-mode .logo-svg .st1 { fill: #f1c40f; }
-        .dark-mode input:disabled {
-            background-color: var(--card-bg); 
-            color: var(--text-color); 
-        }
-
-        /* Fond des équipes en mode DÉGRADÉ ANIMÉ */
-        @keyframes gradient-bg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .animated-mode {
-            --bg-color: #3a1c71;
-            --card-bg: #2c3e50;
-            --text-color: #ffffff;
-            --header-border: #7f8c8d;
-            --button-bg: #e74c3c;
-            --button-text: #ffffff;
-            --button-hover: #c0392b;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradient-bg 15s ease infinite;
-        }
-        .animated-mode .card {
-            background-color: rgba(52, 73, 94, 0.9);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-        .animated-mode .team-A { background-color: rgba(41, 128, 185, 0.5); }
-        .animated-mode .team-B { background-color: rgba(243, 156, 18, 0.5); }
-        .animated-mode .logo-svg .st0 { fill: #3498db; }
-        .animated-mode .logo-svg .st1 { fill: #f39c12; }
-        .animated-mode input:disabled {
-            background-color: var(--card-bg); 
-            color: var(--text-color); 
-        }
-
-
+        .hidden { display: none !important; }
     </style>
 </head>
-<body>
+<body class="theme-dark">
 
     <div id="login-page">
-        <div class="card">
-            <h1>Connexion Arbitre</h1>
-            <p>Saisissez vos codes d'accès manuellement.</p>
+        <div class="card" style="max-width: 400px; width: 100%; text-align: center;">
+            <i data-lucide="shield-check" style="width: 48px; height: 48px; color: var(--primary-blue); margin-bottom: 20px;"></i>
+            <h1 style="margin: 0; font-size: 22px;">Accès Arbitre</h1>
+            <p style="color: var(--text-dim); margin-bottom: 25px;">Identification requise</p>
             <form id="login-form">
-                <input type="text" id="login-id" placeholder="Identifiant" required onfocus="this.removeAttribute('autocomplete');">
-                <input type="password" id="login-password" placeholder="Mot de Passe" required onfocus="this.removeAttribute('autocomplete');">
-                <button type="submit">Se Connecter</button>
-                <p id="login-error" class="error-message"></p>
+                <input type="text" id="login-id" placeholder="Identifiant" required style="margin-bottom: 12px;">
+                <input type="password" id="login-password" placeholder="Mot de passe" required style="margin-bottom: 20px;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Entrer</button>
             </form>
         </div>
     </div>
 
-    <div id="app-container" style="display: none;">
-        
-        <header>
-            <div class="logo-container">
-                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve" class="logo-svg">
-                    <style type="text/css">
-                        .st0{fill:#007BFF;}
-                        .st1{fill:#FFC107;}
-                        .st2{fill:#FFFFFF;}
-                    </style>
-                    <g>
-                        <circle class="st0" cx="50" cy="50" r="48"/>
-                        <path class="st1" d="M50,8c23.2,0,42,18.8,42,42c0,11.2-4.4,21.4-11.6,29.1L50,50V8z"/>
-                        <path class="st2" d="M50,45.8c-2.8,0-5.1-2.3-5.1-5.1c0-2.8,2.3-5.1,5.1-5.1c2.8,0,5.1,2.3,5.1,5.1C55.1,43.5,52.8,45.8,50,45.8z"/>
-                        <polygon class="st2" points="50,52 50,75 56.6,68.4 56.6,58.7"/>
-                        <polygon class="st2" points="50,52 50,75 43.4,68.4 43.4,58.7"/>
-                        <path class="st2" d="M50,15.5c-1.3,0-2.3-1-2.3-2.3c0-1.3,1-2.3,2.3-2.3c1.3,0,2.3,1,2.3,2.3C52.3,14.5,51.3,15.5,50,15.5z"/>
-                        <rect x="47.7" y="15.5" class="st2" width="4.6" height="15.8"/>
-                    </g>
-                </svg>
-                <h1>Challenge Robotik 2026</h1>
-            </div>
-            <div id="theme-switcher">
-                <label>Thèmes :</label>
-                <button onclick="setTheme('light')">Clair</button>
-                <button onclick="setTheme('dark')">Sombre</button>
-                <button onclick="setTheme('animated')">Dégradé Animé</button>
-                <button onclick="logout()" class="logout-btn">Déconnexion</button>
-            </div>
-        </header>
+    <div id="app-container" class="hidden">
+        <div class="container">
+            <header>
+                <div>
+                    <h2 style="margin: 0; font-weight: 800;">CHALLENGE 2026</h2>
+                    <div style="display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-size: 13px;">
+                        <i data-lucide="user" size="14"></i>
+                        <span id="arbiter-display"></span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="toggleTheme()" class="btn btn-outline" id="theme-toggle"><i data-lucide="sun"></i></button>
+                    <button onclick="logout()" class="btn" style="background: var(--danger); color: white;"><i data-lucide="log-out"></i></button>
+                </div>
+            </header>
 
-        <section id="config-section" class="card">
-            <h2>Configuration du Match</h2>
-            <div class="team-config">
-                
-                <div class="team-setup">
-                    <h3>Équipe 1 (Bleue)</h3>
-                    <select id="teamA-select"></select>
-                    <input type="text" id="teamA-custom" placeholder="Ajouter manuellement (Ville/Nom)...">
+            <div class="grid">
+                <div class="card">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                        <i data-lucide="megaphone" color="#5865F2"></i>
+                        <h3 style="margin: 0;">Annonce Discord</h3>
+                    </div>
+                    <textarea id="manual-msg" placeholder="Votre message public..."></textarea>
+                    <button class="btn btn-primary" style="width: 100%; background: var(--discord); margin-top: 15px;" onclick="sendAnnonce()">
+                        <i data-lucide="send"></i> Envoyer @everyone
+                    </button>
                 </div>
 
-                <div class="team-setup">
-                    <h3>Équipe 2 (Vert)</h3>
-                    <select id="teamB-select"></select>
-                    <input type="text" id="teamB-custom" placeholder="Ajouter manuellement (Ville/Nom)...">
+                <div id="setup-match" class="card">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                        <i data-lucide="settings" color="#10b981"></i>
+                        <h3 style="margin: 0;">Nouveau Match</h3>
+                    </div>
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                        <select id="sel-A"></select>
+                        <select id="sel-B"></select>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-outline" onclick="smartRandomize()" style="flex: 1;"><i data-lucide="refresh-cw"></i></button>
+                        <button class="btn btn-success" onclick="launchMatch()" style="flex: 2;"><i data-lucide="play"></i> Lancer</button>
+                    </div>
                 </div>
             </div>
-            
-            <button onclick="randomizeTeams()">Randomiser les Équipes (Équilibré)</button>
-            <button id="validate-teams-btn" onclick="validateTeams()">Valider la Configuration</button>
-        </section>
 
-        <section id="scoring-section" class="card" style="display: none;">
-            <h2>Saisie des Scores</h2>
-            <p class="match-info">Match Actuel : <span id="match-display"></span></p>
-
-            <div class="scoring-grid">
-                <div id="score-teamA" class="team-scoring team-A">
-                    <h3>Équipe 1: <span id="nameA-score"></span></h3>
-                    <div id="inputsA">
+            <div id="match-area" class="card hidden">
+                <div class="grid">
+                    <div class="card team-card blue">
+                        <h3 id="name-A" style="margin:0; color: var(--primary-blue);"></h3>
+                        <div style="margin: 20px 0;">
+                            <label style="font-size: 11px; opacity: 0.6;">CHRONO (SEC)</label>
+                            <input type="number" id="time-A" value="120" oninput="calc()">
                         </div>
-                    <div class="score-summary team-A-summary">Score Actuel: <span id="currentScoreA" data-final-score="0">0</span> pts</div>
-                </div>
+                        <div id="items-A"></div>
+                        <div class="big-score" id="total-A">0</div>
+                    </div>
 
-                <div id="score-teamB" class="team-scoring team-B">
-                    <h3>Équipe 2: <span id="nameB-score"></span></h3>
-                    <div id="inputsB">
+                    <div class="card team-card green">
+                        <h3 id="name-B" style="margin:0; color: var(--primary-green);"></h3>
+                        <div style="margin: 20px 0;">
+                            <label style="font-size: 11px; opacity: 0.6;">CHRONO (SEC)</label>
+                            <input type="number" id="time-B" value="120" oninput="calc()">
                         </div>
-                    <div class="score-summary team-B-summary">Score Actuel: <span id="currentScoreB" data-final-score="0">0</span> pts</div>
+                        <div id="items-B"></div>
+                        <div class="big-score" id="total-B">0</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 25px;">
+                    <button class="btn btn-success" onclick="finishMatch()" style="flex: 3; padding: 20px; font-size: 18px;">
+                        <i data-lucide="check-circle"></i> Valider le match
+                    </button>
+                    <button class="btn btn-outline" onclick="cancelMatch()" style="flex: 1;">Annuler</button>
                 </div>
             </div>
-            
-            <div id="equality-resolution" style="display: none;">
-                <h4>Résolution d'Égalité (Accès Spécial)</h4>
-                <p>Les scores sont égaux. Veuillez déterminer le vainqueur du match :</p>
-                <button class="equality-btn" onclick="setEqualityWinner('A')">Déclarer <span id="eq-name-A"></span> Vainqueur</button>
-                <button class="equality-btn" onclick="setEqualityWinner('B')">Déclarer <span id="eq-name-B"></span> Vainqueur</button>
-                <button class="equality-btn" onclick="setEqualityWinner('None')">Maintenir Égalité (Match Nul)</button>
-            </div>
 
-            <div class="final-validation-area">
-                <button id="validate-match-btn" onclick="validateAndSaveScore()">Valider le Score et Publier sur Discord</button>
-                <button onclick="downloadMatchResult()">Télécharger le Résultat (.txt)</button>
-                <p id="validation-message" class="success-message"></p>
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <i data-lucide="history"></i>
+                    <h3 style="margin: 0;">Historique</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tbody id="history-body"></tbody>
+                    </table>
+                </div>
             </div>
-        </section>
-        
-        <section id="manual-discord-section" class="card">
-            <h2>Envoi de Message Manuel Discord</h2>
-            <textarea id="manual-message" placeholder="Tapez votre message ici (ex: Fin de la pause déjeuner)..." rows="3"></textarea>
-            <button onclick="sendManualDiscordMessage()">Envoyer un message à Discord</button>
-            <p id="manual-message-status" class="success-message"></p>
-        </section>
-
-        <section id="history-section" class="card">
-            <h2>Historique des Matchs (Local)</h2>
-            <table id="history-table">
-                <thead>
-                    <tr>
-                        <th>Équipe 1</th>
-                        <th>Score 1</th>
-                        <th>Équipe 2</th>
-                        <th>Score 2</th>
-                        <th>Vainqueur</th>
-                        <th>Arbitre</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody id="history-body">
-                    </tbody>
-            </table>
-            <button onclick="clearHistory()" class="clear-btn">Effacer l'Historique Local</button>
-        </section>
+        </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURATION GLOBALE & SÉCURITÉ ---
-
-        // Webhook Discord (URL fournie par l'utilisateur)
-        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1429885227559555213/4lkyLV6pN-L3kztZxNNnawaONtsgX_d300QNO00ynV8QTHsI26b4Yvpuzf-Hmvecejkc";
-
-        // Codes de connexion et Noms Réels
-        const USERS = [
-            { login: 'NtHn_9f4Q', name: 'Nathan', isSpecial: false },
-            { login: 'BnJm_K2sX', name: 'Benjamin', isSpecial: false },
-            { login: 'MlNd_5p3D', name: 'Milandris', isSpecial: false },
-            { login: 'MrFr_G8mC', name: 'Mr FRAMBOURT', isSpecial: true },
-            { login: 'MxmL_7aJb', name: 'Maximilien', isSpecial: false },
-            { login: 'NlNe_B1vY', name: 'Nolane', isSpecial: false },
-            { login: 'admin', name: 'Administrateur', isSpecial: true },
-        ];
+        lucide.createIcons();
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1450497468537241775/f8lV8PChJL_2mapPLx2iRuP087CL9eSMstnjfx5TpoKBZg2SOSFv0-L-9I8tjDAVLDS3";
         
-        const EQUALITY_ARBITERS = ['admin', 'MrFr_G8mC'];
-
-        // Liste des équipes initiales
-        const INITIAL_TEAMS = [
-            'Condé en Brie', 'Neuilly Saint Front', 'Saint Joseph', 
-            'Charly Sur Marne', 'Jean Racine', 'Jules Verne'
+        const USERS = [
+            { id: 'MrFr_G8mC', pass: 'T2zN4kQe', name: 'Mr FRAMBOURT' },
+            { id: 'Gabr_3vR2', pass: 'K7zP9mQx', name: 'Gabriel' },
+            { id: 'Wyat_8nB5', pass: 'Y4tS1wVp', name: 'Wyate' },
+            { id: 'Milan_5p3D', pass: 'A9xH1jFm', name: 'Milandris' },
+            { id: 'Loui_2kL9', pass: 'B5vN8mZt', name: 'Louis' },
+            { id: 'Maxm_7aJb', pass: 'S5uI6oPr', name: 'Maximilien' }
         ];
 
-        // Barème de Scoring (Identique)
-        const SCORING_RULES = {
-            actions: [
-                { id: 'start', label: 'Robot sorti de zone de départ', points: 10, type: 'checkbox' },
-                { id: 'astro_in', label: 'Étape 1: Astron. correctement rentré', points: 15, type: 'checkbox' },
-                { id: 'voyant_allu', label: 'Étape 2: Voyant allumé', points: 15, type: 'checkbox' },
-                { id: 'fusee_rent', label: 'Étape 3: Fusée correctement rentrée', points: 15, type: 'checkbox' },
-                { id: 'leds_allu', label: 'Étape 4: Leds Verts allumées', points: 15, type: 'checkbox' },
-                { id: 'fusee_sep', label: 'Étape 5: Fusée séparée', points: 15, type: 'checkbox' },
-                { id: 'lune_2e', label: 'Position sur arrivée:(2e)', points: 10, type: 'checkbox' },
-                { id: 'lune_1er', label: 'Position sur arrivée:(1er)', points: 25, type: 'checkbox' },
+        const TEAMS = ['Condé en Brie', 'Neuilly Saint Front', 'Saint Joseph', 'Charly Sur Marne', 'Jean Racine', 'Jules Verne'];
+        const RULES = [
+            { l: 'Sortie zone départ', p: 10 }, { l: 'Astronaute sécurisé', p: 15 }, 
+            { l: 'Voyant activé', p: 15 }, { l: 'Fusée lancée', p: 15 }, 
+            { l: 'Leds opérationnelles', p: 15 }, { l: 'Atterrissage Lune', p: 25 }
+        ];
 
+        let history = JSON.parse(localStorage.getItem('match_history_tournoi') || '[]');
 
-            ],
-            penalties: [
-                { id: 'replace', label: 'Arbitre replace robot sur ligne (-10 pts)', points: -10, type: 'checkbox' },
-                { id: 'faux_dep', label: 'Faux départ (-30 pts)', points: -30, type: 'checkbox' },
-                { id: 'degrad', label: 'Dégradation table/élément (-30 pts)', points: -30, type: 'checkbox' },
-                { id: 'bouge_fin', label: 'Robot bouge à la fin (-30 pts)', points: -30, type: 'checkbox' },
-                { id: 'prep_exc', label: 'Temps de préparation excessif (-20 pts)', points: -20, type: 'checkbox' },
-                { id: 'antisport', label: 'Comportement anti-arbitre/fair-play (-50 à -100 pts)', points: 0, type: 'manual_penalty', min: -100, max: -50 },
-                { id: 'forfeit', label: 'FORFAIT', points: 0, type: 'forfeit' }
-            ],
-            special: [
-                { id: 'temps', label: 'Temps Réalisé (s)', type: 'time' },
-            ]
+        /* --- DISCORD STYLES --- */
+        async function sendToDiscord(payload) {
+            try {
+                await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) { console.error("Erreur Discord:", e); }
+        }
+
+        function sendAnnonce() {
+            const msg = document.getElementById('manual-msg').value;
+            if(!msg) return alert("Message vide");
+            sendToDiscord({
+                content: "@everyone",
+                embeds: [{
+                    title: "📢 ANNONCE OFFICIELLE",
+                    description: `\n${msg}\n`,
+                    color: 5814783,
+                    timestamp: new Date().toISOString()
+                }]
+            });
+            document.getElementById('manual-msg').value = "";
+            alert("Annonce envoyée !");
+        }
+
+        /* --- CORE LOGIC --- */
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('theme-light');
+            document.getElementById('theme-toggle').innerHTML = `<i data-lucide="${isLight ? 'moon' : 'sun'}"></i>`;
+            lucide.createIcons();
+        }
+
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            const u = USERS.find(x => x.id === document.getElementById('login-id').value && x.pass === document.getElementById('login-password').value);
+            if(u) { sessionStorage.setItem('session', JSON.stringify(u)); initApp(); }
+            else alert("Accès refusé");
         };
 
-        const MAX_TIME = 120;
-        const MAX_BONUS = 60;
-
-        let currentTeams = { teamA: null, teamB: null };
-        let finalWinnerOverride = null;
-
-        // --- 2. GESTION DE L'AUTHENTIFICATION (Identique) ---
-
-        function checkAuth() {
-            if (sessionStorage.getItem('isLoggedIn') === 'true') {
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('app-container').style.display = 'block';
-                initApp();
-            } else {
-                document.getElementById('login-page').style.display = 'flex';
-                document.getElementById('app-container').style.display = 'none';
-            }
-        }
-        
-        function getArbiterName(login) {
-            const user = USERS.find(u => u.login === login);
-            return user ? user.name : 'Arbitre Inconnu';
-        }
-        
-        function isSpecialArbiter(login) {
-            return EQUALITY_ARBITERS.includes(login);
+        function initApp() {
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            const u = JSON.parse(sessionStorage.getItem('session'));
+            document.getElementById('arbiter-display').innerText = u.name;
+            document.getElementById('sel-A').innerHTML = document.getElementById('sel-B').innerHTML = TEAMS.map(t => `<option>${t}</option>`).join('');
+            updateHistoryTable();
         }
 
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const login = document.getElementById('login-id').value;
-            const password = document.getElementById('login-password').value;
-            const errorMsg = document.getElementById('login-error');
-
-            // Logic for authentication (assuming a standard structure for password checks)
-            const user = USERS.find(u => u.login === login);
-            let isAuthenticated = false;
+        function launchMatch() {
+            const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
+            if(tA === tB) return alert("Sélectionnez deux équipes différentes");
+            document.getElementById('name-A').innerText = tA;
+            document.getElementById('name-B').innerText = tB;
             
-            if (user) {
-                // Simplified password check logic based on previous examples
-                if (user.login === 'admin' && password === 'fullaccess') {
-                    isAuthenticated = true;
-                } else if (user.login === 'MrFr_G8mC' && password === 'T2zN4kQe') {
-                    isAuthenticated = true;
-                } else if (user.login === 'NtHn_9f4Q' && password === 'P6wL7bZt') {
-                    isAuthenticated = true;
-                } else if (user.login === 'BnJm_K2sX' && password === 'R3yV8cDg') {
-                    isAuthenticated = true;
-                } else if (user.login === 'MlNd_5p3D' && password === 'A9xH1jFm') {
-                    isAuthenticated = true;
-                } else if (user.login === 'MxmL_7aJb' && password === 'S5uI6oPr') {
-                    isAuthenticated = true;
-                } else if (user.login === 'NlNe_B1vY' && password === 'W0cE3lXs') {
-                    isAuthenticated = true;
-                }
-            }
-
-
-            if (isAuthenticated) {
-                sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('currentArbiterLogin', user.login);
-                sessionStorage.setItem('currentArbiterName', user.name);
-                checkAuth();
-            } else {
-                errorMsg.textContent = 'Identifiant ou mot de passe incorrect.';
-            }
-        });
-
-        function logout() {
-            sessionStorage.clear();
-            location.reload();
+            ['A', 'B'].forEach(s => {
+                document.getElementById(`items-${s}`).innerHTML = RULES.map(r => `
+                    <div class="score-row" onclick="toggleCheck(this)">
+                        <span>${r.l}</span>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="checkbox-custom chk-${s}" data-pts="${r.p}" onchange="calc(); event.stopPropagation()">
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById(`time-${s}`).value = 120;
+            });
+            document.getElementById('setup-match').classList.add('hidden');
+            document.getElementById('match-area').classList.remove('hidden');
+            calc();
         }
 
-        // --- 3. GESTION DES THÈMES (Identique) ---
-
-        function setTheme(themeName) {
-            document.body.className = themeName + '-mode';
-            localStorage.setItem('theme', themeName);
+        function toggleCheck(row) {
+            const cb = row.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            calc();
         }
 
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            setTheme(savedTheme);
-        }
-
-
-        // --- 4. GESTION DES ÉQUIPES ET CONFIGURATION ---
-
-        function getTeamList() {
-            const savedTeams = JSON.parse(localStorage.getItem('teams'));
-            let teams = savedTeams || INITIAL_TEAMS;
-            teams = Array.from(new Set(teams)).sort();
-            localStorage.setItem('teams', JSON.stringify(teams));
-            return teams;
-        }
-
-        function getMatchHistory() {
-            return JSON.parse(localStorage.getItem('matchHistory')) || [];
-        }
-
-        function updateTeamSelects() {
-            const teams = getTeamList();
-            const selectA = document.getElementById('teamA-select');
-            const selectB = document.getElementById('teamB-select');
-            
-            selectA.innerHTML = '<option value="">-- Choisir une équipe --</option>';
-            selectB.innerHTML = '<option value="">-- Choisir une équipe --</option>';
-            
-            teams.forEach(team => {
-                const optionA = document.createElement('option');
-                optionA.value = optionA.textContent = team;
-                selectA.appendChild(optionA);
-
-                const optionB = document.createElement('option');
-                optionB.value = optionB.textContent = team;
-                selectB.appendChild(optionB);
+        function calc() {
+            ['A', 'B'].forEach(s => {
+                let pts = 0;
+                document.querySelectorAll(`.chk-${s}`).forEach(c => {
+                    if(c.checked) {
+                        pts += parseInt(c.dataset.pts);
+                        c.closest('.score-row').classList.add('active');
+                    } else {
+                        c.closest('.score-row').classList.remove('active');
+                    }
+                });
+                const sec = parseInt(document.getElementById(`time-${s}`).value) || 0;
+                if(sec < 120 && sec >= 0) pts += Math.min(60, (120 - sec) * 2);
+                document.getElementById(`total-${s}`).innerText = pts;
             });
         }
-        
-        // --- Randomisation Avancée (Identique) ---
-        function randomizeTeams() {
-            const teams = getTeamList();
-            const history = getMatchHistory();
+
+        function finishMatch() {
+            const sA = parseInt(document.getElementById('total-A').innerText);
+            const sB = parseInt(document.getElementById('total-B').innerText);
+            const tA = document.getElementById('name-A').innerText, tB = document.getElementById('name-B').innerText;
+            const arb = JSON.parse(sessionStorage.getItem('session')).name;
+
+            const matchData = { tA, sA, tB, sB, arb, date: new Date().toLocaleString() };
+            history.push(matchData);
+            localStorage.setItem('match_history_tournoi', JSON.stringify(history));
             
-            if (teams.length < 2) {
-                alert("Ajoutez au moins deux équipes pour la randomisation.");
-                return;
-            }
-
-            // 1. Compter les matchs joués par chaque équipe
-            const matchCounts = {};
-            teams.forEach(team => matchCounts[team] = 0);
-
-            history.forEach(match => {
-                if (match.teamA) matchCounts[match.teamA] = (matchCounts[match.teamA] || 0) + 1;
-                if (match.teamB) matchCounts[match.teamB] = (matchCounts[match.teamB] || 0) + 1;
+            const winner = sA > sB ? tA : (sB > sA ? tB : "Égalité");
+            
+            sendToDiscord({
+                content:@everyone
+                embeds: [{
+                    title: "🏁 RÉSULTATS DU MATCH ",
+                    color: sA === sB ? 16776960 : 3066993,
+                    fields: [
+                        { name: `🔹 ${tA}`, value: `**${sA} Points**`, inline: true },
+                        { name: `🔸 ${tB}`, value: `**${sB} Points**`, inline: true },
+                        { name: "🏆 Résultat", value: sA === sB ? "🤝 Match Nul" : `🔥 Victoire de **${winner}**` },
+                        { name: "👤 Arbitre", value: `*${arb}*`, inline: true }
+                    ],
+                    timestamp: new Date().toISOString()
+                }]
             });
 
-            // 2. Trier les équipes par nombre de matchs joués (moins de matchs en premier)
-            const sortedTeams = teams.sort((a, b) => matchCounts[a] - matchCounts[b]);
-
-            // 3. Sélectionner les deux équipes avec le moins de matchs joués
-            let teamA = sortedTeams[0];
-            let teamB = sortedTeams[1];
-            
-            // Si les deux premières équipes ont le même nombre de matchs, on les mélange légèrement pour varier
-            if (matchCounts[teamA] === matchCounts[teamB] && teams.length > 2) {
-                 // Sélectionner deux équipes aléatoirement parmi celles ayant le nombre minimum de matchs
-                const minCount = matchCounts[teamA];
-                const leastPlayedTeams = teams.filter(t => matchCounts[t] === minCount);
-                
-                if (leastPlayedTeams.length >= 2) {
-                    const randomIndex1 = Math.floor(Math.random() * leastPlayedTeams.length);
-                    teamA = leastPlayedTeams[randomIndex1];
-                    
-                    let randomIndex2;
-                    do {
-                        randomIndex2 = Math.floor(Math.random() * leastPlayedTeams.length);
-                    } while (randomIndex1 === randomIndex2);
-                    
-                    teamB = leastPlayedTeams[randomIndex2];
-                }
-            }
-
-
-            // 4. Mettre à jour les sélecteurs
-            document.getElementById('teamA-select').value = teamA;
-            document.getElementById('teamB-select').value = teamB;
+            updateHistoryTable();
+            alert("Match validé !");
+            cancelMatch();
         }
 
-        function validateTeams() {
-            const teamASelect = document.getElementById('teamA-select').value;
-            const teamBSelect = document.getElementById('teamB-select').value;
-            const teamACustom = document.getElementById('teamA-custom').value.trim();
-            const teamBCustom = document.getElementById('teamB-custom').value.trim();
+        function cancelMatch() {
+            document.getElementById('match-area').classList.add('hidden');
+            document.getElementById('setup-match').classList.remove('hidden');
+        }
 
-            let teamA = teamASelect || teamACustom;
-            let teamB = teamBSelect || teamBCustom;
+        function updateHistoryTable() {
+            document.getElementById('history-body').innerHTML = history.slice().reverse().map(m => `
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <td style="padding: 12px; font-size: 13px; opacity: 0.6;">${m.date.split(' ')[1]}</td>
+                    <td style="padding: 12px; font-weight: 600;">${m.tA} (${m.sA}) - ${m.tB} (${m.sB})</td>
+                </tr>
+            `).join('');
+        }
 
-            if (!teamA || !teamB || teamA === teamB) {
-                alert("Veuillez choisir ou saisir deux équipes différentes pour continuer.");
-                return;
-            }
+        function smartRandomize() {
+            let t1 = TEAMS[Math.floor(Math.random() * TEAMS.length)];
+            let t2;
+            do { t2 = TEAMS[Math.floor(Math.random() * TEAMS.length)]; } while (t1 === t2);
+            document.getElementById('sel-A').value = t1;
+            document.getElementById('sel-B').value = t2;
+        }
 
-            // Sauvegarder les nouvelles équipes
-            if (teamACustom && !getTeamList().includes(teamACustom)) {
-                let teams = getTeamList();
-                teams.push(teamACustom);
-                localStorage.setItem('teams', JSON.stringify(teams));
-            }
-            if (teamBCustom && !getTeamList().includes(teamBCustom)) {
-                let teams = getTeamList();
-                teams.push(teamBCustom);
-                localStorage.setItem('teams', JSON.stringify(teams));
-            }
-
-            currentTeams.teamA = teamA;
-            currentTeams.teamB = teamB;
-            finalWinnerOverride = null;
-
+        function logout() { sessionStorage.clear(); location.reload(); }
+        window.onload = () => { if(sessionStorage.getItem('session')) initApp(); };
+    </script>
+</body>
+</html>            const tB = document.getElementById('teamB-select').value;
+            if(tA === tB) return alert("Choisissez deux équipes différentes");
+            
+            document.getElementById('match-display').textContent = `${tA} vs ${tB}`;
+            document.getElementById('nameA-score').textContent = tA;
+            document.getElementById('nameB-score').textContent = tB;
+            
+            generateInputs('A');
+            generateInputs('B');
+            
             document.getElementById('config-section').style.display = 'none';
             document.getElementById('scoring-section').style.display = 'block';
-            
-            document.getElementById('match-display').textContent = `${teamA} vs ${teamB}`;
-            document.getElementById('nameA-score').textContent = teamA;
-            document.getElementById('nameB-score').textContent = teamB;
-            
-            document.getElementById('eq-name-A').textContent = teamA;
-            document.getElementById('eq-name-B').textContent = teamB;
-
-            generateScoreInputs('A');
-            generateScoreInputs('B');
-            
-            document.getElementById('equality-resolution').style.display = 'none';
-        }
-        
-        function togglePenaltyMenu(teamId) {
-            const content = document.getElementById(`penalty-content-${teamId}`);
-            content.classList.toggle('active');
         }
 
-
-        // --- 5. LOGIQUE DE SCORING DYNAMIQUE (Mise à jour pour la symétrie du temps) ---
-
-        function generateScoreInputs(teamId) {
-            const container = document.getElementById(`inputs${teamId}`);
-            container.innerHTML = '';
-            
-            // --- NOUVEAUTÉ : Affichage du Temps Réalisé des deux côtés pour la symétrie ---
-            const timeInputContainer = document.createElement('div');
-            timeInputContainer.className = 'score-item';
-            
-            const isTeamA = teamId === 'A';
-            // Seul l'input de l'équipe A est actif (modifiable)
-            const inputDisabled = isTeamA ? '' : 'disabled'; 
-            // L'input B a un ID différent pour la lecture et le ciblage
-            const inputId = isTeamA ? 'time-input' : 'time-input-B-display'; 
-            // Seul l'input A déclenche le recalcul des scores
-            const onInputEvent = isTeamA ? `oninput="calculateScore('A'); calculateScore('B')"` : '';
-            
-            timeInputContainer.innerHTML = `
-                <span>Temps Réalisé (s)</span>
-                <input type="number" id="${inputId}" min="0" max="${MAX_TIME}" ${onInputEvent} value="${MAX_TIME}" ${inputDisabled}>
+        // --- SCORING LOGIC ---
+        function generateInputs(teamId) {
+            const cont = document.getElementById(`inputs${teamId}`);
+            cont.innerHTML = SCORING_RULES.actions.map(r => `
+                <div class="score-item">
+                    <span>${r.label} (+${r.points})</span>
+                    <input type="checkbox" data-pts="${r.points}" onchange="calculateScore('${teamId}')">
+                </div>
+            `).join('') + `
+                <div class="penalty-toggle" onclick="this.nextElementSibling.classList.toggle('active')">Pénalités ▼</div>
+                <div class="penalty-content">
+                    ${SCORING_RULES.penalties.map(p => `
+                        <div class="score-item">
+                            <span>${p.label}</span>
+                            <input type="checkbox" data-pts="${p.points}" onchange="calculateScore('${teamId}')">
+                        </div>
+                    `).join('')}
+                </div>
             `;
-            container.appendChild(timeInputContainer);
-            // -----------------------------------------------------------------
-            
-            SCORING_RULES.actions.forEach(rule => {
-                const item = document.createElement('div');
-                item.className = 'score-item';
-                item.innerHTML = `
-                    <span>${rule.label} (${rule.points} pts)</span>
-                    <input type="checkbox" data-rule-id="${rule.id}" data-team="${teamId}" onchange="calculateScore('${teamId}')">
-                `;
-                container.appendChild(item);
-            });
-            
-            const penaltyToggle = document.createElement('div');
-            penaltyToggle.className = 'penalty-toggle';
-            penaltyToggle.setAttribute('onclick', `togglePenaltyMenu('${teamId}')`);
-            penaltyToggle.innerHTML = '<span>Afficher/Masquer les Pénalités</span>';
-            container.appendChild(penaltyToggle);
-
-            const penaltyContent = document.createElement('div');
-            penaltyContent.className = 'penalty-content';
-            penaltyContent.id = `penalty-content-${teamId}`;
-            
-            SCORING_RULES.penalties.forEach(rule => {
-                const item = document.createElement('div');
-                item.className = 'score-item';
-                
-                let inputHtml;
-                if(rule.type === 'forfeit') {
-                     inputHtml = `<input type="checkbox" data-rule-id="${rule.id}" data-team="${teamId}" onchange="handleForfeit('${teamId}')">`;
-                } else if (rule.type === 'manual_penalty') {
-                     inputHtml = `<input type="number" id="manual-${teamId}" min="${rule.min}" max="${rule.max}" value="0" oninput="calculateScore('${teamId}')">`;
-                } else {
-                     inputHtml = `<input type="checkbox" data-rule-id="${rule.id}" data-team="${teamId}" onchange="calculateScore('${teamId}')">`;
-                }
-                
-                item.innerHTML = `
-                    <span>${rule.label}</span>
-                    ${inputHtml}
-                `;
-                penaltyContent.appendChild(item);
-            });
-            container.appendChild(penaltyContent);
-            
-            calculateScore(teamId);
-            
-            // Si c'est l'équipe B, s'assurer que sa valeur est synchronisée lors de la génération
-            if (!isTeamA) {
-                const teamBTimeDisplay = document.getElementById('time-input-B-display');
-                const teamATimeInput = document.getElementById('time-input');
-                if(teamBTimeDisplay && teamATimeInput) {
-                    teamBTimeDisplay.value = teamATimeInput.value;
-                }
-            }
-        }
-        
-        function handleForfeit(teamId) {
-            const forfeitInput = document.querySelector(`#inputs${teamId} input[data-rule-id="forfeit"]`);
-            // Exclure les champs de temps
-            const inputs = document.querySelectorAll(`#inputs${teamId} input:not([data-rule-id="forfeit"]):not(#time-input):not(#time-input-B-display)`); 
-            
-            const isDisabled = forfeitInput.checked;
-            
-            inputs.forEach(input => {
-                input.disabled = isDisabled;
-                if (isDisabled) {
-                    if (input.type === 'checkbox') input.checked = false;
-                    if (input.type === 'number') input.value = 0;
-                }
-            });
-            
             calculateScore(teamId);
         }
 
         function calculateScore(teamId) {
-            let score = 0;
-            // Toujours lire la valeur du temps depuis l'input de l'équipe A
-            const timeInputA = document.getElementById('time-input'); 
-            const timeValue = parseFloat(timeInputA ? timeInputA.value : MAX_TIME) || MAX_TIME;
-            
-            // --- NOUVEAUTÉ : Synchroniser l'affichage du temps de l'équipe B ---
-            const timeInputBDisplay = document.getElementById('time-input-B-display'); 
-            if (timeInputBDisplay) {
-                 timeInputBDisplay.value = timeValue;
-            }
-            // -----------------------------------------------------------------
+            let total = 0;
+            const checks = document.querySelectorAll(`#inputs${teamId} input[type="checkbox"]:checked`);
+            checks.forEach(c => total += parseInt(c.dataset.pts));
 
-
-            const teamInputs = document.querySelectorAll(`#inputs${teamId} input[type="checkbox"]:not([data-rule-id="forfeit"]), #inputs${teamId} input[type="number"]`);
-            const forfeitInput = document.querySelector(`#inputs${teamId} input[data-rule-id="forfeit"]`);
-            
-            let isForfeit = forfeitInput ? forfeitInput.checked : false;
-            
-            teamInputs.forEach(input => {
-                const ruleId = input.dataset.ruleId;
-                
-                // Ignorer l'input du temps (Team A est l'input principal, Team B est l'affichage)
-                if (input.id === 'time-input' || input.id === 'time-input-B-display') return;
-                
-                if (input.type === 'checkbox' && input.checked) {
-                    const rule = SCORING_RULES.actions.find(r => r.id === ruleId) || SCORING_RULES.penalties.find(r => r.id === ruleId);
-                    if (rule) score += rule.points;
-                } 
-                
-                if (input.id === `manual-${teamId}`) {
-                    score += parseInt(input.value) || 0;
-                }
-            });
-
-            if (!isForfeit && timeValue >= 0 && timeValue <= MAX_TIME) {
-                let bonus = (MAX_TIME - timeValue) * 2;
-                score += Math.min(bonus, MAX_BONUS);
-            }
-            
-            if (isForfeit) {
-                score = 0;
-                document.getElementById(`currentScore${teamId}`).textContent = "FORFAIT (0 pts)";
-            } else {
-                document.getElementById(`currentScore${teamId}`).textContent = `${score} pts`;
+            // Bonus Temps Individuel
+            const time = parseInt(document.getElementById(`time-${teamId}`).value) || 120;
+            if(time < 120) {
+                const bonus = Math.min(60, (120 - time) * 2);
+                total += bonus;
             }
 
-            document.getElementById(`currentScore${teamId}`).setAttribute('data-final-score', score);
-            
-            checkEquality();
-        }
-
-        // --- GESTION DE L'ÉGALITÉ (Identique) ---
-        function checkEquality() {
-            const scoreA = parseInt(document.getElementById('currentScoreA').getAttribute('data-final-score')) || 0;
-            const scoreB = parseInt(document.getElementById('currentScoreB').getAttribute('data-final-score')) || 0;
-            const arbiterLogin = sessionStorage.getItem('currentArbiterLogin');
-            const equalitySection = document.getElementById('equality-resolution');
-
-            if (scoreA === scoreB && scoreA !== 0 && isSpecialArbiter(arbiterLogin)) {
-                equalitySection.style.display = 'block';
-            } else {
-                equalitySection.style.display = 'none';
-                finalWinnerOverride = null;
-            }
-        }
-        
-        function setEqualityWinner(winnerTeam) {
-            if (winnerTeam === 'A') {
-                finalWinnerOverride = currentTeams.teamA;
-                alert(`${currentTeams.teamA} est déclaré vainqueur suite à l'égalité.`);
-            } else if (winnerTeam === 'B') {
-                finalWinnerOverride = currentTeams.teamB;
-                alert(`${currentTeams.teamB} est déclaré vainqueur suite à l'égalité.`);
-            } else {
-                finalWinnerOverride = "Égalité";
-                alert(`Le match reste sur Égalité.`);
-            }
-            document.getElementById('equality-resolution').style.display = 'none';
-        }
-
-
-        // --- 6. VALIDATION, SAUVEGARDE LOCALE ET WEBHOOK ---
-
-        function getMatchData() {
-            const scoreA = parseInt(document.getElementById('currentScoreA').getAttribute('data-final-score')) || 0;
-            const scoreB = parseInt(document.getElementById('currentScoreB').getAttribute('data-final-score')) || 0;
-            const teamA = currentTeams.teamA;
-            const teamB = currentTeams.teamB;
-            const timeUsed = document.getElementById('time-input') ? document.getElementById('time-input').value : 'N/A';
-            const arbiterName = sessionStorage.getItem('currentArbiterName') || 'Arbitre Inconnu';
-            
-            let winner;
-            if (finalWinnerOverride) {
-                winner = finalWinnerOverride;
-            } else {
-                winner = scoreA > scoreB ? teamA : (scoreB > scoreA ? teamB : "Égalité");
-            }
-
-            const isForfeitA = document.querySelector('#inputsA input[data-rule-id="forfeit"]') ? document.querySelector('#inputsA input[data-rule-id="forfeit"]').checked : false;
-            const isForfeitB = document.querySelector('#inputsB input[data-rule-id="forfeit"]') ? document.querySelector('#inputsB input[data-rule-id="forfeit"]').checked : false;
-
-
-            return {
-                date: new Date().toLocaleString(),
-                teamA: teamA,
-                scoreA: isForfeitA ? 'FORFAIT' : scoreA,
-                teamB: teamB,
-                scoreB: isForfeitB ? 'FORFAIT' : scoreB,
-                time: timeUsed,
-                winner: winner,
-                arbiter: arbiterName
-            };
+            document.getElementById(`currentScore${teamId}`).textContent = total;
         }
 
         function validateAndSaveScore() {
-            const matchResult = getMatchData();
-            const { winner } = matchResult;
-
-            if (!matchResult.teamA || !matchResult.teamB) {
-                alert("Veuillez d'abord valider les équipes.");
-                return;
-            }
-
-            // 1. Sauvegarde Locale
-            let history = getMatchHistory();
-            history.push(matchResult);
-            localStorage.setItem('matchHistory', JSON.stringify(history));
-
-            // 2. Envoi vers Discord Webhook
-            sendToDiscord(matchResult);
-
-            // 3. Mise à jour de l'interface
-            loadHistory();
-            document.getElementById('validation-message').textContent = `Résultat validé et publié ! ${winner} a gagné (ou Égalité).`;
-            
-            // Réinitialiser pour le match suivant
-            setTimeout(() => {
-                document.getElementById('scoring-section').style.display = 'none';
-                document.getElementById('config-section').style.display = 'block';
-                document.getElementById('teamA-custom').value = '';
-                document.getElementById('teamB-custom').value = '';
-                updateTeamSelects();
-                document.getElementById('validation-message').textContent = '';
-                currentTeams = { teamA: null, teamB: null };
-                finalWinnerOverride = null;
-            }, 3000);
-        }
-
-        function sendToDiscord(result) {
-            const { teamA, scoreA, teamB, scoreB, winner, arbiter } = result;
-            const color = winner === teamA ? 0x0064FF : (winner === teamB ? 0xFFC800 : 0xAAAAAA); 
-            const winnerDisplay = winner === "Égalité" ? "ÉGALITÉ ! Le match est nul." : `🏆 VAINQUEUR : ${winner} !`;
-            const finalScoreA = typeof scoreA === 'string' ? scoreA : `${scoreA} points`;
-            const finalScoreB = typeof scoreB === 'string' ? scoreB : `${scoreB} points`;
-
-
-            const payload = {
-                content: "@everyone", 
-                embeds: [{
-                    title: `Résultat Officiel : ${teamA} vs ${teamB}`,
-                    description: winnerDisplay,
-                    color: color,
-                    fields: [
-                        { name: `${teamA} (Bleue)`, value: `**${finalScoreA}**`, inline: true },
-                        { name: `${teamB} (Vert)`, value: `**${finalScoreB}**`, inline: true },
-                    ],
-                    footer: {
-                        text: `Arbitré par ${arbiter} | Temps : ${result.time}s | Enregistré le ${result.date}`
-                    }
-                }]
+            const data = {
+                teamA: document.getElementById('nameA-score').textContent,
+                scoreA: document.getElementById('currentScoreA').textContent,
+                teamB: document.getElementById('nameB-score').textContent,
+                scoreB: document.getElementById('currentScoreB').textContent,
+                arbiter: sessionStorage.getItem('currentArbiterName')
             };
-
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    console.error("Erreur lors de l'envoi du Webhook Discord.");
-                    // Non bloquant : alert("ERREUR : Le score a été enregistré localement, mais l'envoi sur Discord a échoué (Code: " + response.status + ").");
-                }
-            })
-            .catch(error => {
-                console.error("Erreur réseau lors de l'envoi du Webhook:", error);
-                // Non bloquant : alert("ERREUR RÉSEAU : Le score a été enregistré localement, mais l'envoi sur Discord a échoué.");
-            });
-        }
-        
-        // --- Envoi de Message Manuel (Identique) ---
-        function sendManualDiscordMessage() {
-            const message = document.getElementById('manual-message').value.trim();
-            const statusElement = document.getElementById('manual-message-status');
-            const arbiterName = sessionStorage.getItem('currentArbiterName') || 'Arbitre Inconnu';
-
-            if (!message) {
-                statusElement.textContent = "Veuillez taper un message.";
-                statusElement.className = 'error-message';
-                return;
-            }
-
-            const payload = {
-                content: `**Message manuel de l'Arbitre (${arbiterName})**:\n${message}`,
-            };
-
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                if (response.ok) {
-                    statusElement.textContent = "Message envoyé avec succès à Discord !";
-                    statusElement.className = 'success-message';
-                    document.getElementById('manual-message').value = '';
-                } else {
-                    statusElement.textContent = `Échec de l'envoi (Code: ${response.status}).`;
-                    statusElement.className = 'error-message';
-                }
-            })
-            .catch(error => {
-                statusElement.textContent = "Erreur réseau lors de l'envoi.";
-                statusElement.className = 'error-message';
-            });
-        }
-        
-        // --- Téléchargement du Résultat (.txt) (Identique) ---
-        function downloadMatchResult() {
-            const match = getMatchData();
             
-            const content = `
---- RÉSULTAT DU MATCH ---
-Date: ${match.date}
-Arbitre: ${match.arbiter}
-Temps Réalisé: ${match.time}s
-
-Équipe 1 (Bleue): ${match.teamA}
-Score 1: ${match.scoreA}
-
-Équipe 2 (Vert): ${match.teamB}
-Score 2: ${match.scoreB}
-
-VAINQUEUR DÉCLARÉ: ${match.winner}
--------------------------
-(Ceci est une sauvegarde locale des données du match.)
-            `.trim();
-            
-            const filename = `Match_${match.teamA}_vs_${match.teamB}_${new Date().toISOString().slice(0, 10)}.txt`;
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            alert(`Fichier ${filename} téléchargé !`);
+            alert(`Match validé !\n${data.teamA} ${data.scoreA} - ${data.scoreB} ${data.teamB}\nEnvoyé au serveur.`);
+            location.reload(); 
         }
 
-
-        // --- 7. GESTION DE L'HISTORIQUE (Identique) ---
-
-        function loadHistory() {
-            const history = getMatchHistory();
-            const tbody = document.getElementById('history-body');
-            tbody.innerHTML = '';
-
-            history.slice().reverse().forEach(match => {
-                const row = tbody.insertRow();
-                row.insertCell().textContent = match.teamA;
-                row.insertCell().textContent = match.scoreA;
-                row.insertCell().textContent = match.teamB;
-                row.insertCell().textContent = match.scoreB;
-                row.insertCell().textContent = match.winner;
-                row.insertCell().textContent = match.arbiter;
-                row.insertCell().textContent = match.date.split(',')[0];
-            });
+        function randomizeTeams() {
+            const selects = [document.getElementById('teamA-select'), document.getElementById('teamB-select')];
+            const options = Array.from(selects[0].options);
+            const r1 = Math.floor(Math.random() * options.length);
+            let r2;
+            do { r2 = Math.floor(Math.random() * options.length); } while (r1 === r2);
+            selects[0].selectedIndex = r1;
+            selects[1].selectedIndex = r2;
         }
-
-        function clearHistory() {
-            if (confirm("Êtes-vous sûr de vouloir EFFACER TOUT l'historique des matchs ? Cette action est irréversible localement.")) {
-                localStorage.removeItem('matchHistory');
-                loadHistory();
-                alert("Historique effacé.");
-            }
-        }
-
-
-        // --- 8. INITIALISATION DE L'APPLICATION (Identique) ---
-
-        function initApp() {
-            loadTheme();
-            updateTeamSelects();
-            loadHistory();
-        }
-
-        document.addEventListener('DOMContentLoaded', checkAuth);
-        
-        // --- SÉCURITÉ NAVIGATEUR (Identique) ---
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        
-        document.onkeydown = function(e) {
-            if (e.key === 'F12' || e.keyCode === 123) { return false; }
-            if (e.key === 'F11' || e.keyCode === 122) { e.preventDefault(); }
-            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J' || e.key === 'K')) { return false; }
-        };
     </script>
 </body>
 </html>
-
