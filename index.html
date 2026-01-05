@@ -1,9 +1,9 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Système d'Arbitrage Officiel</title>
+    <title>Système d'Arbitrage Officiel - Challenge 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -21,7 +21,6 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Thèmes */
         body.theme-light { 
             --bg-dark: #f8fafc; --glass: rgba(255, 255, 255, 0.9); 
             --glass-border: rgba(0, 0, 0, 0.08); --text-main: #0f172a; --text-dim: #64748b;
@@ -41,7 +40,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Reset & Base */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: 'Montserrat', sans-serif; margin: 0; color: var(--text-main); background-color: var(--bg-dark); transition: var(--transition); overflow-x: hidden; min-height: 100vh; }
 
@@ -61,7 +59,6 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
 
-        /* Éléments de score */
         .score-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 14px; border-radius: 12px; margin-bottom: 6px;
@@ -89,9 +86,7 @@
             color: inherit; padding: 12px; border-radius: 10px; font-family: inherit; margin-bottom: 8px;
             outline: none; transition: border 0.2s;
         }
-        input:focus { border-color: var(--primary-blue); }
 
-        /* Boutons */
         .btn {
             cursor: pointer; border: none; border-radius: 10px; font-weight: 700;
             padding: 10px 18px; transition: var(--transition);
@@ -103,20 +98,11 @@
         .btn-success { background: var(--primary-green); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); }
-        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
-
+        
         .team-card.blue { border-top: 4px solid var(--primary-blue); }
         .team-card.green { border-top: 4px solid var(--primary-green); }
         .big-score { font-size: clamp(40px, 8vw, 56px); font-weight: 800; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
         
-        .penalty-tag { 
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 6px 10px; border-radius: 8px; font-size: 12px; margin-top: 6px;
-        }
-
-        /* Modales */
         .modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.8);
             display: none; align-items: center; justify-content: center; z-index: 10000;
@@ -139,8 +125,6 @@
         @media (max-width: 480px) {
             header { flex-direction: column; gap: 15px; text-align: center; }
             .grid { grid-template-columns: 1fr; }
-            .big-score { font-size: 48px; }
-            .modal-content { padding: 20px; }
         }
     </style>
 </head>
@@ -149,11 +133,11 @@
     <div id="tie-modal" class="modal">
         <div class="modal-content">
             <h2 style="margin-top:0"><i data-lucide="scale"></i> Égalité détectée</h2>
-            <p>Le Super-Arbitre doit trancher le vainqueur :</p>
-            <div id="tie-recap" style="font-size: 12px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;"></div>
-            <div style="display: flex; gap: 10px;">
-                <button id="tie-btn-A" class="btn btn-primary" style="flex:1" onclick="resolveTie('A')"></button>
-                <button id="tie-btn-B" class="btn btn-success" style="flex:1" onclick="resolveTie('B')"></button>
+            <p id="tie-recap"></p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button id="tie-btn-A" class="btn btn-primary" onclick="resolveTie('A')"></button>
+                <button id="tie-btn-B" class="btn btn-success" onclick="resolveTie('B')"></button>
+                <button id="tie-btn-draw" class="btn btn-outline" onclick="resolveTie('DRAW')">Match Nul (Ex-æquo)</button>
             </div>
         </div>
     </div>
@@ -218,11 +202,14 @@
     <div id="app-container">
         <div class="container">
             <header>
-                <div>
-                    <h2 style="margin: 0; font-weight: 800;">CHALLENGE 2026</h2>
-                    <div style="display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-size: 13px;">
-                        <i data-lucide="user" size="14"></i>
-                        <span id="arbiter-display">Session Invité</span>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="https://via.placeholder.com/40" alt="Logo" style="height: 40px; border-radius: 8px;">
+                    <div>
+                        <h2 style="margin: 0; font-weight: 800;">CHALLENGE 2026</h2>
+                        <div style="display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-size: 13px;">
+                            <i data-lucide="user" size="14"></i>
+                            <span id="arbiter-display">Session Invité</span>
+                        </div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px;">
@@ -322,10 +309,15 @@
             { id: 'Maxm_7aJb', pass: 'S5uI6oPr', name: 'Maximilien' }
         ];
 
+        // Actions mises à jour
         const RULES = [
-            { l: 'Sortie zone départ', p: 10 }, { l: 'Astronaute sécurisé', p: 15 }, 
-            { l: 'Voyant activé', p: 15 }, { l: 'Fusée lancée', p: 15 }, 
-            { l: 'Leds opérationnelles', p: 15 }, { l: 'Atterrissage Lune', p: 25 }
+            { l: 'Robot sorti de la zone de départ', p: 10 },
+            { l: 'Astronaute protégé', p: 15 },
+            { l: 'Voyant allumé', p: 15 },
+            { l: 'Fusée dans la rampe de lancement', p: 15 },
+            { l: 'Compte a rebours activé', p: 15 },
+            { l: 'Séparation des étages', p: 15 },
+            { l: 'Arrivée (Terminé)', p: 0 } // Géré dynamiquement par calc()
         ];
 
         let history = JSON.parse(localStorage.getItem('match_history_tournoi_v4') || '[]');
@@ -333,7 +325,6 @@
         let activePenalties = { A: [], B: [] };
         let tieMatchData = null;
 
-        /* --- AUTH --- */
         function checkAuthAndLaunch() {
             if (sessionStorage.getItem('session')) launchMatch();
             else document.getElementById('login-modal').style.display = 'flex';
@@ -363,7 +354,6 @@
             }
         }
 
-        /* --- THEMES --- */
         function toggleTheme() {
             const b = document.body;
             const icon = document.querySelector('#theme-toggle i');
@@ -380,185 +370,10 @@
             lucide.createIcons();
         }
 
-        /* --- TEAMS --- */
         function openTeamModal() { renderTeamManagement(); document.getElementById('team-modal').style.display = 'flex'; }
         function renderTeamManagement() {
             const list = document.getElementById('team-list-manage');
             list.innerHTML = TEAMS.map((t, idx) => `
                 <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:10px;">
                     <span>${t}</span>
-                    <button class="btn btn-danger btn-icon" style="width:30px; height:30px;" onclick="removeTeam(${idx})"><i data-lucide="trash-2" size="14"></i></button>
-                </div>
-            `).join('');
-            lucide.createIcons();
-            updateTeamSelects();
-        }
-        function addNewTeam() {
-            const name = document.getElementById('new-team-name').value.trim();
-            if(!name) return;
-            TEAMS.push(name);
-            localStorage.setItem('teams_list', JSON.stringify(TEAMS));
-            document.getElementById('new-team-name').value = "";
-            renderTeamManagement();
-        }
-        function removeTeam(idx) {
-            TEAMS.splice(idx, 1);
-            localStorage.setItem('teams_list', JSON.stringify(TEAMS));
-            renderTeamManagement();
-        }
-        function updateTeamSelects() {
-            const html = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
-            document.getElementById('sel-A').innerHTML = html;
-            document.getElementById('sel-B').innerHTML = html;
-        }
-
-        /* --- PENALTIES --- */
-        function openPenaltyModal() {
-            document.getElementById('pen-opt-A').innerText = document.getElementById('name-A').innerText;
-            document.getElementById('pen-opt-B').innerText = document.getElementById('name-B').innerText;
-            document.getElementById('penalty-modal').style.display = 'flex';
-        }
-        function applyPenalty() {
-            const team = document.getElementById('pen-team-select').value;
-            const reason = document.getElementById('pen-reason').value || "Pénalité standard";
-            const pts = parseInt(document.getElementById('pen-value').value) || 0;
-            activePenalties[team].push({ reason, pts });
-            document.getElementById('pen-reason').value = "";
-            closeModal('penalty-modal');
-            renderPenalties();
-            calc();
-        }
-        function renderPenalties() {
-            ['A', 'B'].forEach(s => {
-                const container = document.getElementById(`penalties-${s}`);
-                container.innerHTML = activePenalties[s].map((p, idx) => `
-                    <div class="penalty-tag">
-                        <span>-${p.pts} | ${p.reason}</span>
-                        <i data-lucide="x-circle" size="14" style="cursor:pointer" onclick="removePenalty('${s}', ${idx})"></i>
-                    </div>
-                `).join('');
-            });
-            lucide.createIcons();
-        }
-        function removePenalty(team, idx) {
-            activePenalties[team].splice(idx, 1);
-            renderPenalties();
-            calc();
-        }
-
-        /* --- MATCH LOGIC --- */
-        function launchMatch() {
-            const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
-            if(tA === tB) return alert("Choisissez deux équipes différentes !");
-            document.getElementById('name-A').innerText = tA; 
-            document.getElementById('name-B').innerText = tB;
-            activePenalties = { A: [], B: [] };
-            renderPenalties();
-            ['A', 'B'].forEach(s => {
-                document.getElementById(`items-${s}`).innerHTML = RULES.map(r => `
-                    <div class="score-row" onclick="toggleCheck(this)">
-                        <span>${r.l}</span>
-                        <div class="checkbox-container">
-                            <input type="checkbox" class="checkbox-custom chk-${s}" data-label="${r.l}" data-pts="${r.p}" onchange="calc(); event.stopPropagation()">
-                        </div>
-                    </div>`).join('');
-                document.getElementById(`time-${s}`).value = 120;
-            });
-            document.getElementById('setup-match').classList.add('hidden');
-            document.getElementById('match-area').classList.remove('hidden');
-            calc();
-        }
-
-        function calc() {
-            ['A', 'B'].forEach(s => {
-                let pts = 0;
-                document.querySelectorAll(`.chk-${s}`).forEach(c => { 
-                    if(c.checked) { pts += parseInt(c.dataset.pts); c.closest('.score-row').classList.add('active'); } 
-                    else { c.closest('.score-row').classList.remove('active'); } 
-                });
-                const sec = parseInt(document.getElementById(`time-${s}`).value) || 0;
-                if(sec < 120 && sec >= 0) pts += Math.min(60, (120 - sec) * 2);
-                activePenalties[s].forEach(p => pts -= p.pts);
-                document.getElementById(`total-${s}`).innerText = Math.max(0, pts);
-            });
-        }
-
-        function finishMatch() {
-            const sA = parseInt(document.getElementById('total-A').innerText), sB = parseInt(document.getElementById('total-B').innerText);
-            const tA = document.getElementById('name-A').innerText, tB = document.getElementById('name-B').innerText;
-            const user = JSON.parse(sessionStorage.getItem('session'));
-
-            const match = {
-                date: new Date().toLocaleString(), arbitre: user.name,
-                equipeBleue: { nom: tA, score: sA, tempsSec: document.getElementById('time-A').value, missions: Array.from(document.querySelectorAll('.chk-A')).map(c => ({ label: c.dataset.label, reussie: c.checked, pts: c.checked ? parseInt(c.dataset.pts) : 0 })), penalites: [...activePenalties.A] },
-                equipeVerte: { nom: tB, score: sB, tempsSec: document.getElementById('time-B').value, missions: Array.from(document.querySelectorAll('.chk-B')).map(c => ({ label: c.dataset.label, reussie: c.checked, pts: c.checked ? parseInt(c.dataset.pts) : 0 })), penalites: [...activePenalties.B] }
-            };
-
-            if(sA === sB && user.id === 'MrFr_G8mC') { tieMatchData = match; showTieModal(match); return; }
-            saveAndSendMatch(match);
-        }
-
-        function showTieModal(match) {
-            document.getElementById('tie-btn-A').innerText = match.equipeBleue.nom;
-            document.getElementById('tie-btn-B').innerText = match.equipeVerte.nom;
-            document.getElementById('tie-recap').innerHTML = `Score: ${match.equipeBleue.score} partout. Tranchez :`;
-            document.getElementById('tie-modal').style.display = 'flex';
-        }
-
-        function resolveTie(side) {
-            tieMatchData.winnerManual = side === 'A' ? tieMatchData.equipeBleue.nom : tieMatchData.equipeVerte.nom;
-            saveAndSendMatch(tieMatchData);
-            closeModal('tie-modal');
-        }
-
-        function saveAndSendMatch(match) {
-            history.push(match);
-            localStorage.setItem('match_history_tournoi_v4', JSON.stringify(history));
-            const win = match.winnerManual || (match.equipeBleue.score > match.equipeVerte.score ? match.equipeBleue.nom : (match.equipeVerte.score > match.equipeBleue.score ? match.equipeVerte.nom : "Égalité"));
-            sendToDiscord({ embeds: [{ title: "🏁 RÉSULTATS", fields: [{ name: match.equipeBleue.nom, value: match.equipeBleue.score+" pts", inline: true }, { name: match.equipeVerte.nom, value: match.equipeVerte.score+" pts", inline: true }, { name: "🏆 Vainqueur", value: win }] }] });
-            updateHistoryTable();
-            cancelMatch();
-        }
-
-        /* --- UI UTILS --- */
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function toggleCheck(row) { const cb = row.querySelector('input[type="checkbox"]'); cb.checked = !cb.checked; calc(); }
-        function cancelMatch() { document.getElementById('match-area').classList.add('hidden'); document.getElementById('setup-match').classList.remove('hidden'); }
-        function logout() { sessionStorage.clear(); location.reload(); }
-        function triggerImport() { document.getElementById('file-input').click(); }
-        function downloadJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
-            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "archive_matchs.json"); dl.click();
-        }
-        function handleImport(event) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const body = document.getElementById('modal-body');
-                const data = JSON.parse(e.target.result);
-                body.innerHTML = data.reverse().map(m => `<div class="card">${m.date} : ${m.equipeBleue.nom} (${m.equipeBleue.score}) vs ${m.equipeVerte.nom} (${m.equipeVerte.score})</div>`).join('');
-                document.getElementById('import-modal').style.display = 'flex';
-            };
-            reader.readAsText(event.target.files[0]);
-        }
-        function updateHistoryTable() {
-            document.getElementById('history-body').innerHTML = history.slice().reverse().map(m => `<tr><td style="padding:10px; font-size:12px; opacity:0.5">${m.date.split(' ')[1]}</td><td style="padding:10px">${m.equipeBleue.nom} vs ${m.equipeVerte.nom}</td></tr>`).join('');
-        }
-        function smartRandomize() { 
-            let t1 = TEAMS[Math.floor(Math.random()*TEAMS.length)], t2;
-            do { t2 = TEAMS[Math.floor(Math.random()*TEAMS.length)]; } while(t1===t2);
-            document.getElementById('sel-A').value=t1; document.getElementById('sel-B').value=t2;
-        }
-        async function sendToDiscord(p) { try { await fetch(DISCORD_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) }); } catch(e) {} }
-        function sendAnnonce() {
-            const msg = document.getElementById('manual-msg').value; if(!msg) return;
-            sendToDiscord({ content: "@everyone", embeds: [{ title: "📢 ANNONCE", description: msg }] });
-            document.getElementById('manual-msg').value = ""; alert("Envoyé !");
-        }
-
-        window.onload = () => { 
-            updateTeamSelects(); updateHistoryTable(); 
-            if(sessionStorage.getItem('session')) updateUIForAuth(); 
-        };
-    </script>
-</body>
-</html>
+                  
