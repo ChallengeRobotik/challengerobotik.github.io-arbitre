@@ -3,131 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arbitrage Challenge 2026 - Final V3.2</title>
+    <title>Arbitrage Challenge Robotik</title>
+    
+    <link rel="icon" type="image/png" href="https://i.ibb.co/XxJybFzH/Design-sans-titre.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         :root {
-            --primary-blue: #0062ff;
-            --primary-green: #10b981;
-            --danger: #ef4444;
-            --discord: #5865F2;
-            --bg-dark: #050505;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --card-shadow: none;
+            --primary-blue: #0062ff; --primary-green: #10b981; --danger: #ef4444; --discord: #5865F2;
+            --bg-dark: #050505; --glass: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc; --text-dim: #94a3b8; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         body.theme-light { 
-            --bg-dark: #f0f2f5; 
-            --glass: rgba(255, 255, 255, 0.95); 
-            --glass-border: rgba(0, 0, 0, 0.15);
-            --text-main: #0f172a; 
-            --text-dim: #475569;
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --bg-dark: #f0f2f5; --glass: rgba(255, 255, 255, 0.95); --glass-border: rgba(0, 0, 0, 0.15);
+            --text-main: #0f172a; --text-dim: #475569;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { font-family: 'Montserrat', sans-serif; margin: 0; color: var(--text-main); background-color: var(--bg-dark); transition: var(--transition); overflow-x: hidden; min-height: 100vh; }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; color: var(--text-main); background-color: var(--bg-dark); transition: var(--transition); overflow-x: hidden; min-height: 100vh; user-select: none; }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        
-        header { 
-            display: grid; 
-            grid-template-columns: 1fr auto 1fr; 
-            align-items: center; 
-            padding: 10px 20px; 
-            margin-bottom: 25px; 
-            border-bottom: 1px solid var(--glass-border); 
-            background: var(--glass); 
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--card-shadow);
-        }
-
-        .header-left { display: flex; flex-direction: column; }
-        .header-center { display: flex; justify-content: center; align-items: center; }
-        .header-right { display: flex; gap: 10px; justify-content: flex-end; }
-        .nav-logo { height: 55px; width: auto; background: transparent; transition: var(--transition); }
-
-        .card { 
-            background: var(--glass); 
-            border: 1px solid var(--glass-border); 
-            backdrop-filter: blur(20px); 
-            border-radius: 20px; 
-            padding: 20px; 
-            height: 100%; 
-            display: flex; 
-            flex-direction: column;
-            box-shadow: var(--card-shadow);
-        }
-
-        .grid-main { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; align-items: stretch; }
-        
-        @media (max-width: 850px) { 
-            .grid-main { grid-template-columns: 1fr; } 
-            header { grid-template-columns: 1fr auto; }
-            .header-center { display: none; }
-        }
-
-        .score-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 14px; border-radius: 12px; margin-bottom: 6px;
-            border: 1px solid var(--glass-border);
-            transition: var(--transition);
-            cursor: pointer; background: rgba(0,0,0,0.02);
-        }
+        header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 10px 20px; margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); background: var(--glass); border-radius: 15px; backdrop-filter: blur(10px); }
+        .card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 20px; padding: 20px; height: 100%; display: flex; flex-direction: column; }
+        .grid-main { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        @media (max-width: 850px) { .grid-main { grid-template-columns: 1fr; } .header-center { display: none; } header { grid-template-columns: 1fr auto; } }
+        .score-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 12px; margin-bottom: 6px; border: 1px solid var(--glass-border); cursor: pointer; }
         .score-row.active { background: rgba(16, 185, 129, 0.15); border-color: var(--primary-green); }
-
-        .checkbox-custom { appearance: none; width: 24px; height: 24px; border: 2px solid var(--text-dim); border-radius: 6px; position: relative; pointer-events: none; }
-        .checkbox-custom:checked { background: var(--primary-green); border-color: var(--primary-green); }
-        .checkbox-custom:checked::after { content: ""; position: absolute; left: 7px; top: 3px; width: 5px; height: 10px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
-
-        input, select, textarea { width: 100%; background: rgba(0,0,0,0.05); border: 1px solid var(--glass-border); color: inherit; padding: 12px; border-radius: 10px; margin-bottom: 8px; outline: none; font-family: inherit; }
-
+        input, select, textarea { width: 100%; background: rgba(0,0,0,0.05); border: 1px solid var(--glass-border); color: inherit; padding: 12px; border-radius: 10px; margin-bottom: 8px; outline: none; }
         .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; padding: 10px 18px; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-icon { width: 38px; height: 38px; padding: 0; border-radius: 50%; flex-shrink: 0; }
+        .btn-icon { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
         .btn-primary { background: var(--primary-blue); color: white; }
         .btn-success { background: var(--primary-green); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); }
-
-        .team-card.blue { border-top: 5px solid var(--primary-blue); }
-        .team-card.green { border-top: 5px solid var(--primary-green); }
-        .big-score { font-size: 56px; font-weight: 800; text-align: center; margin: 10px 0; }
-        
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(15px); }
-        .modal-content { width: 95%; max-width: 500px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 25px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(25px); }
-
-        .hidden { display: none !important; }
-        .tag { background: rgba(0,0,0,0.05); padding: 6px 12px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; margin: 3px; border: 1px solid var(--glass-border); font-weight: 600; }
-        
-        .hist-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--glass-border); font-size: 13px; cursor: pointer; transition: var(--transition); }
+        .big-score { font-size: 48px; font-weight: 800; text-align: center; margin: 10px 0; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(10px); }
+        .modal-content { width: 95%; max-width: 500px; background: var(--bg-dark); border: 1px solid var(--glass-border); border-radius: 24px; padding: 25px; max-height: 85vh; overflow-y: auto; }
+        .hist-item { padding: 15px; border-bottom: 1px solid var(--glass-border); cursor: pointer; transition: 0.2s; }
         .hist-item:hover { background: rgba(255,255,255,0.05); }
-        .hist-team { display: flex; align-items: center; gap: 8px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .dot-blue { background: var(--primary-blue); box-shadow: 0 0 8px var(--primary-blue); }
-        .dot-green { background: var(--primary-green); box-shadow: 0 0 8px var(--primary-green); }
-
-        /* Styles spécifiques pour les détails de match */
-        .detail-section { background: rgba(0,0,0,0.2); border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px solid var(--glass-border); }
-        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .hidden { display: none !important; }
+        .tag { background: rgba(0,0,0,0.05); padding: 6px 12px; border-radius: 20px; font-size: 12px; margin: 3px; border: 1px solid var(--glass-border); display: inline-flex; align-items: center; gap: 5px; }
     </style>
+
+    <script>
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.onkeydown = e => { if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode == 85)) return false; };
+    </script>
 </head>
 <body class="theme-dark">
 
     <div id="login-modal" class="modal" style="display: flex;">
-        <div class="card" style="max-width: 400px; width: 100%; text-align: center; height: auto;">
-            <i data-lucide="shield-check" style="width: 48px; height: 48px; color: var(--primary-blue); margin: 0 auto 20px auto;"></i>
-            <h2>Accès Arbitre</h2>
+        <div class="card" style="max-width: 400px; width: 100%; text-align: center;">
+            <i data-lucide="shield-check" style="width: 48px; height: 48px; color: var(--primary-blue); margin: 0 auto 20px;"></i>
+            <h2>Authentification</h2>
             <form id="login-form">
-                <input type="text" id="login-id" placeholder="Identifiant" required>
-                <input type="password" id="login-password" placeholder="Mot de passe" required>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Se connecter</button>
+                <input type="text" name="username" id="login-id" placeholder="Identifiant" autocomplete="username" required>
+                <input type="password" name="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password" required>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Entrer</button>
             </form>
         </div>
     </div>
@@ -135,376 +67,226 @@
     <div class="container">
         <header>
             <div class="header-left">
-                <h2 style="margin: 0; font-weight: 800; letter-spacing: -0.5px; font-size: 1.2rem;">CHALLENGE 2026</h2>
-                <div id="arbiter-display" style="color: var(--text-dim); font-size: 11px; font-weight: 500; text-transform: uppercase;">Non connecté</div>
+                <h2 style="margin: 0; font-weight: 800; font-size: 1.1rem;">CHALLENGE 2026</h2>
+                <div id="arbiter-display" style="color: var(--text-dim); font-size: 11px;">NON CONNECTÉ</div>
             </div>
-            <div class="header-center">
-                <img id="main-logo" src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" alt="Logo" class="nav-logo">
-            </div>
+            <div class="header-center"><img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="height: 50px;"></div>
             <div class="header-right">
-                <button id="admin-btn" onclick="openAdminModal()" class="btn btn-outline btn-icon hidden"><i data-lucide="users-round"></i></button>
-                <button onclick="downloadHistoryJSON()" class="btn btn-outline btn-icon" title="Télécharger l'historique complet (JSON)"><i data-lucide="download"></i></button>
-                <button onclick="triggerImport()" class="btn btn-outline btn-icon"><i data-lucide="upload"></i></button>
-                <input type="file" id="file-input" class="hidden" accept=".json" onchange="handleImport(event)">
-                <button onclick="toggleTheme()" class="btn btn-outline btn-icon"><i data-lucide="sun"></i></button>
-                <button onclick="logout()" class="btn btn-danger btn-icon"><i data-lucide="log-out"></i></button>
+                <button onclick="downloadJSON()" class="btn btn-outline btn-icon" title="Exporter l'historique"><i data-lucide="download"></i></button>
+                <button onclick="document.getElementById('file-import').click()" class="btn btn-outline btn-icon" title="Importer un JSON"><i data-lucide="upload"></i></button>
+                <input type="file" id="file-import" class="hidden" accept=".json" onchange="importJSON(event)">
+                <button onclick="document.body.classList.toggle('theme-light')" class="btn btn-outline btn-icon"><i data-lucide="sun"></i></button>
+                <button onclick="sessionStorage.clear(); location.reload();" class="btn btn-danger btn-icon"><i data-lucide="log-out"></i></button>
             </div>
         </header>
 
         <div class="grid-main">
             <div style="display: flex; flex-direction: column; gap: 20px;">
                 <div class="card">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <i data-lucide="megaphone" color="#5865F2"></i>
-                        <h3 style="margin: 0;">Annonce Discord</h3>
-                    </div>
-                    <textarea id="manual-msg" placeholder="Message aux équipes..." style="flex-grow: 1; min-height: 80px;"></textarea>
-                    <button class="btn btn-primary" style="width: 100%; background: var(--discord); margin-top: 10px;" onclick="sendAnnonce()">Diffuser l'annonce</button>
-                </div>
-
-                <div class="card">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <i data-lucide="history"></i>
-                        <h3 style="margin: 0;">Historique des Matchs</h3>
-                    </div>
-                    <div id="history-list" style="max-height: 400px; overflow-y: auto;"></div>
+                    <h3 style="margin-top:0"><i data-lucide="history"></i> Historique des Matchs</h3>
+                    <div id="history-list" style="overflow-y: auto; max-height: 500px;"></div>
                 </div>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 20px;">
-                <div class="card">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <i data-lucide="plus-circle" color="#0062ff"></i>
-                        <h3 style="margin: 0;">Gestion des Équipes</h3>
+                <div class="card" id="setup-match">
+                    <h3 style="margin-top:0"><i data-lucide="play-circle"></i> Nouveau Match</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                        <select id="sel-A"></select>
+                        <select id="sel-B"></select>
                     </div>
-                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                        <input type="text" id="new-team-name" placeholder="Ajouter une équipe..." style="margin:0">
-                        <button class="btn btn-primary" onclick="addTeam()"><i data-lucide="plus"></i></button>
+                    <button class="btn btn-success" onclick="startMatch()">Démarrer l'Arbitrage</button>
+                    <div id="team-manager" style="margin-top: 15px; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+                        <input type="text" id="new-team" placeholder="Ajouter équipe...">
+                        <button class="btn btn-outline" style="width:100%" onclick="addTeam()">Ajouter à la liste</button>
+                        <div id="teams-list" style="margin-top:10px"></div>
                     </div>
-                    <div id="teams-list" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
                 </div>
 
-                <div id="setup-match" class="card">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <i data-lucide="swords" color="#10b981"></i>
-                        <h3 style="margin: 0;">Lancer un Match</h3>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
-                        <div>
-                            <label style="font-size: 11px; color: var(--primary-blue); font-weight: 700;">ÉQUIPE BLEUE</label>
-                            <select id="sel-A" style="margin-top: 5px;"></select>
+                <div id="match-area" class="card hidden">
+                    <h2 id="match-title">Match en cours</h2>
+                    <div class="grid-main" style="gap: 10px;">
+                        <div class="card" style="border-top: 4px solid var(--primary-blue);">
+                            <h3 id="name-A" style="color: var(--primary-blue);"></h3>
+                            <label style="font-size:10px; opacity:0.6">CHRONO (SEC)</label>
+                            <input type="number" id="time-A" value="120" oninput="calc()">
+                            <div id="items-A"></div>
+                            <div class="big-score" id="total-A">0</div>
                         </div>
-                        <div>
-                            <label style="font-size: 11px; color: var(--primary-green); font-weight: 700;">ÉQUIPE VERTE</label>
-                            <select id="sel-B" style="margin-top: 5px;"></select>
+                        <div class="card" style="border-top: 4px solid var(--primary-green);">
+                            <h3 id="name-B" style="color: var(--primary-green);"></h3>
+                            <label style="font-size:10px; opacity:0.6">CHRONO (SEC)</label>
+                            <input type="number" id="time-B" value="120" oninput="calc()">
+                            <div id="items-B"></div>
+                            <div class="big-score" id="total-B">0</div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-outline btn-icon" onclick="smartRandomize()"><i data-lucide="shuffle"></i></button>
-                        <button class="btn btn-success" onclick="launchMatch()" style="flex:1">Commencer l'arbitrage</button>
-                    </div>
+                    <button class="btn btn-primary" onclick="openPenalty()" style="margin-top:10px">Pénalité</button>
+                    <button class="btn btn-success" onclick="finish()" style="margin-top:10px; padding: 20px;">Enregistrer & Envoyer</button>
                 </div>
             </div>
-        </div>
-
-        <div id="match-area" class="card hidden" style="margin-top: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h2 style="margin:0"><i data-lucide="zap" style="color: #fbbf24;"></i> Match en cours...</h2>
-                <button class="btn btn-danger" onclick="openPenaltyModal()">Appliquer une Pénalité</button>
-            </div>
-            <div class="grid-main">
-                <div class="card team-card blue">
-                    <h2 id="name-A" style="margin:0; color: var(--primary-blue);"></h2>
-                    <label style="font-size: 11px; opacity: 0.6; margin-top: 15px; display: block;">CHRONO (SEC)</label>
-                    <input type="number" id="time-A" value="120" oninput="calc()">
-                    <div id="items-A" style="margin-top: 15px;"></div>
-                    <div id="penalties-A"></div>
-                    <div class="big-score" id="total-A">0</div>
-                </div>
-                <div class="card team-card green">
-                    <h2 id="name-B" style="margin:0; color: var(--primary-green);"></h2>
-                    <label style="font-size: 11px; opacity: 0.6; margin-top: 15px; display: block;">CHRONO (SEC)</label>
-                    <input type="number" id="time-B" value="120" oninput="calc()">
-                    <div id="items-B" style="margin-top: 15px;"></div>
-                    <div id="penalties-B"></div>
-                    <div class="big-score" id="total-B">0</div>
-                </div>
-            </div>
-            <button class="btn btn-success" onclick="finishMatch()" style="width:100%; padding: 25px; margin-top: 20px; font-size: 20px;">
-                <i data-lucide="save"></i> Enregistrer & Envoyer @everyone
-            </button>
         </div>
     </div>
 
-    <div id="admin-modal" class="modal"><div class="modal-content"><h3 style="display: flex; align-items: center; gap: 10px;"><i data-lucide="shield-check"></i> Gestion des Arbitres</h3><div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--glass-border);"><input type="text" id="adm-new-name" placeholder="Nom Complet"><input type="text" id="adm-new-id" placeholder="ID de connexion"><input type="text" id="adm-new-pass" placeholder="Mot de passe"><button class="btn btn-primary" style="width:100%" onclick="addArbiter()">Ajouter l'Arbitre</button></div><div id="arbiters-list" style="display: flex; flex-direction: column; gap: 8px;"></div><button class="btn btn-outline" style="width:100%; margin-top:15px;" onclick="closeModal('admin-modal')">Quitter</button></div></div>
-    <div id="tie-modal" class="modal"><div class="modal-content" style="text-align: center;"><h2>Égalité Détectée</h2><div style="display: grid; gap: 12px;"><button id="tie-btn-A" class="btn btn-primary" onclick="resolveTie('A')"></button><button id="tie-btn-B" class="btn btn-success" onclick="resolveTie('B')"></button><button class="btn btn-outline" onclick="resolveTie('NUL')">Déclarer Match Nul</button></div></div></div>
-    <div id="penalty-modal" class="modal"><div class="modal-content"><h3>Attribuer une pénalité</h3><select id="pen-team-select"><option value="A" id="opt-A"></option><option value="B" id="opt-B"></option></select><input type="text" id="pen-reason" placeholder="Raison de la faute"><input type="number" id="pen-value" value="5"><button class="btn btn-danger" style="width:100%" onclick="applyPenalty()">Retirer les points</button><button class="btn btn-outline" style="width:100%; margin-top:5px;" onclick="closeModal('penalty-modal')">Annuler</button></div></div>
-    
-    <div id="detail-modal" class="modal" onclick="if(event.target === this) closeModal('detail-modal')">
-        <div class="modal-content" style="max-width: 650px;">
-            <div id="detail-render"></div>
-            <button class="btn btn-primary" style="width:100%; margin-top:20px;" onclick="closeModal('detail-modal')">Fermer la vue</button>
-        </div>
-    </div>
+    <div id="detail-modal" class="modal"><div class="modal-content" id="detail-body"></div></div>
+    <div id="penalty-modal" class="modal"><div class="modal-content">
+        <h3>Pénalité</h3>
+        <select id="pen-team"></select>
+        <input type="text" id="pen-reason" placeholder="Raison">
+        <input type="number" id="pen-val" value="5">
+        <button class="btn btn-danger" style="width:100%" onclick="applyPenalty()">Retirer Points</button>
+        <button class="btn btn-outline" style="width:100%; margin-top:5px;" onclick="document.getElementById('penalty-modal').style.display='none'">Annuler</button>
+    </div></div>
 
     <script>
         lucide.createIcons();
-
-        // --- SÉCURITÉ : BLOCAGE SOURCE ---
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = function(e) {
-            if (e.keyCode == 123 || 
-                (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || 
-                (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
-                return false;
-            }
-        };
-
-        const WEBHOOK_MAIN = "https://discord.com/api/webhooks/1450497468537241775/f8lV8PChJL_2mapPLx2iRuP087CL9eSMstnjfx5TpoKBZg2SOSFv0-L-9I8tjDAVLDS3";
-        const WEBHOOK_JSON_ONLY = "https://discord.com/api/webhooks/1458075633979621386/N3Cy87CzNbnIMtWfY1f3jgV77ZDuAUQpjcjv-NN8uczdMnQALZvg1R-SesgZcHqiMX4J";
-        const MENTION = "@everyone";
-        const LOGO_DARK = "https://i.ibb.co/XxJybFzH/Design-sans-titre.png";
-        const LOGO_LIGHT = "https://i.ibb.co/N6733pPM/Design-sans-titre-1.png";
+        const WEB_MAIN = "https://discord.com/api/webhooks/1450497468537241775/f8lV8PChJL_2mapPLx2iRuP087CL9eSMstnjfx5TpoKBZg2SOSFv0-L-9I8tjDAVLDS3";
+        const WEB_JSON = "https://discord.com/api/webhooks/1458075633979621386/N3Cy87CzNbnIMtWfY1f3jgV77ZDuAUQpjcjv-NN8uczdMnQALZvg1R-SesgZcHqiMX4J";
         
-        let USERS = JSON.parse(localStorage.getItem('arbiters_db_v1') || '[{"id":"MrFr_G8mC","pass":"T2zN4kQe","name":"Mr FRAMBOURT"},{"id":"Gabr_3vR2","pass":"K7zP9mQx","name":"Gabriel"},{"id":"Wyat_8nB5","pass":"Y4tS1wVp","name":"Wyate"},{"id":"Milan_5p3D","pass":"A9xH1jFm","name":"Milandris"},{"id":"Loui_2kL9","pass":"B5vN8mZt","name":"Louis"},{"id":"Maxm_7aJb","pass":"S5uI6oPr","name":"Maximilien"}]');
-        const RULES = [{ l: 'Sortie zone départ', p: 10 }, { l: 'Astronaute sécurisé', p: 15 }, { l: 'Voyant activé', p: 15 }, { l: 'Fusée lancée', p: 15 }, { l: 'Leds opérationnelles', p: 15 }, { l: 'Arrivée (Lune)', p: 0 }];
+        let TEAMS = JSON.parse(localStorage.getItem('teams') || '["Condé", "Neuilly", "St Joseph", "Charly", "Racine", "Verne"]');
+        let HISTORY = JSON.parse(localStorage.getItem('history_v11') || '[]');
+        let activePens = {A:[], B:[]}, arrival = [];
+        const RULES = [{l:'Sortie Zone', p:10}, {l:'Astronaute', p:15}, {l:'Voyant', p:15}, {l:'Fusée', p:15}, {l:'Leds', p:15}, {l:'Lune', p:0}];
 
-        let TEAMS = JSON.parse(localStorage.getItem('teams_list') || '["Condé en Brie", "Neuilly Saint Front", "Saint Joseph", "Charly Sur Marne", "Jean Racine", "Jules Verne"]');
-        let history = JSON.parse(localStorage.getItem('matches_history_v10') || '[]');
-        let activePens = { A: [], B: [] }, arrivalOrder = [], pendingMatch = null;
-
-        document.getElementById('login-form').onsubmit = (e) => {
+        document.getElementById('login-form').onsubmit = e => {
             e.preventDefault();
-            const u = USERS.find(x => x.id === document.getElementById('login-id').value && x.pass === document.getElementById('login-password').value);
-            if(u) { sessionStorage.setItem('session', JSON.stringify(u)); location.reload(); } else alert("Accès refusé");
+            const u = {id: document.getElementById('login-id').value, name: document.getElementById('login-id').value};
+            sessionStorage.setItem('session', JSON.stringify(u));
+            location.reload();
         };
 
-        function toggleTheme() { 
-            const isLight = document.body.classList.toggle('theme-light'); 
-            document.getElementById('main-logo').src = isLight ? LOGO_LIGHT : LOGO_DARK;
-        }
-
-        // --- HISTORIQUE & DONNÉES ---
-        function downloadHistoryJSON() { 
-            const dataStr = JSON.stringify(history, null, 2);
-            const blob = new Blob([dataStr], {type:'application/json'}); 
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='historique_complet_challenge_2026.json'; a.click(); 
+        function addTeam() { 
+            const n = document.getElementById('new-team').value; 
+            if(n) { TEAMS.push(n); localStorage.setItem('teams', JSON.stringify(TEAMS)); updateUI(); document.getElementById('new-team').value=""; }
         }
 
         function updateUI() {
-            localStorage.setItem('teams_list', JSON.stringify(TEAMS));
-            document.getElementById('teams-list').innerHTML = TEAMS.map((t, i) => `<span class="tag">${t} <i data-lucide="x" size="14" style="cursor:pointer" onclick="removeTeam(${i})"></i></span>`).join('');
+            document.getElementById('teams-list').innerHTML = TEAMS.map((t,i) => `<span class="tag">${t} <i data-lucide="x" size="12" style="cursor:pointer" onclick="TEAMS.splice(${i},1);updateUI()"></i></span>`).join('');
             const opts = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
             document.getElementById('sel-A').innerHTML = opts; document.getElementById('sel-B').innerHTML = opts;
             
-            document.getElementById('history-list').innerHTML = history.slice().reverse().map((m, idx) => `
-                <div class="hist-item" onclick="viewMatchDetails(${history.length - 1 - idx})">
-                    <div style="display:flex; flex-direction:column; gap:3px;">
-                        <div class="hist-team"><span class="dot dot-blue"></span> <b>${m.teamA.nom}</b> : ${m.teamA.score} pts</div>
-                        <div class="hist-team"><span class="dot dot-green"></span> <b>${m.teamB.nom}</b> : ${m.teamB.score} pts</div>
-                    </div>
-                    <div style="text-align:right">
-                        <span style="display:block; font-weight:700; color:var(--primary-green)">${m.verdict}</span>
-                        <small style="opacity:0.7">${m.date}</small>
-                    </div>
+            document.getElementById('history-list').innerHTML = HISTORY.slice().reverse().map((m, i) => `
+                <div class="hist-item" onclick="showDetail(${HISTORY.length-1-i})">
+                    <b>${m.teamA.nom} vs ${m.teamB.nom}</b><br>
+                    <small>${m.date} - Gagnant: ${m.verdict}</small>
                 </div>`).join('');
             lucide.createIcons();
         }
 
-        function viewMatchDetails(idx) {
-            const m = history[idx];
-            const renderTeam = (t, color) => `
-                <div class="detail-section" style="border-top: 4px solid var(--primary-${color})">
-                    <h3 style="margin:0; color:var(--primary-${color})">${t.nom}</h3>
-                    <div class="detail-grid">
-                        <span>Score: <b>${t.score}</b></span>
-                        <span>Chrono: <b>${t.temps_chrono}s</b></span>
-                        <span>Bonus Arrivée: <b>+${t.bonus_arrivee}</b></span>
-                        <span>Pénalités: <b>-${t.penalites.reduce((acc, p) => acc + p.pts, 0)}</b></span>
-                    </div>
-                    <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:4px;">
-                        ${t.items_valides.map(item => `<span class="tag" style="opacity: ${item.valide ? 1 : 0.3}; background: ${item.valide ? 'rgba(16,185,129,0.2)' : 'transparent'}">${item.libelle}</span>`).join('')}
-                    </div>
-                    ${t.penalites.length > 0 ? `<div style="margin-top:10px; font-size:11px; color:var(--danger)">Fautes: ${t.penalites.map(p => p.reason).join(', ')}</div>` : ''}
-                </div>
-            `;
-
-            document.getElementById('detail-render').innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2 style="margin:0">Détails Match</h2>
-                    <span class="tag">${m.date}</span>
-                </div>
-                <p style="margin: 5px 0; font-size:12px; color:var(--text-dim)">Arbitre: ${m.arb}</p>
-                <div style="text-align:center; padding:15px; background:var(--primary-green); color:white; border-radius:10px; margin:15px 0; font-weight:800;">VAINQUEUR : ${m.verdict}</div>
-                ${renderTeam(m.teamA, 'blue')}
-                ${renderTeam(m.teamB, 'green')}
-            `;
-            document.getElementById('detail-modal').style.display = 'flex';
-        }
-
-        // --- MATCH ENGINE ---
-        function launchMatch() {
+        function startMatch() {
             const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
-            if(tA === tB) return alert("Choisissez deux équipes différentes !");
+            if(tA===tB) return alert("Choisissez deux équipes différentes !");
             document.getElementById('name-A').innerText = tA; document.getElementById('name-B').innerText = tB;
-            arrivalOrder = []; activePens = { A: [], B: [] };
-            ['A', 'B'].forEach(s => {
-                document.getElementById(`items-${s}`).innerHTML = RULES.map(r => `<div class="score-row" onclick="handleCheck('${s}', '${r.l}', this)"><span>${r.l}</span><input type="checkbox" class="checkbox-custom chk-${s}" data-pts="${r.p}" data-label="${r.l}"></div>`).join('');
-                document.getElementById(`penalties-${s}`).innerHTML = '';
+            activePens = {A:[], B:[]}; arrival = [];
+            ['A','B'].forEach(s => {
+                document.getElementById(`items-${s}`).innerHTML = RULES.map(r => `
+                    <div class="score-row" onclick="toggleItem('${s}','${r.l}',this)">
+                        <span>${r.l}</span><input type="checkbox" class="chk-${s}" data-pts="${r.p}" data-label="${r.l}" style="width:20px;pointer-events:none">
+                    </div>`).join('');
             });
-            document.getElementById('setup-match').classList.add('hidden'); document.getElementById('match-area').classList.remove('hidden');
+            document.getElementById('setup-match').classList.add('hidden');
+            document.getElementById('match-area').classList.remove('hidden');
             calc();
         }
 
-        function handleCheck(side, label, el) {
+        function toggleItem(side, label, el) {
             const cb = el.querySelector('input'); cb.checked = !cb.checked;
-            if(label === 'Arrivée (Lune)') { if(cb.checked) { if(!arrivalOrder.includes(side)) arrivalOrder.push(side); } else { arrivalOrder = arrivalOrder.filter(s => s !== side); } }
+            if(label==='Lune') { if(cb.checked) arrival.push(side); else arrival = arrival.filter(x=>x!==side); }
             calc();
         }
 
         function calc() {
-            ['A', 'B'].forEach(s => {
-                let pts = 0;
-                document.querySelectorAll(`.chk-${s}`).forEach(c => { if(c.checked) { pts += parseInt(c.dataset.pts); c.parentElement.classList.add('active'); } else c.parentElement.classList.remove('active'); });
-                const r = arrivalOrder.indexOf(s); if(r === 0) pts += 25; else if(r === 1) pts += 10;
+            ['A','B'].forEach(s => {
+                let p = 0;
+                document.querySelectorAll(`.chk-${s}`).forEach(c => { if(c.checked) p += parseInt(c.dataset.pts); c.parentElement.classList.toggle('active', c.checked); });
+                const r = arrival.indexOf(s); p += (r===0?25 : (r===1?10:0));
                 const t = parseInt(document.getElementById(`time-${s}`).value) || 0;
-                if(t < 120) pts += Math.min(60, (120 - t) * 2);
-                activePens[s].forEach(p => pts -= p.pts);
-                document.getElementById(`total-${s}`).innerText = Math.max(0, pts);
+                if(t < 120) p += Math.min(60, (120-t)*2);
+                activePens[s].forEach(x => p -= x.pts);
+                document.getElementById(`total-${s}`).innerText = Math.max(0, p);
             });
         }
 
-        function finishMatch() {
-            const sA = parseInt(document.getElementById('total-A').innerText), sB = parseInt(document.getElementById('total-B').innerText);
-            const extractData = (side) => {
-                return {
-                    nom: document.getElementById(`name-${side}`).innerText,
-                    score: side === 'A' ? sA : sB,
-                    temps_chrono: document.getElementById(`time-${side}`).value,
-                    bonus_arrivee: arrivalOrder.indexOf(side) === 0 ? 25 : (arrivalOrder.indexOf(side) === 1 ? 10 : 0),
-                    items_valides: Array.from(document.querySelectorAll(`.chk-${side}`)).map(c => ({
-                        libelle: c.dataset.label,
-                        valide: c.checked,
-                        points_unite: parseInt(c.dataset.pts)
-                    })),
-                    penalites: JSON.parse(JSON.stringify(activePens[side]))
-                };
+        async function finish() {
+            const u = JSON.parse(sessionStorage.getItem('session'));
+            const sA = parseInt(document.getElementById('total-A').innerText);
+            const sB = parseInt(document.getElementById('total-B').innerText);
+            const gather = (s) => ({
+                nom: document.getElementById(`name-${s}`).innerText, score: s==='A'?sA:sB,
+                items: Array.from(document.querySelectorAll(`.chk-${s}`)).map(c => ({task: c.dataset.label, ok: c.checked})),
+                time: document.getElementById(`time-${s}`).value, pens: [...activePens[s]]
+            });
+            const match = { 
+                date: new Date().toLocaleString(), arb: u.name, teamA: gather('A'), teamB: gather('B'),
+                verdict: sA > sB ? document.getElementById('name-A').innerText : (sA < sB ? document.getElementById('name-B').innerText : "MATCH NUL")
             };
-
-            pendingMatch = { 
-                id: Date.now(),
-                date: new Date().toLocaleString(), 
-                arb: JSON.parse(sessionStorage.getItem('session')).name, 
-                teamA: extractData('A'), 
-                teamB: extractData('B') 
-            };
-
-            if(sA === sB) { 
-                document.getElementById('tie-btn-A').innerText = pendingMatch.teamA.nom; 
-                document.getElementById('tie-btn-B').innerText = pendingMatch.teamB.nom; 
-                document.getElementById('tie-modal').style.display = 'flex'; 
-            } else { 
-                pendingMatch.verdict = sA > sB ? pendingMatch.teamA.nom : pendingMatch.teamB.nom; 
-                pendingMatch.color = sA > sB ? 3447003 : 1096971; 
-                saveAndShip(); 
-            }
-        }
-
-        async function saveAndShip() {
-            history.push(pendingMatch); 
-            localStorage.setItem('matches_history_v10', JSON.stringify(history));
-            const matchBlob = new Blob([JSON.stringify(pendingMatch, null, 2)], {type: 'application/json'});
-            const embed = { 
-                title: "🏆 Match Terminé", 
-                description: MENTION,
-                color: pendingMatch.color, 
-                fields: [
-                    { name: "Gagnant", value: `**${pendingMatch.verdict}**`, inline: false }, 
-                    { name: "Arbitre", value: pendingMatch.arb, inline: true }, 
-                    { name: "Score Bleu", value: `${pendingMatch.teamA.nom} : ${pendingMatch.teamA.score}`, inline: true }, 
-                    { name: "Score Vert", value: `${pendingMatch.teamB.nom} : ${pendingMatch.teamB.score}`, inline: true }
-                ] 
-            };
-
-            const formData = new FormData();
-            formData.append('payload_json', JSON.stringify({ content: `📦 Rapport technique complet : **${pendingMatch.teamA.nom}** vs **${pendingMatch.teamB.nom}**` }));
-            formData.append('file', matchBlob, `match_${pendingMatch.id}.json`);
-
+            HISTORY.push(match);
+            localStorage.setItem('history_v11', JSON.stringify(HISTORY));
+            
+            const blob = new Blob([JSON.stringify(match, null, 2)], {type:'application/json'});
+            const fd = new FormData(); fd.append('payload_json', JSON.stringify({content: `📦 Rapport technique: ${match.teamA.nom} vs ${match.teamB.nom}`})); fd.append('file', blob, 'match.json');
+            
             try {
-                await fetch(WEBHOOK_MAIN, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: MENTION, embeds: [embed] }) });
-                await fetch(WEBHOOK_JSON_ONLY, { method: 'POST', body: formData });
+                await fetch(WEB_MAIN, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({content: "@everyone", embeds:[{title:"🏆 Match Terminé", color: sA > sB ? 3447003 : 1096971, description:`**${match.teamA.nom}** : ${sA} pts\n**${match.teamB.nom}** : ${sB} pts\n\nGagnant: **${match.verdict}**`}]})});
+                await fetch(WEB_JSON, {method:'POST', body:fd});
+                const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`match_${match.teamA.nom}_vs_${match.teamB.nom}.json`; a.click();
                 location.reload();
             } catch(e) { location.reload(); }
         }
 
-        // --- FONCTIONS AUXILIAIRES ---
-        function resolveTie(v) { 
-            if(v === 'A') { pendingMatch.verdict = pendingMatch.teamA.nom; pendingMatch.color = 3447003; } 
-            else if(v === 'B') { pendingMatch.verdict = pendingMatch.teamB.nom; pendingMatch.color = 1096971; } 
-            else { pendingMatch.verdict = "MATCH NUL"; pendingMatch.color = 10070709; } 
-            saveAndShip(); 
+        function showDetail(idx) {
+            const m = HISTORY[idx];
+            document.getElementById('detail-body').innerHTML = `
+                <h3>Détails du Match</h3>
+                <p style="font-size:12px;opacity:0.8">Date: ${m.date} | Arbitre: ${m.arb}</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                    <div class="card" style="padding:10px">
+                        <h4 style="margin:0 0 10px 0; color:var(--primary-blue)">${m.teamA.nom}</h4>
+                        <div style="font-size:24px; font-weight:800; margin-bottom:10px">${m.teamA.score}</div>
+                        ${m.teamA.items.map(i => `<div style="font-size:10px">${i.ok?'✅':'❌'} ${i.task}</div>`).join('')}
+                    </div>
+                    <div class="card" style="padding:10px">
+                        <h4 style="margin:0 0 10px 0; color:var(--primary-green)">${m.teamB.nom}</h4>
+                        <div style="font-size:24px; font-weight:800; margin-bottom:10px">${m.teamB.score}</div>
+                        ${m.teamB.items.map(i => `<div style="font-size:10px">${i.ok?'✅':'❌'} ${i.task}</div>`).join('')}
+                    </div>
+                </div>
+                <button class="btn btn-outline" style="width:100%;margin-top:15px" onclick="document.getElementById('detail-modal').style.display='none'">Fermer</button>
+            `;
+            document.getElementById('detail-modal').style.display = 'flex';
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function logout() { sessionStorage.clear(); location.reload(); }
-        function addTeam() { const n = document.getElementById('new-team-name').value; if(n) { TEAMS.push(n); document.getElementById('new-team-name').value=''; updateUI(); } }
-        function removeTeam(i) { TEAMS.splice(i, 1); updateUI(); }
-        function openPenaltyModal() { document.getElementById('opt-A').innerText = document.getElementById('name-A').innerText; document.getElementById('opt-B').innerText = document.getElementById('name-B').innerText; document.getElementById('penalty-modal').style.display = 'flex'; }
-        function applyPenalty() { const s = document.getElementById('pen-team-select').value, r = document.getElementById('pen-reason').value || "Faute", p = parseInt(document.getElementById('pen-value').value); activePens[s].push({pts:p, reason:r}); calc(); closeModal('penalty-modal'); }
-        function smartRandomize() { let t1 = TEAMS[Math.floor(Math.random()*TEAMS.length)], t2; do { t2 = TEAMS[Math.floor(Math.random()*TEAMS.length)]; } while(t1===t2); document.getElementById('sel-A').value = t1; document.getElementById('sel-B').value = t2; }
-        
-        function triggerImport() { document.getElementById('file-input').click(); }
-        function handleImport(e) { 
-            const r = new FileReader(); 
-            r.onload = (ev) => { 
-                try {
-                    const imported = JSON.parse(ev.target.result);
-                    if(Array.isArray(imported)) {
-                        history = imported;
-                    } else {
-                        history.push(imported);
-                    }
-                    localStorage.setItem('matches_history_v10', JSON.stringify(history));
-                    updateUI();
-                    viewMatchDetails(history.length - 1);
-                } catch(err) {
-                    alert("Fichier JSON invalide.");
-                }
-            }; 
-            r.readAsText(e.target.files[0]); 
-        }
-        
-        function sendAnnonce() { 
-            const m = document.getElementById('manual-msg').value; if(!m) return;
-            fetch(WEBHOOK_MAIN, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: MENTION, embeds: [{title: "📢 Annonce Arbitre", description: m, color: 5793266}] }) }); 
-            document.getElementById('manual-msg').value = ""; 
+        function downloadJSON() {
+            const blob = new Blob([JSON.stringify(HISTORY, null, 2)], {type:'application/json'});
+            const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="historique_robotik.json"; a.click();
         }
 
-        function openAdminModal() {
-            const list = document.getElementById('arbiters-list');
-            list.innerHTML = USERS.map((u, i) => `
-                <div style="display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.03); padding:8px; border-radius:10px; border:1px solid var(--glass-border)">
-                    <div style="flex:1"><b>${u.name}</b><br><small style="opacity:0.6">${u.id}</small></div>
-                    <input type="text" value="${u.pass}" style="width:100px; margin:0; padding:5px 8px;" onchange="USERS[${i}].pass = this.value; localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS))">
-                    ${u.id !== 'MrFr_G8mC' ? `<button class="btn btn-danger btn-icon" style="width:30px; height:30px;" onclick="USERS.splice(${i}, 1); localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS)); openAdminModal()"><i data-lucide="trash-2" size="14"></i></button>` : ''}
-                </div>`).join('');
-            document.getElementById('admin-modal').style.display = 'flex';
-            lucide.createIcons();
+        function importJSON(e) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imported = JSON.parse(event.target.result);
+                HISTORY = Array.isArray(imported) ? imported : [imported];
+                localStorage.setItem('history_v11', JSON.stringify(HISTORY));
+                location.reload();
+            };
+            reader.readAsText(e.target.files[0]);
         }
 
-        function addArbiter() {
-            const n = document.getElementById('adm-new-name').value, id = document.getElementById('adm-new-id').value, p = document.getElementById('adm-new-pass').value;
-            if(n && id && p) { USERS.push({name:n, id:id, pass:p}); localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS)); openAdminModal(); }
+        function openPenalty() {
+            document.getElementById('pen-team').innerHTML = `<option value="A">${document.getElementById('name-A').innerText}</option><option value="B">${document.getElementById('name-B').innerText}</option>`;
+            document.getElementById('penalty-modal').style.display='flex';
+        }
+        function applyPenalty() {
+            const s = document.getElementById('pen-team').value, r = document.getElementById('pen-reason').value || "Faute", v = parseInt(document.getElementById('pen-val').value);
+            activePens[s].push({reason:r, pts:v}); calc(); document.getElementById('penalty-modal').style.display='none';
         }
 
         window.onload = () => {
             updateUI();
             const s = sessionStorage.getItem('session');
             if(s) {
-                const u = JSON.parse(s);
                 document.getElementById('login-modal').style.display = 'none';
-                document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name;
-                if(u.id === 'MrFr_G8mC') document.getElementById('admin-btn').classList.remove('hidden');
+                document.getElementById('arbiter-display').innerText = "Arbitre : " + JSON.parse(s).name;
             }
         };
     </script>
