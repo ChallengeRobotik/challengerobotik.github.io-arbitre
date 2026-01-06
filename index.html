@@ -100,17 +100,22 @@
         .team-card.green { border-top: 5px solid var(--primary-green); }
         .big-score { font-size: 56px; font-weight: 800; text-align: center; margin: 10px 0; }
         
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(10px); }
-        .modal-content { width: 95%; max-width: 500px; background: var(--bg-dark); border: 2px solid var(--glass-border); border-radius: 24px; padding: 25px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(15px); }
+        .modal-content { width: 95%; max-width: 500px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 25px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(25px); }
 
         .hidden { display: none !important; }
         .tag { background: rgba(0,0,0,0.05); padding: 6px 12px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; margin: 3px; border: 1px solid var(--glass-border); font-weight: 600; }
         
-        .hist-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--glass-border); font-size: 13px; }
+        .hist-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--glass-border); font-size: 13px; cursor: pointer; transition: var(--transition); }
+        .hist-item:hover { background: rgba(255,255,255,0.05); }
         .hist-team { display: flex; align-items: center; gap: 8px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; }
         .dot-blue { background: var(--primary-blue); box-shadow: 0 0 8px var(--primary-blue); }
         .dot-green { background: var(--primary-green); box-shadow: 0 0 8px var(--primary-green); }
+
+        /* Styles spécifiques pour les détails de match */
+        .detail-section { background: rgba(0,0,0,0.2); border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px solid var(--glass-border); }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
     </style>
 </head>
 <body class="theme-dark">
@@ -234,9 +239,27 @@
     <div id="admin-modal" class="modal"><div class="modal-content"><h3 style="display: flex; align-items: center; gap: 10px;"><i data-lucide="shield-check"></i> Gestion des Arbitres</h3><div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--glass-border);"><input type="text" id="adm-new-name" placeholder="Nom Complet"><input type="text" id="adm-new-id" placeholder="ID de connexion"><input type="text" id="adm-new-pass" placeholder="Mot de passe"><button class="btn btn-primary" style="width:100%" onclick="addArbiter()">Ajouter l'Arbitre</button></div><div id="arbiters-list" style="display: flex; flex-direction: column; gap: 8px;"></div><button class="btn btn-outline" style="width:100%; margin-top:15px;" onclick="closeModal('admin-modal')">Quitter</button></div></div>
     <div id="tie-modal" class="modal"><div class="modal-content" style="text-align: center;"><h2>Égalité Détectée</h2><div style="display: grid; gap: 12px;"><button id="tie-btn-A" class="btn btn-primary" onclick="resolveTie('A')"></button><button id="tie-btn-B" class="btn btn-success" onclick="resolveTie('B')"></button><button class="btn btn-outline" onclick="resolveTie('NUL')">Déclarer Match Nul</button></div></div></div>
     <div id="penalty-modal" class="modal"><div class="modal-content"><h3>Attribuer une pénalité</h3><select id="pen-team-select"><option value="A" id="opt-A"></option><option value="B" id="opt-B"></option></select><input type="text" id="pen-reason" placeholder="Raison de la faute"><input type="number" id="pen-value" value="5"><button class="btn btn-danger" style="width:100%" onclick="applyPenalty()">Retirer les points</button><button class="btn btn-outline" style="width:100%; margin-top:5px;" onclick="closeModal('penalty-modal')">Annuler</button></div></div>
+    
+    <div id="detail-modal" class="modal" onclick="if(event.target === this) closeModal('detail-modal')">
+        <div class="modal-content" style="max-width: 650px;">
+            <div id="detail-render"></div>
+            <button class="btn btn-primary" style="width:100%; margin-top:20px;" onclick="closeModal('detail-modal')">Fermer la vue</button>
+        </div>
+    </div>
 
     <script>
         lucide.createIcons();
+
+        // --- SÉCURITÉ : BLOCAGE SOURCE ---
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123 || 
+                (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || 
+                (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
+                return false;
+            }
+        };
+
         const WEBHOOK_MAIN = "https://discord.com/api/webhooks/1450497468537241775/f8lV8PChJL_2mapPLx2iRuP087CL9eSMstnjfx5TpoKBZg2SOSFv0-L-9I8tjDAVLDS3";
         const WEBHOOK_JSON_ONLY = "https://discord.com/api/webhooks/1458075633979621386/N3Cy87CzNbnIMtWfY1f3jgV77ZDuAUQpjcjv-NN8uczdMnQALZvg1R-SesgZcHqiMX4J";
         const MENTION = "@everyone";
@@ -274,8 +297,8 @@
             const opts = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
             document.getElementById('sel-A').innerHTML = opts; document.getElementById('sel-B').innerHTML = opts;
             
-            document.getElementById('history-list').innerHTML = history.slice().reverse().map(m => `
-                <div class="hist-item">
+            document.getElementById('history-list').innerHTML = history.slice().reverse().map((m, idx) => `
+                <div class="hist-item" onclick="viewMatchDetails(${history.length - 1 - idx})">
                     <div style="display:flex; flex-direction:column; gap:3px;">
                         <div class="hist-team"><span class="dot dot-blue"></span> <b>${m.teamA.nom}</b> : ${m.teamA.score} pts</div>
                         <div class="hist-team"><span class="dot dot-green"></span> <b>${m.teamB.nom}</b> : ${m.teamB.score} pts</div>
@@ -286,6 +309,37 @@
                     </div>
                 </div>`).join('');
             lucide.createIcons();
+        }
+
+        function viewMatchDetails(idx) {
+            const m = history[idx];
+            const renderTeam = (t, color) => `
+                <div class="detail-section" style="border-top: 4px solid var(--primary-${color})">
+                    <h3 style="margin:0; color:var(--primary-${color})">${t.nom}</h3>
+                    <div class="detail-grid">
+                        <span>Score: <b>${t.score}</b></span>
+                        <span>Chrono: <b>${t.temps_chrono}s</b></span>
+                        <span>Bonus Arrivée: <b>+${t.bonus_arrivee}</b></span>
+                        <span>Pénalités: <b>-${t.penalites.reduce((acc, p) => acc + p.pts, 0)}</b></span>
+                    </div>
+                    <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:4px;">
+                        ${t.items_valides.map(item => `<span class="tag" style="opacity: ${item.valide ? 1 : 0.3}; background: ${item.valide ? 'rgba(16,185,129,0.2)' : 'transparent'}">${item.libelle}</span>`).join('')}
+                    </div>
+                    ${t.penalites.length > 0 ? `<div style="margin-top:10px; font-size:11px; color:var(--danger)">Fautes: ${t.penalites.map(p => p.reason).join(', ')}</div>` : ''}
+                </div>
+            `;
+
+            document.getElementById('detail-render').innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 style="margin:0">Détails Match</h2>
+                    <span class="tag">${m.date}</span>
+                </div>
+                <p style="margin: 5px 0; font-size:12px; color:var(--text-dim)">Arbitre: ${m.arb}</p>
+                <div style="text-align:center; padding:15px; background:var(--primary-green); color:white; border-radius:10px; margin:15px 0; font-weight:800;">VAINQUEUR : ${m.verdict}</div>
+                ${renderTeam(m.teamA, 'blue')}
+                ${renderTeam(m.teamB, 'green')}
+            `;
+            document.getElementById('detail-modal').style.display = 'flex';
         }
 
         // --- MATCH ENGINE ---
@@ -322,8 +376,6 @@
 
         function finishMatch() {
             const sA = parseInt(document.getElementById('total-A').innerText), sB = parseInt(document.getElementById('total-B').innerText);
-            
-            // Capture intégrale de toutes les données du match
             const extractData = (side) => {
                 return {
                     nom: document.getElementById(`name-${side}`).innerText,
@@ -335,7 +387,7 @@
                         valide: c.checked,
                         points_unite: parseInt(c.dataset.pts)
                     })),
-                    penalites: activePens[side]
+                    penalites: JSON.parse(JSON.stringify(activePens[side]))
                 };
             };
 
@@ -361,10 +413,7 @@
         async function saveAndShip() {
             history.push(pendingMatch); 
             localStorage.setItem('matches_history_v10', JSON.stringify(history));
-            
             const matchBlob = new Blob([JSON.stringify(pendingMatch, null, 2)], {type: 'application/json'});
-            
-            // 1. Webhook Principal (Embed visuel)
             const embed = { 
                 title: "🏆 Match Terminé", 
                 description: MENTION,
@@ -377,31 +426,15 @@
                 ] 
             };
 
-            // 2. Webhook Technique (Fichier JSON uniquement)
             const formData = new FormData();
             formData.append('payload_json', JSON.stringify({ content: `📦 Rapport technique complet : **${pendingMatch.teamA.nom}** vs **${pendingMatch.teamB.nom}**` }));
             formData.append('file', matchBlob, `match_${pendingMatch.id}.json`);
 
             try {
-                // Envoi principal
-                await fetch(WEBHOOK_MAIN, { 
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ content: MENTION, embeds: [embed] }) 
-                });
-
-                // Envoi JSON technique
+                await fetch(WEBHOOK_MAIN, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: MENTION, embeds: [embed] }) });
                 await fetch(WEBHOOK_JSON_ONLY, { method: 'POST', body: formData });
-                
-                // Téléchargement local automatique pour l'arbitre
-                const a = document.createElement('a'); a.href = URL.createObjectURL(matchBlob); 
-                a.download=`match_${pendingMatch.teamA.nom}_vs_${pendingMatch.teamB.nom}.json`; 
-                a.click();
-                
                 location.reload();
-            } catch(e) { 
-                location.reload(); 
-            }
+            } catch(e) { location.reload(); }
         }
 
         // --- FONCTIONS AUXILIAIRES ---
@@ -419,8 +452,27 @@
         function openPenaltyModal() { document.getElementById('opt-A').innerText = document.getElementById('name-A').innerText; document.getElementById('opt-B').innerText = document.getElementById('name-B').innerText; document.getElementById('penalty-modal').style.display = 'flex'; }
         function applyPenalty() { const s = document.getElementById('pen-team-select').value, r = document.getElementById('pen-reason').value || "Faute", p = parseInt(document.getElementById('pen-value').value); activePens[s].push({pts:p, reason:r}); calc(); closeModal('penalty-modal'); }
         function smartRandomize() { let t1 = TEAMS[Math.floor(Math.random()*TEAMS.length)], t2; do { t2 = TEAMS[Math.floor(Math.random()*TEAMS.length)]; } while(t1===t2); document.getElementById('sel-A').value = t1; document.getElementById('sel-B').value = t2; }
+        
         function triggerImport() { document.getElementById('file-input').click(); }
-        function handleImport(e) { const r = new FileReader(); r.onload = (ev) => { history = JSON.parse(ev.target.result); localStorage.setItem('matches_history_v10', JSON.stringify(history)); location.reload(); }; r.readAsText(e.target.files[0]); }
+        function handleImport(e) { 
+            const r = new FileReader(); 
+            r.onload = (ev) => { 
+                try {
+                    const imported = JSON.parse(ev.target.result);
+                    if(Array.isArray(imported)) {
+                        history = imported;
+                    } else {
+                        history.push(imported);
+                    }
+                    localStorage.setItem('matches_history_v10', JSON.stringify(history));
+                    updateUI();
+                    viewMatchDetails(history.length - 1);
+                } catch(err) {
+                    alert("Fichier JSON invalide.");
+                }
+            }; 
+            r.readAsText(e.target.files[0]); 
+        }
         
         function sendAnnonce() { 
             const m = document.getElementById('manual-msg').value; if(!m) return;
