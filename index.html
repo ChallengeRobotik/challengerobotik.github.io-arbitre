@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arbitrage Challenge 2026 - Final V4.0</title>
+    <title>Arbitrage Challenge 2026 - Final V4.5</title>
     <link id="favicon" rel="icon" type="image/png" href="https://i.ibb.co/XxJybFzH/Design-sans-titre.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -73,7 +73,17 @@
         .checkbox-custom:checked { background: var(--primary-green); border-color: var(--primary-green); }
         .checkbox-custom:checked::after { content: ""; position: absolute; left: 7px; top: 3px; width: 5px; height: 10px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
 
-        input, select, textarea { width: 100%; background: rgba(0,0,0,0.05); border: 1px solid var(--glass-border); color: inherit; padding: 12px; border-radius: 10px; margin-bottom: 8px; outline: none; font-family: inherit; }
+        input, select, textarea { 
+            width: 100%; 
+            background: var(--bg-dark); 
+            border: 1px solid var(--text-dim); 
+            color: var(--text-main); 
+            padding: 12px; 
+            border-radius: 10px; 
+            margin-bottom: 8px; 
+            outline: none; 
+            font-family: inherit;
+        }
 
         .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; padding: 10px 18px; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-icon { width: 38px; height: 38px; padding: 0; border-radius: 50%; flex-shrink: 0; }
@@ -93,7 +103,6 @@
         .dot-blue { background: var(--primary-blue); box-shadow: 0 0 8px var(--primary-blue); }
         .dot-green { background: var(--primary-green); box-shadow: 0 0 8px var(--primary-green); }
 
-        /* Notification Style */
         .toast-notif {
             position: fixed; bottom: 20px; right: 20px; background: var(--primary-green); color: white;
             padding: 12px 20px; border-radius: 10px; z-index: 10001; display: flex;
@@ -101,6 +110,9 @@
             animation: slideIn 0.3s ease-out;
         }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .penalty-tag { cursor: pointer; background: rgba(239, 68, 68, 0.15) !important; border-color: var(--danger) !important; color: #fca5a5; }
+        .penalty-tag:hover { background: rgba(239, 68, 68, 0.3) !important; }
     </style>
 </head>
 <body class="theme-dark">
@@ -214,7 +226,7 @@
                     <label style="font-size: 11px; opacity: 0.6; margin-top: 15px; display: block;">CHRONO (SEC)</label>
                     <input type="number" id="time-A" value="120" oninput="calc()">
                     <div id="items-A" style="margin-top: 15px;"></div>
-                    <div id="penalties-A"></div>
+                    <div id="penalties-A" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px;"></div>
                     <div class="big-score" id="total-A" style="font-size:56px; text-align:center; font-weight:800">0</div>
                 </div>
                 <div class="card team-card green" style="border-top:5px solid var(--primary-green)">
@@ -222,7 +234,7 @@
                     <label style="font-size: 11px; opacity: 0.6; margin-top: 15px; display: block;">CHRONO (SEC)</label>
                     <input type="number" id="time-B" value="120" oninput="calc()">
                     <div id="items-B" style="margin-top: 15px;"></div>
-                    <div id="penalties-B"></div>
+                    <div id="penalties-B" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px;"></div>
                     <div class="big-score" id="total-B" style="font-size:56px; text-align:center; font-weight:800">0</div>
                 </div>
             </div>
@@ -237,19 +249,17 @@
     <div id="penalty-modal" class="modal"><div class="modal-content"><h3>Pénalité</h3><select id="pen-team-select"><option value="A" id="opt-A"></option><option value="B" id="opt-B"></option></select><input type="text" id="pen-reason" placeholder="Raison"><input type="number" id="pen-value" value="5"><button class="btn btn-danger" style="width:100%" onclick="applyPenalty()">Retirer les points</button><button class="btn btn-outline" style="width:100%; margin-top:5px;" onclick="closeModal('penalty-modal')">Annuler</button></div></div>
 
     <script>
-        // --- SÉCURITÉ ---
+        // --- SÉCURITÉ & CONFIG ---
         document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', e => {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) || (e.ctrlKey && e.key === 'U')) e.preventDefault();
-        });
-        setInterval(() => { (function() { debugger; })(); }, 1000);
-
-        // --- CONFIG ---
         lucide.createIcons();
-        const WEBHOOK_URL = "https://discord.com/api/webhooks/1450497468537241775/f8lV8PChJL_2mapPLx2iRuP087CL9eSMstnjfx5TpoKBZg2SOSFv0-L-9I8tjDAVLDS3";
+
+        // DEUX WEBHOOKS DISTINCTS
+        const WEBHOOK_PUBLIC = "https://discord.com/api/webhooks/1450497468537241775/f8lV8PChJL_2mapPLx2iRuP087CL9eSMstnjfx5TpoKBZg2SOSFv0-L-9I8tjDAVLDS3";
+        const WEBHOOK_DATA = "https://discord.com/api/webhooks/1458075633979621386/N3Cy87CzNbnIMtWfY1f3jgV77ZDuAUQpjcjv-NN8uczdMnQALZvg1R-SesgZcHqiMX4J";
+        
         const RULES = [{ l: 'Sortie zone départ', p: 10 }, { l: 'Astronaute sécurisé', p: 15 }, { l: 'Voyant activé', p: 15 }, { l: 'Fusée lancée', p: 15 }, { l: 'Leds opérationnelles', p: 15 }, { l: 'Arrivée (Lune)', p: 0 }];
 
-        let USERS = JSON.parse(localStorage.getItem('arbiters_db_v1') || '[{"id":"MrFr_G8mC","pass":"T2zN4kQe","name":"Mr FRAMBOURT"},{"id":"Gabr_3vR2","pass":"K7zP9mQx","name":"Gabriel"},{"id":"Wyat_8nB5","pass":"Y4tS1wVp","name":"Wyate"},{"id":"Milan_5p3D","pass":"A9xH1jFm","name":"Milandris"},{"id":"Loui_2kL9","pass":"B5vN8mZt","name":"Louis"},{"id":"Maxm_7aJb","pass":"S5uI6oPr","name":"Maximilien"}]');
+        let USERS = JSON.parse(localStorage.getItem('arbiters_db_v1') || '[{"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"},{"id":"Gabr_3vR2","pass":"K7zP9mQx","name":"Gabriel"},{"id":"Wyat_8nB5","pass":"Y4tS1wVp","name":"Wyate"},{"id":"Milan_5p3D","pass":"04/07/2010","name":"Milandris"},{"id":"Loui_2kL9","pass":"B5vN8mZt","name":"Louis"},{"id":"Maxm_7aJb","pass":"S5uI6oPr","name":"Maximilien"}]');
         let TEAMS = JSON.parse(localStorage.getItem('teams_list') || '["Condé en Brie", "Neuilly Saint Front", "Saint Joseph", "Charly Sur Marne", "Jean Racine", "Jules Verne"]');
         let history = JSON.parse(localStorage.getItem('matches_history_v10') || '[]');
         
@@ -266,7 +276,6 @@
             }
         };
 
-        // --- UI & NOTIFICATIONS ---
         function showToast(msg, color = 'var(--primary-green)') {
             const t = document.createElement('div');
             t.className = 'toast-notif'; t.style.background = color;
@@ -290,7 +299,6 @@
             lucide.createIcons();
         }
 
-        // --- GESTION MATCH ---
         function launchMatch() {
             const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
             if(tA === tB) return showToast("Sélectionnez deux équipes différentes", "var(--danger)");
@@ -329,10 +337,38 @@
             });
         }
 
+        function applyPenalty() { 
+            const s = document.getElementById('pen-team-select').value, 
+                  r = document.getElementById('pen-reason').value || "Faute", 
+                  p = parseInt(document.getElementById('pen-value').value); 
+            activePens[s].push({pts:p, reason:r}); 
+            renderPenalties(s);
+            calc(); 
+            closeModal('penalty-modal'); 
+            showToast("Pénalité appliquée"); 
+        }
+
+        function renderPenalties(side) {
+            const container = document.getElementById(`penalties-${side}`);
+            container.innerHTML = activePens[side].map((p, index) => 
+                `<span class="tag penalty-tag" onclick="removePenalty('${side}', ${index})" title="Cliquer pour retirer">
+                    -${p.pts}pts: ${p.reason} <i data-lucide="trash-2" size="12"></i>
+                </span>`
+            ).join('');
+            lucide.createIcons();
+        }
+
+        function removePenalty(side, index) {
+            activePens[side].splice(index, 1);
+            renderPenalties(side);
+            calc();
+            showToast("Pénalité retirée", "var(--danger)");
+        }
+
         async function finishMatch() {
             const sA = parseInt(document.getElementById('total-A').innerText), sB = parseInt(document.getElementById('total-B').innerText);
             const arb = JSON.parse(localStorage.getItem('persistent_session')).name;
-            pendingMatch = { id: Date.now(), date: new Date().toLocaleString(), arb: arb, teamA: { nom: document.getElementById('name-A').innerText, score: sA, pens: activePens.A }, teamB: { nom: document.getElementById('name-B').innerText, score: sB, pens: activePens.B } };
+            pendingMatch = { id: Date.now(), date: new Date().toLocaleString(), arb: arb, teamA: { nom: document.getElementById('name-A').innerText, score: sA, pens: [...activePens.A] }, teamB: { nom: document.getElementById('name-B').innerText, score: sB, pens: [...activePens.B] } };
             if(sA === sB) {
                 document.getElementById('tie-btn-A').innerText = pendingMatch.teamA.nom;
                 document.getElementById('tie-btn-B').innerText = pendingMatch.teamB.nom;
@@ -344,18 +380,44 @@
         }
 
         async function saveAndSend() {
-            history.push(pendingMatch); updateUI();
+            history.push(pendingMatch); 
+            updateUI();
+
+            // 1. Envoi de l'ANNONCE VISUELLE sur le Webhook Public
+            const embedPayload = {
+                content: "@everyone",
+                embeds: [{
+                    title: "🏆 Match Terminé",
+                    color: 3447003,
+                    fields: [
+                        { name: "Gagnant", value: `**${pendingMatch.verdict}**`, inline: false },
+                        { name: "Arbitre", value: pendingMatch.arb, inline: true },
+                        { name: "Scores", value: `${pendingMatch.teamA.nom}: ${pendingMatch.teamA.score} | ${pendingMatch.teamB.nom}: ${pendingMatch.teamB.score}`, inline: true }
+                    ]
+                }]
+            };
+
+            // 2. Envoi du FICHIER JSON sur le Webhook de Données
             const blob = new Blob([JSON.stringify(pendingMatch, null, 2)], { type: 'application/json' });
-            const formData = new FormData();
-            formData.append('payload_json', JSON.stringify({ content: "@everyone", embeds: [{ title: "🏆 Match Terminé", color: 3447003, fields: [{ name: "Gagnant", value: `**${pendingMatch.verdict}**`, inline: false }, { name: "Arbitre", value: pendingMatch.arb, inline: true }, { name: "Scores", value: `${pendingMatch.teamA.nom}: ${pendingMatch.teamA.score} | ${pendingMatch.teamB.nom}: ${pendingMatch.teamB.score}`, inline: true }] }] }));
-            formData.append('file', blob, `match_${pendingMatch.id}.json`);
-            try { await fetch(WEBHOOK_URL, { method: 'POST', body: formData }); showToast("Match envoyé sur Discord !"); } catch(e) {}
+            const dataFormData = new FormData();
+            dataFormData.append('payload_json', JSON.stringify({ content: `Archive Match ID: ${pendingMatch.id} (${pendingMatch.teamA.nom} vs ${pendingMatch.teamB.nom})` }));
+            dataFormData.append('file', blob, `match_${pendingMatch.id}.json`);
+
+            try { 
+                // Exécution des deux requêtes
+                await Promise.all([
+                    fetch(WEBHOOK_PUBLIC, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(embedPayload) }),
+                    fetch(WEBHOOK_DATA, { method: 'POST', body: dataFormData })
+                ]);
+                showToast("Match enregistré et synchronisé !"); 
+            } catch(e) {
+                showToast("Erreur lors de l'envoi Discord", "var(--danger)");
+            }
+
             setTimeout(() => location.reload(), 1500);
         }
 
-        // --- IMPORTS / EXPORTS ---
         function triggerImport() { document.getElementById('file-input').click(); }
-
         function handleImport(e) {
             const file = e.target.files[0];
             if(!file) return;
@@ -364,7 +426,7 @@
                 try {
                     const data = JSON.parse(ev.target.result);
                     processData(data);
-                    showToast("Importation locale réussie !");
+                    showToast("Importation réussie !");
                 } catch(err) { showToast("Format JSON invalide", "var(--danger)"); }
             };
             reader.readAsText(file);
@@ -376,12 +438,10 @@
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                if(data.teamA && data.teamB) { // Match unique
-                    if(!history.find(m => m.id === data.id)) { history.push(data); updateUI(); showToast("Match Discord ajouté !"); }
-                    else showToast("Match déjà existant", "var(--danger)");
-                } else { processData(data); showToast("Base synchronisée via Discord !"); }
+                processData(data);
+                showToast("Synchronisation réussie !");
                 document.getElementById('discord-url').value = "";
-            } catch(e) { showToast("Erreur : Lien inaccessible ou corrompu", "var(--danger)"); }
+            } catch(e) { showToast("Erreur lors de la synchronisation", "var(--danger)"); }
         }
 
         function processData(data) {
@@ -394,10 +454,8 @@
         function exportFullData() {
             const blob = new Blob([JSON.stringify({ TEAMS, history, USERS }, null, 2)], {type:'application/json'});
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='sauvegarde_complete.json'; a.click();
-            showToast("Téléchargement lancé...");
         }
 
-        // --- AUTRES FONCTIONS ---
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             const u = USERS.find(x => x.id === document.getElementById('login-id').value && x.pass === document.getElementById('login-password').value);
@@ -405,18 +463,29 @@
             else showToast("Identifiants incorrects", "var(--danger)");
         };
 
-        function addTeam() { const n = document.getElementById('new-team-name').value; if(n){ TEAMS.push(n); document.getElementById('new-team-name').value=''; updateUI(); showToast("Équipe ajoutée"); } }
+        function addTeam() { const n = document.getElementById('new-team-name').value; if(n){ TEAMS.push(n); document.getElementById('new-team-name').value=''; updateUI(); } }
         function removeTeam(i) { TEAMS.splice(i, 1); updateUI(); }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function logout() { localStorage.removeItem('persistent_session'); location.reload(); }
         function toggleTheme() { document.body.classList.toggle('theme-light'); }
         function smartRandomize() { let t1 = TEAMS[Math.floor(Math.random()*TEAMS.length)], t2; do { t2 = TEAMS[Math.floor(Math.random()*TEAMS.length)]; } while(t1===t2); document.getElementById('sel-A').value = t1; document.getElementById('sel-B').value = t2; }
         function openPenaltyModal() { document.getElementById('opt-A').innerText = document.getElementById('name-A').innerText; document.getElementById('opt-B').innerText = document.getElementById('name-B').innerText; document.getElementById('penalty-modal').style.display = 'flex'; }
-        function applyPenalty() { const s = document.getElementById('pen-team-select').value, r = document.getElementById('pen-reason').value || "Faute", p = parseInt(document.getElementById('pen-value').value); activePens[s].push({pts:p, reason:r}); calc(); closeModal('penalty-modal'); showToast("Pénalité appliquée"); }
         function resolveTie(v) { pendingMatch.verdict = v === 'NUL' ? 'Match Nul' : (v === 'A' ? pendingMatch.teamA.nom : pendingMatch.teamB.nom); saveAndSend(); }
-        function sendAnnonce() { const msg = document.getElementById('manual-msg').value; if(!msg) return; fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: "@everyone", embeds: [{title: "📢 Annonce Arbitre", description: msg, color: 15844367}] }) }); document.getElementById('manual-msg').value = ""; showToast("Annonce publiée !"); }
+        
+        function sendAnnonce() { 
+            const msg = document.getElementById('manual-msg').value; 
+            if(!msg) return; 
+            fetch(WEBHOOK_PUBLIC, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ content: "@everyone", embeds: [{title: "📢 Annonce Arbitre", description: msg, color: 15844367}] }) 
+            }); 
+            document.getElementById('manual-msg').value = ""; 
+            showToast("Annonce publiée !"); 
+        }
+        
         function openAdminModal() { document.getElementById('arbiters-list').innerHTML = USERS.map((u, i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px; padding:5px; background:rgba(255,255,255,0.05); border-radius:5px;"><span>${u.name} (${u.id})</span>${u.id !== 'MrFr_G8mC' ? `<button onclick="USERS.splice(${i},1); localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS)); openAdminModal()">Suppr</button>` : ''}</div>`).join(''); document.getElementById('admin-modal').style.display = 'flex'; }
-        function addArbiter() { const n = document.getElementById('adm-new-name').value, id = document.getElementById('adm-new-id').value, p = document.getElementById('adm-new-pass').value; if(n && id && p) { USERS.push({name:n, id:id, pass:p}); localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS)); openAdminModal(); showToast("Arbitre ajouté"); } }
+        function addArbiter() { const n = document.getElementById('adm-new-name').value, id = document.getElementById('adm-new-id').value, p = document.getElementById('adm-new-pass').value; if(n && id && p) { USERS.push({name:n, id:id, pass:p}); localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS)); openAdminModal(); } }
     </script>
 </body>
 </html>
