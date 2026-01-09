@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arbitrage Challenge 2026 - V4.5 PRO</title>
+    <title>Arbitrage Challenge 2026 - Final V4.3</title>
+    <link id="favicon" rel="icon" type="image/png" href="https://i.ibb.co/XxJybFzH/Design-sans-titre.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -14,266 +15,310 @@
             --danger: #ef4444;
             --discord: #5865F2;
             --bg-dark: #050505;
-            --glass: rgba(255, 255, 255, 0.05);
+            --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
-            --input-bg: rgba(0, 0, 0, 0.3);
-            --transition: all 0.3s ease;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --card-shadow: none;
         }
 
         body.theme-light { 
             --bg-dark: #f0f2f5; 
-            --glass: rgba(255, 255, 255, 0.9); 
-            --glass-border: rgba(0, 0, 0, 0.1);
+            --glass: rgba(255, 255, 255, 0.95); 
+            --glass-border: rgba(0, 0, 0, 0.15);
             --text-main: #0f172a; 
             --text-dim: #475569;
-            --input-bg: rgba(255, 255, 255, 0.8);
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: 'Montserrat', sans-serif; margin: 0; color: var(--text-main); background-color: var(--bg-dark); transition: var(--transition); overflow-x: hidden; min-height: 100vh; }
-
-        /* --- LOADER --- */
-        #loader { position: fixed; inset: 0; background: var(--bg-dark); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; }
-        .loader-bar { width: 150px; height: 4px; background: var(--glass-border); border-radius: 10px; overflow: hidden; position: relative; margin-top: 20px; }
-        .loader-progress { position: absolute; height: 100%; width: 50%; background: var(--primary-blue); animation: loading 1.5s infinite ease-in-out; }
-        @keyframes loading { 0% { left: -50%; } 100% { left: 100%; } }
-        .loader-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-
-        /* --- AUTH --- */
-        #login-modal { position: fixed; inset: 0; background: radial-gradient(circle at top right, #001d4a, var(--bg-dark)); display: flex; align-items: center; justify-content: center; z-index: 25000; padding: 20px; }
-        .login-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); padding: 40px; border-radius: 32px; width: 100%; max-width: 400px; text-align: center; }
-
-        /* --- LAYOUT --- */
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); background: var(--glass); border-radius: 24px; backdrop-filter: blur(15px); }
-        .card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); margin-bottom: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         
-        .grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 850px) { .grid-main { grid-template-columns: 1fr; } }
+        /* --- STYLE INTERFACE ORIGINALE --- */
+        header { 
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 10px 20px; 
+            margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); background: var(--glass); 
+            border-radius: 15px; backdrop-filter: blur(10px); box-shadow: var(--card-shadow);
+        }
 
-        /* --- MATCH & SCORE --- */
-        .score-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--glass-border); cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.02); }
-        .score-row.active { background: rgba(16, 185, 129, 0.2); border-color: var(--primary-green); }
-        .big-score { font-size: 72px; font-weight: 800; text-align: center; margin: 20px 0; color: var(--text-main); text-shadow: 0 0 20px rgba(255,255,255,0.1); }
-        .penalty-tag { background: var(--danger); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; margin: 4px; display: inline-block; font-weight: bold; }
+        .header-left { display: flex; flex-direction: column; }
+        .header-center { display: flex; justify-content: center; align-items: center; }
+        .header-right { display: flex; gap: 10px; justify-content: flex-end; }
+        .nav-logo { height: 55px; width: auto; background: transparent; transition: var(--transition); }
 
-        /* --- FORM --- */
-        input, select, textarea { width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 12px; border-radius: 12px; font-family: inherit; margin-top: 5px; }
-        .btn { cursor: pointer; border: none; border-radius: 12px; font-weight: 700; padding: 14px 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; color: white; }
-        .btn-primary { background: var(--primary-blue); }
-        .btn-success { background: var(--primary-green); }
-        .btn-danger { background: var(--danger); }
+        .card { 
+            background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); 
+            border-radius: 20px; padding: 20px; height: 100%; display: flex; flex-direction: column;
+            box-shadow: var(--card-shadow);
+        }
+
+        .grid-main { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; align-items: stretch; }
+        
+        @media (max-width: 850px) { 
+            .grid-main { grid-template-columns: 1fr; } 
+            header { grid-template-columns: 1fr auto; }
+            .header-center { display: none; }
+        }
+
+        .score-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 14px; border-radius: 12px; margin-bottom: 6px;
+            border: 1px solid var(--glass-border); transition: var(--transition);
+            cursor: pointer; background: rgba(0,0,0,0.02);
+        }
+        .score-row.active { background: rgba(16, 185, 129, 0.15); border-color: var(--primary-green); }
+
+        /* Correction Visibilité Menus Déroulants */
+        input, select, textarea { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: var(--text-main); padding: 12px; border-radius: 10px; margin-bottom: 8px; outline: none; font-family: inherit; }
+        select option { background: #1a1a1a; color: white; }
+        body.theme-light select option { background: white; color: black; }
+
+        .btn { cursor: pointer; border: none; border-radius: 10px; font-weight: 700; padding: 10px 18px; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 8px; position: relative; }
+        .btn-icon { width: 38px; height: 38px; padding: 0; border-radius: 50%; flex-shrink: 0; }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-success { background: var(--primary-green); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); }
-        
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 30000; backdrop-filter: blur(10px); }
-        .modal-content { background: var(--bg-dark); border: 1px solid var(--glass-border); padding: 30px; border-radius: 24px; width: 90%; max-width: 450px; }
+
+        /* --- LOADING ELEMENTS --- */
+        #global-loader {
+            position: fixed; inset: 0; background: var(--bg-dark); z-index: 20000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--glass-border); border-top-color: var(--primary-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .btn-spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .is-loading .btn-spinner { display: block; }
+        .is-loading .btn-text { display: none; }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(10px); }
+        .modal-content { width: 95%; max-width: 500px; background: var(--bg-dark); border: 2px solid var(--glass-border); border-radius: 24px; padding: 25px; max-height: 85vh; overflow-y: auto; }
+
         .hidden { display: none !important; }
-        .tag { background: var(--glass-border); padding: 6px 12px; border-radius: 20px; font-size: 12px; margin: 4px; display: inline-flex; align-items: center; gap: 8px; }
+        .tag { background: rgba(0,0,0,0.05); padding: 6px 12px; border-radius: 20px; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; margin: 3px; border: 1px solid var(--glass-border); font-weight: 600; }
+        .penalty-tag { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); font-size: 10px; padding: 4px 8px; border-radius: 5px; margin-top: 5px; cursor: pointer; display: inline-block; }
     </style>
 </head>
-<body class="theme-dark">
+<body class="theme-dark" oncontextmenu="return false;">
 
-    <div id="loader">
-        <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="width: 70px;">
-        <div class="loader-bar"><div class="loader-progress"></div></div>
+    <div id="global-loader">
+        <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="width: 80px; margin-bottom: 20px;">
+        <div class="spinner"></div>
     </div>
 
-    <div id="login-modal">
-        <div class="login-card">
-            <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="height: 60px; margin-bottom: 20px;">
-            <h2 style="margin-top:0">Connexion Arbitre</h2>
+    <div id="login-modal" class="modal" style="display: none;">
+        <div class="card" style="max-width: 400px; width: 100%; text-align: center; height: auto; margin: auto;">
+            <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="width: 80px; margin: 0 auto 10px auto;">
+            <h1 style="margin: 0 0 5px 0; font-size: 24px;">Bonjour !</h1>
+            <p style="color: var(--text-dim); margin-bottom: 25px; font-size: 14px;">Identifiez-vous pour accéder au Challenge</p>
             <form id="login-form">
                 <input type="text" id="login-id" placeholder="Identifiant" required>
                 <input type="password" id="login-password" placeholder="Mot de passe" required>
-                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:15px">Entrer</button>
+                <button type="submit" id="login-submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <span class="btn-text">Se connecter</span>
+                    <div class="btn-spinner"></div>
+                </button>
             </form>
         </div>
     </div>
 
     <div class="container">
         <header>
-            <div>
-                <h2 style="margin:0; font-size: 1.2rem;">CHALLENGE 2026</h2>
-                <small id="arbiter-display" style="color:var(--text-dim)">Session Arbitre</small>
+            <div class="header-left">
+                <h2 style="margin: 0; font-weight: 800; letter-spacing: -0.5px; font-size: 1.2rem;">CHALLENGE 2026</h2>
+                <div id="arbiter-display" style="color: var(--text-dim); font-size: 11px; font-weight: 500; text-transform: uppercase;">Non connecté</div>
             </div>
-            <div style="display:flex; gap:10px">
-                <button onclick="toggleTheme()" class="btn btn-outline" style="padding:10px"><i data-lucide="sun"></i></button>
-                <button onclick="logout()" class="btn btn-danger" style="padding:10px"><i data-lucide="log-out"></i></button>
+            <div class="header-center">
+                <img id="main-logo" src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" alt="Logo" class="nav-logo">
+            </div>
+            <div class="header-right">
+                <button id="admin-btn" onclick="openAdminModal()" class="btn btn-outline btn-icon hidden"><i data-lucide="shield-check"></i></button>
+                <button onclick="toggleTheme()" class="btn btn-outline btn-icon"><i data-lucide="sun"></i></button>
+                <button onclick="logout()" class="btn btn-danger btn-icon"><i data-lucide="log-out"></i></button>
             </div>
         </header>
 
-        <div id="main-dashboard">
+        <div class="grid-main">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="card">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <i data-lucide="megaphone" color="#5865F2"></i>
+                        <h3 style="margin: 0;">Annonce Discord</h3>
+                    </div>
+                    <textarea id="manual-msg" placeholder="Message aux équipes..." style="flex-grow: 1; min-height: 80px;"></textarea>
+                    <button id="btn-discord" class="btn btn-primary" style="background: var(--discord); margin-top: 10px;" onclick="sendAnnonce()">
+                        <span class="btn-text">Diffuser @everyone</span>
+                        <div class="btn-spinner"></div>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <i data-lucide="history"></i>
+                        <h3 style="margin: 0;">Historique des Matchs</h3>
+                    </div>
+                    <div id="history-list" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="card" id="card-teams">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <i data-lucide="plus-circle" color="#0062ff"></i>
+                        <h3 style="margin: 0;">Gestion des Équipes</h3>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                        <input type="text" id="new-team-name" placeholder="Ajouter une équipe..." style="margin:0">
+                        <button class="btn btn-primary" onclick="addTeam()"><i data-lucide="plus"></i></button>
+                    </div>
+                    <div id="teams-list" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px;"></div>
+                </div>
+
+                <div id="setup-match" class="card">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <i data-lucide="swords" color="#10b981"></i>
+                        <h3 style="margin: 0;">Lancer un Match</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                        <div>
+                            <label style="font-size: 11px; color: var(--primary-blue); font-weight: 700;">BLEUE</label>
+                            <select id="sel-A" style="margin-top: 5px;"></select>
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--primary-green); font-weight: 700;">VERTE</label>
+                            <select id="sel-B" style="margin-top: 5px;"></select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-outline btn-icon" onclick="smartRandomize()"><i data-lucide="shuffle"></i></button>
+                        <button id="btn-start" class="btn btn-success" onclick="launchMatch()" style="flex:1">
+                            <span class="btn-text">Commencer</span>
+                            <div class="btn-spinner"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="match-area" class="card hidden" style="margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2 style="margin:0"><i data-lucide="zap" style="color: #fbbf24;"></i> Match en cours...</h2>
+                <button class="btn btn-danger" onclick="openPenaltyModal()">Pénalité</button>
+            </div>
             <div class="grid-main">
-                <div class="card">
-                    <h3><i data-lucide="play-circle" style="vertical-align:middle"></i> Lancer un Match</h3>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin: 15px 0">
-                        <div><label>Équipe A</label><select id="sel-A"></select></div>
-                        <div><label>Équipe B</label><select id="sel-B"></select></div>
-                    </div>
-                    <div style="display:flex; gap:10px">
-                        <button class="btn btn-outline" onclick="smartRandomize()"><i data-lucide="shuffle"></i></button>
-                        <button class="btn btn-success" style="flex:1" onclick="launchMatch()">DÉMARRER</button>
-                    </div>
+                <div class="card" style="border-top:5px solid var(--primary-blue)">
+                    <h2 id="name-A" style="margin:0; color: var(--primary-blue);"></h2>
+                    <input type="number" id="time-A" value="120" oninput="calc()">
+                    <div id="items-A" style="margin-top: 15px;"></div>
+                    <div id="penalties-A" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+                    <div class="big-score" id="total-A" style="font-size:56px; text-align:center; font-weight:800">0</div>
                 </div>
-
-                <div class="card">
-                    <h3><i data-lucide="users"></i> Équipes</h3>
-                    <div style="display:flex; gap:8px; margin-bottom:15px">
-                        <input type="text" id="new-team-name" placeholder="Ajouter équipe...">
-                        <button class="btn btn-primary" onclick="addTeam()">+</button>
-                    </div>
-                    <div id="teams-list"></div>
+                <div class="card" style="border-top:5px solid var(--primary-green)">
+                    <h2 id="name-B" style="margin:0; color: var(--primary-green);"></h2>
+                    <input type="number" id="time-B" value="120" oninput="calc()">
+                    <div id="items-B" style="margin-top: 15px;"></div>
+                    <div id="penalties-B" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+                    <div class="big-score" id="total-B" style="font-size:56px; text-align:center; font-weight:800">0</div>
                 </div>
             </div>
-
-            <div class="card">
-                <h3><i data-lucide="send"></i> Annonce Rapide (Discord)</h3>
-                <div style="display:flex; gap:10px">
-                    <input type="text" id="manual-msg" placeholder="Ex: Début de la pause déjeuner...">
-                    <button class="btn btn-primary" style="background:var(--discord)" onclick="sendAnnonce()">Diffuser</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3><i data-lucide="list"></i> Historique des matchs</h3>
-                <div id="history-list"></div>
-            </div>
-        </div>
-
-        <div id="match-area" class="hidden">
-            <div class="card" style="border-left: 5px solid var(--primary-blue)">
-                <div style="display:flex; justify-content:space-between; align-items:center">
-                    <h2 id="match-title" style="margin:0">MATCH EN DIRECT</h2>
-                    <button class="btn btn-danger" onclick="openPenaltyModal()"><i data-lucide="alert-triangle"></i> PÉNALITÉ</button>
-                </div>
-                
-                <div class="grid-main" style="margin-top:20px">
-                    <div class="card" style="background:rgba(0,98,255,0.05)">
-                        <h2 id="name-A" style="color:var(--primary-blue); text-align:center">-</h2>
-                        <label>Temps chrono (sec)</label>
-                        <input type="number" id="time-A" value="120" oninput="calc()">
-                        <div id="items-A" style="margin-top:15px"></div>
-                        <div id="pens-A"></div>
-                        <div class="big-score" id="total-A">0</div>
-                    </div>
-
-                    <div class="card" style="background:rgba(16,185,129,0.05)">
-                        <h2 id="name-B" style="color:var(--primary-green); text-align:center">-</h2>
-                        <label>Temps chrono (sec)</label>
-                        <input type="number" id="time-B" value="120" oninput="calc()">
-                        <div id="items-B" style="margin-top:15px"></div>
-                        <div id="pens-B"></div>
-                        <div class="big-score" id="total-B">0</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <label>Commentaires de l'arbitre</label>
-                    <textarea id="match-comment" rows="2" placeholder="Ex: Problème de capteur pour l'équipe B..."></textarea>
-                </div>
-
-                <button class="btn btn-success" style="width:100%; padding:20px; font-size:1.2rem; margin-top:10px" onclick="finishMatch()">
-                    VALIDER ET ENVOYER LE SCORE
-                </button>
-            </div>
+            <button id="btn-save" class="btn btn-success" onclick="finishMatch()" style="width:100%; padding: 25px; margin-top: 20px; font-size: 20px;">
+                <span class="btn-text"><i data-lucide="save"></i> Enregistrer & Envoyer</span>
+                <div class="btn-spinner"></div>
+            </button>
         </div>
     </div>
 
-    <div id="penalty-modal" class="modal">
-        <div class="modal-content">
-            <h3><i data-lucide="frown"></i> Sanction</h3>
-            <label>Équipe</label>
-            <select id="pen-team"><option value="A" id="opt-A"></option><option value="B" id="opt-B"></option></select>
-            <label>Raison</label>
-            <input type="text" id="pen-reason" placeholder="Ex: Contact manuel">
-            <label>Points à retirer</label>
-            <input type="number" id="pen-value" value="10">
-            <div style="display:flex; gap:10px; margin-top:20px">
-                <button class="btn btn-outline" style="flex:1" onclick="closeModal('penalty-modal')">Annuler</button>
-                <button class="btn btn-danger" style="flex:1" onclick="applyPenalty()">Retirer</button>
-            </div>
-        </div>
-    </div>
+    <div id="admin-modal" class="modal"><div class="modal-content"><h3>Gestion Arbitres</h3><div id="arbiters-list"></div><hr style="opacity:0.1; margin:15px 0;"><input type="text" id="adm-new-name" placeholder="Nom"><input type="text" id="adm-new-id" placeholder="ID"><input type="text" id="adm-new-pass" placeholder="Pass"><button class="btn btn-primary" style="width:100%" onclick="addArbiter()">Ajouter</button><button class="btn btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal('admin-modal')">Fermer</button></div></div>
+    <div id="penalty-modal" class="modal"><div class="modal-content"><h3>Pénalité</h3><select id="pen-team-select"><option value="A" id="opt-A"></option><option value="B" id="opt-B"></option></select><input type="text" id="pen-reason" placeholder="Raison"><input type="number" id="pen-value" value="5"><button class="btn btn-danger" style="width:100%" onclick="applyPenalty()">Retirer les points</button><button class="btn btn-outline" style="width:100%; margin-top:5px;" onclick="closeModal('penalty-modal')">Annuler</button></div></div>
 
     <script>
-        const WEBHOOK_URL = "https://discord.com/api/webhooks/1326841399723069440/8S6Xq95l_f_u1o56_7M8-jLz-YgR9l-Nf3u-C_mP1"; // Remplace par ton URL
-        const RULES = [
-            { l: 'Sortie zone départ', p: 10 }, 
-            { l: 'Astronaute sécurisé', p: 15 }, 
-            { l: 'Voyant activé', p: 15 }, 
-            { l: 'Fusée lancée', p: 15 }, 
-            { l: 'Leds opérationnelles', p: 15 }, 
-            { l: 'Arrivée (Lune)', p: 0 }
-        ];
+        lucide.createIcons();
 
-        let USERS = [{"id":"MrFr_G8mC","pass":"T2zN4kQe","name":"Mr FRAMBOURT"}];
-        let TEAMS = JSON.parse(localStorage.getItem('teams_v4') || '["Team Alpha", "Team Beta"]');
-        let history = JSON.parse(localStorage.getItem('history_v4') || '[]');
-        let activePens = { A: [], B: [] }, arrivalOrder = [];
-
-        // --- DÉMARRAGE ---
-        window.addEventListener('DOMContentLoaded', () => {
-            const sess = sessionStorage.getItem('session');
-            if(sess) {
-                document.getElementById('login-modal').classList.add('hidden');
-                document.getElementById('arbiter-display').innerText = "Arbitre : " + JSON.parse(sess).name;
-                updateUI();
-            }
-            
-            // Sécurité Loader : on l'enlève quoi qu'il arrive après 1.5s
-            setTimeout(() => {
-                document.getElementById('loader').classList.add('loader-hidden');
-                lucide.createIcons();
-            }, 1000);
+        // --- SECURITÉ ET CHARGEMENT ---
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) e.preventDefault();
         });
 
-        // --- AUTH ---
-        document.getElementById('login-form').onsubmit = (e) => {
-            e.preventDefault();
-            const id = document.getElementById('login-id').value;
-            const pass = document.getElementById('login-password').value;
-            const user = USERS.find(u => u.id === id && u.pass === pass);
-            if(user) {
-                sessionStorage.setItem('session', JSON.stringify(user));
-                location.reload();
-            } else alert("Mauvais identifiants");
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1326960098492416030/f8lV8PChJL_2mapPLx2iRuP087CL9eSMstnjfx5TpoKBZg2SOSFv0-L-9I8tjDAVLDS3";
+        const RULES = [{ l: 'Sortie zone départ', p: 10 }, { l: 'Astronaute sécurisé', p: 15 }, { l: 'Voyant activé', p: 15 }, { l: 'Fusée lancée', p: 15 }, { l: 'Leds opérationnelles', p: 15 }, { l: 'Arrivée (Lune)', p: 0 }];
+
+        let USERS = JSON.parse(localStorage.getItem('arbiters_db_v1') || '[{"id":"MrFr_G8mC","pass":"T2zN4kQe","name":"Mr FRAMBOURT"}]');
+        let TEAMS = JSON.parse(localStorage.getItem('teams_list') || '["Equipe 1", "Equipe 2"]');
+        let history = JSON.parse(localStorage.getItem('matches_history_v10') || '[]');
+        let activePens = { A: [], B: [] }, arrivalOrder = [], pendingMatch = null;
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('global-loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('global-loader').style.display = 'none', 500);
+                
+                const session = localStorage.getItem('persistent_session');
+                if(!session) {
+                    document.getElementById('login-modal').style.display = 'flex';
+                } else {
+                    const u = JSON.parse(session);
+                    document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name;
+                    if(u.id === 'MrFr_G8mC') document.getElementById('admin-btn').classList.remove('hidden');
+                    updateUI();
+                }
+            }, 1000);
         };
 
-        function logout() { sessionStorage.clear(); location.reload(); }
+        function updateUI() {
+            localStorage.setItem('teams_list', JSON.stringify(TEAMS));
+            localStorage.setItem('matches_history_v10', JSON.stringify(history));
+            document.getElementById('teams-list').innerHTML = TEAMS.map((t, i) => `<span class="tag">${t} <i data-lucide="x" size="14" style="cursor:pointer" onclick="removeTeam(${i})"></i></span>`).join('');
+            const opts = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
+            document.getElementById('sel-A').innerHTML = opts; document.getElementById('sel-B').innerHTML = opts;
+            document.getElementById('history-list').innerHTML = history.slice().reverse().map(m => `
+                <div style="font-size:12px; padding:10px; border-bottom:1px solid var(--glass-border)">
+                    <b>${m.teamA.nom}</b> vs <b>${m.teamB.nom}</b><br>
+                    <small>${m.verdict} a gagné</small>
+                </div>`).join('');
+            lucide.createIcons();
+        }
 
-        // --- MATCHES ---
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-submit');
+            btn.classList.add('is-loading');
+            setTimeout(() => {
+                const id = document.getElementById('login-id').value;
+                const pass = document.getElementById('login-password').value;
+                const u = USERS.find(x => x.id === id && x.pass === pass);
+                if(u) {
+                    localStorage.setItem('persistent_session', JSON.stringify(u));
+                    location.reload();
+                } else {
+                    btn.classList.remove('is-loading');
+                    alert("Erreur d'identification");
+                }
+            }, 800);
+        };
+
         function launchMatch() {
-            const tA = document.getElementById('sel-A').value;
-            const tB = document.getElementById('sel-B').value;
-            if(tA === tB) return alert("Sélectionnez deux équipes différentes");
-
-            document.getElementById('name-A').innerText = tA;
-            document.getElementById('name-B').innerText = tB;
-            document.getElementById('opt-A').innerText = tA;
-            document.getElementById('opt-B').innerText = tB;
-            
-            arrivalOrder = []; activePens = { A: [], B: [] };
-            
-            ['A', 'B'].forEach(side => {
-                document.getElementById(`items-${side}`).innerHTML = RULES.map(r => `
-                    <div class="score-row" onclick="handleCheck('${side}', '${r.l}', this)">
-                        <span>${r.l}</span>
-                        <input type="checkbox" class="chk-${side}" data-pts="${r.p}" data-label="${r.l}" style="width:20px;height:20px" onclick="event.stopPropagation(); calc();">
-                    </div>
-                `).join('');
-                document.getElementById(`pens-${side}`).innerHTML = '';
-            });
-
-            document.getElementById('main-dashboard').classList.add('hidden');
-            document.getElementById('match-area').classList.remove('hidden');
-            calc();
+            const btn = document.getElementById('btn-start');
+            btn.classList.add('is-loading');
+            setTimeout(() => {
+                const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
+                if(tA === tB) { btn.classList.remove('is-loading'); return; }
+                document.getElementById('name-A').innerText = tA; document.getElementById('name-B').innerText = tB;
+                arrivalOrder = []; activePens = { A: [], B: [] };
+                ['A', 'B'].forEach(s => {
+                    document.getElementById(`items-${s}`).innerHTML = RULES.map(r => `<div class="score-row" onclick="handleCheck('${s}', '${r.l}', this)"><span>${r.l}</span><input type="checkbox" class="chk-${s}" data-pts="${r.p}" style="display:none"></div>`).join('');
+                });
+                document.getElementById('setup-match').classList.add('hidden');
+                document.getElementById('match-area').classList.remove('hidden');
+                btn.classList.remove('is-loading');
+                calc();
+            }, 600);
         }
 
         function handleCheck(side, label, el) {
-            const cb = el.querySelector('input');
-            cb.checked = !cb.checked;
+            const cb = el.querySelector('input'); cb.checked = !cb.checked;
             if(label === 'Arrivée (Lune)') {
                 if(cb.checked && !arrivalOrder.includes(side)) arrivalOrder.push(side);
                 else if(!cb.checked) arrivalOrder = arrivalOrder.filter(s => s !== side);
@@ -288,96 +333,51 @@
                     if(c.checked) { pts += parseInt(c.dataset.pts); c.parentElement.classList.add('active'); } 
                     else c.parentElement.classList.remove('active'); 
                 });
-                
                 const rank = arrivalOrder.indexOf(s);
                 if(rank === 0) pts += 25; else if(rank === 1) pts += 10;
-                
-                const t = parseInt(document.getElementById(`time-${s}`).value) || 0;
-                if(t < 120) pts += Math.min(60, (120 - t) * 2);
-                
+                const time = parseInt(document.getElementById(`time-${s}`).value) || 0;
+                if(time < 120) pts += Math.min(60, (120 - time) * 2);
+                document.getElementById(`penalties-${s}`).innerHTML = activePens[s].map((p, idx) => `<span class="penalty-tag" onclick="removePenalty('${s}', ${idx})">-${p.pts} (${p.reason}) ✕</span>`).join('');
                 activePens[s].forEach(p => pts -= p.pts);
                 document.getElementById(`total-${s}`).innerText = Math.max(0, pts);
             });
         }
 
-        function applyPenalty() {
-            const s = document.getElementById('pen-team').value;
-            const r = document.getElementById('pen-reason').value || "Pénalité";
-            const v = parseInt(document.getElementById('pen-value').value);
-            activePens[s].push({pts:v, reason:r});
-            document.getElementById(`pens-${s}`).innerHTML += `<span class="penalty-tag">-${v} ${r}</span>`;
-            calc();
-            closeModal('penalty-modal');
-        }
+        function removePenalty(side, index) { activePens[side].splice(index, 1); calc(); }
 
         async function finishMatch() {
-            if(!confirm("Envoyer les scores sur Discord ?")) return;
-            const arb = JSON.parse(sessionStorage.getItem('session')).name;
-            const data = {
-                teamA: { n: document.getElementById('name-A').innerText, s: document.getElementById('total-A').innerText },
-                teamB: { n: document.getElementById('name-B').innerText, s: document.getElementById('total-B').innerText },
-                com: document.getElementById('match-comment').value,
-                arb: arb,
-                date: new Date().toLocaleTimeString()
-            };
-
-            history.push(data);
-            localStorage.setItem('history_v4', JSON.stringify(history));
-
-            const payload = {
-                embeds: [{
-                    title: "🏁 MATCH TERMINÉ",
-                    color: 5814783,
-                    fields: [
-                        { name: data.teamA.n, value: `**${data.teamA.s} pts**`, inline: true },
-                        { name: data.teamB.n, value: `**${data.teamB.s} pts**`, inline: true },
-                        { name: "Arbitre", value: arb },
-                        { name: "Commentaire", value: data.com || "Aucun" }
-                    ]
-                }]
-            };
-
-            try {
-                await fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-                alert("Match enregistré !");
-                location.reload();
-            } catch(e) { alert("Erreur Discord, mais match sauvegardé localement."); location.reload(); }
+            const btn = document.getElementById('btn-save');
+            btn.classList.add('is-loading');
+            const sA = parseInt(document.getElementById('total-A').innerText), sB = parseInt(document.getElementById('total-B').innerText);
+            const arb = JSON.parse(localStorage.getItem('persistent_session')).name;
+            pendingMatch = { id: Date.now(), arb, teamA: { nom: document.getElementById('name-A').innerText, score: sA }, teamB: { nom: document.getElementById('name-B').innerText, score: sB } };
+            pendingMatch.verdict = sA >= sB ? pendingMatch.teamA.nom : pendingMatch.teamB.nom;
+            
+            history.push(pendingMatch);
+            const formData = new FormData();
+            formData.append('payload_json', JSON.stringify({ content: "@everyone Match validé par " + arb }));
+            try { await fetch(WEBHOOK_URL, { method: 'POST', body: formData }); } catch(e) {}
+            setTimeout(() => location.reload(), 1000);
         }
 
-        // --- UI ---
-        function updateUI() {
-            const opts = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
-            document.getElementById('sel-A').innerHTML = opts;
-            document.getElementById('sel-B').innerHTML = opts;
-            document.getElementById('teams-list').innerHTML = TEAMS.map((t,i) => `<span class="tag">${t} <i data-lucide="x" size="14" onclick="removeTeam(${i})" style="cursor:pointer"></i></span>`).join('');
-            document.getElementById('history-list').innerHTML = history.slice(-5).reverse().map(h => `
-                <div style="padding:10px; border-bottom:1px solid var(--glass-border); font-size:13px">
-                    ${h.date} - <b>${h.teamA.n}</b> (${h.teamA.s}) vs <b>${h.teamB.n}</b> (${h.teamB.s})
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        function addTeam() { 
-            const n = document.getElementById('new-team-name').value; 
-            if(n) { TEAMS.push(n); localStorage.setItem('teams_v4', JSON.stringify(TEAMS)); updateUI(); } 
-        }
-        function removeTeam(i) { TEAMS.splice(i,1); localStorage.setItem('teams_v4', JSON.stringify(TEAMS)); updateUI(); }
-        function smartRandomize() {
-            let t1 = TEAMS[Math.floor(Math.random()*TEAMS.length)], t2;
-            do { t2 = TEAMS[Math.floor(Math.random()*TEAMS.length)]; } while(t1===t2);
-            document.getElementById('sel-A').value = t1; document.getElementById('sel-B').value = t2;
-        }
-        function openPenaltyModal() { document.getElementById('penalty-modal').style.display='flex'; }
-        function closeModal(id) { document.getElementById(id).style.display='none'; }
-        function toggleTheme() { document.body.classList.toggle('theme-light'); }
-        async function sendAnnonce() {
+        function sendAnnonce() {
+            const btn = document.getElementById('btn-discord');
             const msg = document.getElementById('manual-msg').value;
             if(!msg) return;
-            await fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: "📢 **Annonce Arbitre :** " + msg }) });
-            document.getElementById('manual-msg').value = "";
-            alert("Envoyé !");
+            btn.classList.add('is-loading');
+            fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: "@everyone " + msg }) })
+            .then(() => { btn.classList.remove('is-loading'); document.getElementById('manual-msg').value = ""; alert("Envoyé !"); });
         }
+
+        function addTeam() { const n = document.getElementById('new-team-name').value; if(n){ TEAMS.push(n); updateUI(); } }
+        function removeTeam(i) { TEAMS.splice(i,1); updateUI(); }
+        function logout() { localStorage.removeItem('persistent_session'); location.reload(); }
+        function toggleTheme() { document.body.classList.toggle('theme-light'); }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function openPenaltyModal() { document.getElementById('opt-A').innerText = document.getElementById('name-A').innerText; document.getElementById('opt-B').innerText = document.getElementById('name-B').innerText; document.getElementById('penalty-modal').style.display = 'flex'; }
+        function applyPenalty() { const s = document.getElementById('pen-team-select').value, r = document.getElementById('pen-reason').value || "Faute", p = parseInt(document.getElementById('pen-value').value); activePens[s].push({pts:p, reason:r}); calc(); closeModal('penalty-modal'); }
+        function smartRandomize() { let t1 = TEAMS[Math.floor(Math.random()*TEAMS.length)], t2; do { t2 = TEAMS[Math.floor(Math.random()*TEAMS.length)]; } while(t1===t2); document.getElementById('sel-A').value = t1; document.getElementById('sel-B').value = t2; }
+        function openAdminModal() { document.getElementById('arbiters-list').innerHTML = USERS.map((u, i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${u.name}</span>${u.id !== 'MrFr_G8mC' ? `<button onclick="USERS.splice(${i},1); updateUI(); openAdminModal();">X</button>` : ''}</div>`).join(''); document.getElementById('admin-modal').style.display = 'flex'; }
     </script>
 </body>
 </html>
