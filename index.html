@@ -2,81 +2,382 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Indisponible</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arbitrage Challenge 2026 - V4.5 PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        /* CSS Intégré */
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #FFD700; /* Fond Jaune */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
+        :root {
+            --primary-blue: #0062ff;
+            --primary-green: #10b981;
+            --danger: #ef4444;
+            --discord: #5865F2;
+            --bg-dark: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
         }
 
-        .container {
-            text-align: center;
-            padding: 20px;
+        body.theme-light { 
+            --bg-dark: #f0f2f5; 
+            --glass: rgba(255, 255, 255, 0.9); 
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-main: #0f172a; 
+            --text-dim: #475569;
+            --input-bg: rgba(255, 255, 255, 0.8);
         }
 
-        .icon-warning {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; color: var(--text-main); background-color: var(--bg-dark); transition: var(--transition); overflow-x: hidden; min-height: 100vh; }
 
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
+        /* --- LOADER --- */
+        #loader { position: fixed; inset: 0; background: var(--bg-dark); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; }
+        .loader-bar { width: 150px; height: 4px; background: var(--glass-border); border-radius: 10px; overflow: hidden; position: relative; margin-top: 20px; }
+        .loader-progress { position: absolute; height: 100%; width: 50%; background: var(--primary-blue); animation: loading 1.5s infinite ease-in-out; }
+        @keyframes loading { 0% { left: -50%; } 100% { left: 100%; } }
+        .loader-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        p {
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
+        /* --- AUTH --- */
+        #login-modal { position: fixed; inset: 0; background: radial-gradient(circle at top right, #001d4a, var(--bg-dark)); display: flex; align-items: center; justify-content: center; z-index: 25000; padding: 20px; }
+        .login-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); padding: 40px; border-radius: 32px; width: 100%; max-width: 400px; text-align: center; }
 
-        /* Animation légère pour attirer l'attention */
-        .icon-warning {
-            animation: pulse 2s infinite;
-        }
+        /* --- LAYOUT --- */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); background: var(--glass); border-radius: 24px; backdrop-filter: blur(15px); }
+        .card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); margin-bottom: 20px; }
+        
+        .grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 850px) { .grid-main { grid-template-columns: 1fr; } }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+        /* --- MATCH & SCORE --- */
+        .score-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--glass-border); cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.02); }
+        .score-row.active { background: rgba(16, 185, 129, 0.2); border-color: var(--primary-green); }
+        .big-score { font-size: 72px; font-weight: 800; text-align: center; margin: 20px 0; color: var(--text-main); text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .penalty-tag { background: var(--danger); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; margin: 4px; display: inline-block; font-weight: bold; }
+
+        /* --- FORM --- */
+        input, select, textarea { width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); color: var(--text-main); padding: 12px; border-radius: 12px; font-family: inherit; margin-top: 5px; }
+        .btn { cursor: pointer; border: none; border-radius: 12px; font-weight: 700; padding: 14px 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; color: white; }
+        .btn-primary { background: var(--primary-blue); }
+        .btn-success { background: var(--primary-green); }
+        .btn-danger { background: var(--danger); }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); }
+        
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 30000; backdrop-filter: blur(10px); }
+        .modal-content { background: var(--bg-dark); border: 1px solid var(--glass-border); padding: 30px; border-radius: 24px; width: 90%; max-width: 450px; }
+        .hidden { display: none !important; }
+        .tag { background: var(--glass-border); padding: 6px 12px; border-radius: 20px; font-size: 12px; margin: 4px; display: inline-flex; align-items: center; gap: 8px; }
     </style>
 </head>
-<body>
+<body class="theme-dark">
+
+    <div id="loader">
+        <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="width: 70px;">
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+    </div>
+
+    <div id="login-modal">
+        <div class="login-card">
+            <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="height: 60px; margin-bottom: 20px;">
+            <h2 style="margin-top:0">Connexion Arbitre</h2>
+            <form id="login-form">
+                <input type="text" id="login-id" placeholder="Identifiant" required>
+                <input type="password" id="login-password" placeholder="Mot de passe" required>
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:15px">Entrer</button>
+            </form>
+        </div>
+    </div>
 
     <div class="container">
-        <svg class="icon-warning" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 9V14M12 17.5V18M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33975 16C2.56995 17.3333 3.5322 19 5.07183 19Z" 
-                  stroke="#333" 
-                  stroke-width="2" 
-                  stroke-linecap="round" 
-                  stroke-linejoin="round"/>
-        </svg>
+        <header>
+            <div>
+                <h2 style="margin:0; font-size: 1.2rem;">CHALLENGE 2026</h2>
+                <small id="arbiter-display" style="color:var(--text-dim)">Session Arbitre</small>
+            </div>
+            <div style="display:flex; gap:10px">
+                <button onclick="toggleTheme()" class="btn btn-outline" style="padding:10px"><i data-lucide="sun"></i></button>
+                <button onclick="logout()" class="btn btn-danger" style="padding:10px"><i data-lucide="log-out"></i></button>
+            </div>
+        </header>
 
-        <h1>Désolé, l'application n'est pas disponible</h1>
-        <p>Veuillez revenir ultérieurement</p>
+        <div id="main-dashboard">
+            <div class="grid-main">
+                <div class="card">
+                    <h3><i data-lucide="play-circle" style="vertical-align:middle"></i> Lancer un Match</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin: 15px 0">
+                        <div><label>Équipe A</label><select id="sel-A"></select></div>
+                        <div><label>Équipe B</label><select id="sel-B"></select></div>
+                    </div>
+                    <div style="display:flex; gap:10px">
+                        <button class="btn btn-outline" onclick="smartRandomize()"><i data-lucide="shuffle"></i></button>
+                        <button class="btn btn-success" style="flex:1" onclick="launchMatch()">DÉMARRER</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i data-lucide="users"></i> Équipes</h3>
+                    <div style="display:flex; gap:8px; margin-bottom:15px">
+                        <input type="text" id="new-team-name" placeholder="Ajouter équipe...">
+                        <button class="btn btn-primary" onclick="addTeam()">+</button>
+                    </div>
+                    <div id="teams-list"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i data-lucide="send"></i> Annonce Rapide (Discord)</h3>
+                <div style="display:flex; gap:10px">
+                    <input type="text" id="manual-msg" placeholder="Ex: Début de la pause déjeuner...">
+                    <button class="btn btn-primary" style="background:var(--discord)" onclick="sendAnnonce()">Diffuser</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i data-lucide="list"></i> Historique des matchs</h3>
+                <div id="history-list"></div>
+            </div>
+        </div>
+
+        <div id="match-area" class="hidden">
+            <div class="card" style="border-left: 5px solid var(--primary-blue)">
+                <div style="display:flex; justify-content:space-between; align-items:center">
+                    <h2 id="match-title" style="margin:0">MATCH EN DIRECT</h2>
+                    <button class="btn btn-danger" onclick="openPenaltyModal()"><i data-lucide="alert-triangle"></i> PÉNALITÉ</button>
+                </div>
+                
+                <div class="grid-main" style="margin-top:20px">
+                    <div class="card" style="background:rgba(0,98,255,0.05)">
+                        <h2 id="name-A" style="color:var(--primary-blue); text-align:center">-</h2>
+                        <label>Temps chrono (sec)</label>
+                        <input type="number" id="time-A" value="120" oninput="calc()">
+                        <div id="items-A" style="margin-top:15px"></div>
+                        <div id="pens-A"></div>
+                        <div class="big-score" id="total-A">0</div>
+                    </div>
+
+                    <div class="card" style="background:rgba(16,185,129,0.05)">
+                        <h2 id="name-B" style="color:var(--primary-green); text-align:center">-</h2>
+                        <label>Temps chrono (sec)</label>
+                        <input type="number" id="time-B" value="120" oninput="calc()">
+                        <div id="items-B" style="margin-top:15px"></div>
+                        <div id="pens-B"></div>
+                        <div class="big-score" id="total-B">0</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <label>Commentaires de l'arbitre</label>
+                    <textarea id="match-comment" rows="2" placeholder="Ex: Problème de capteur pour l'équipe B..."></textarea>
+                </div>
+
+                <button class="btn btn-success" style="width:100%; padding:20px; font-size:1.2rem; margin-top:10px" onclick="finishMatch()">
+                    VALIDER ET ENVOYER LE SCORE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="penalty-modal" class="modal">
+        <div class="modal-content">
+            <h3><i data-lucide="frown"></i> Sanction</h3>
+            <label>Équipe</label>
+            <select id="pen-team"><option value="A" id="opt-A"></option><option value="B" id="opt-B"></option></select>
+            <label>Raison</label>
+            <input type="text" id="pen-reason" placeholder="Ex: Contact manuel">
+            <label>Points à retirer</label>
+            <input type="number" id="pen-value" value="10">
+            <div style="display:flex; gap:10px; margin-top:20px">
+                <button class="btn btn-outline" style="flex:1" onclick="closeModal('penalty-modal')">Annuler</button>
+                <button class="btn btn-danger" style="flex:1" onclick="applyPenalty()">Retirer</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // JS : Optionnel ici, mais utile si vous voulez ajouter une action
-        console.log("Page d'indisponibilité chargée.");
-        
-        // Exemple : Rediriger automatiquement après 10 secondes (optionnel)
-        /*
-        setTimeout(() => {
-            window.location.reload();
-        }, 10000);
-        */
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1326841399723069440/8S6Xq95l_f_u1o56_7M8-jLz-YgR9l-Nf3u-C_mP1"; // Remplace par ton URL
+        const RULES = [
+            { l: 'Sortie zone départ', p: 10 }, 
+            { l: 'Astronaute sécurisé', p: 15 }, 
+            { l: 'Voyant activé', p: 15 }, 
+            { l: 'Fusée lancée', p: 15 }, 
+            { l: 'Leds opérationnelles', p: 15 }, 
+            { l: 'Arrivée (Lune)', p: 0 }
+        ];
+
+        let USERS = [{"id":"MrFr_G8mC","pass":"T2zN4kQe","name":"Mr FRAMBOURT"}];
+        let TEAMS = JSON.parse(localStorage.getItem('teams_v4') || '["Team Alpha", "Team Beta"]');
+        let history = JSON.parse(localStorage.getItem('history_v4') || '[]');
+        let activePens = { A: [], B: [] }, arrivalOrder = [];
+
+        // --- DÉMARRAGE ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const sess = sessionStorage.getItem('session');
+            if(sess) {
+                document.getElementById('login-modal').classList.add('hidden');
+                document.getElementById('arbiter-display').innerText = "Arbitre : " + JSON.parse(sess).name;
+                updateUI();
+            }
+            
+            // Sécurité Loader : on l'enlève quoi qu'il arrive après 1.5s
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('loader-hidden');
+                lucide.createIcons();
+            }, 1000);
+        });
+
+        // --- AUTH ---
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('login-id').value;
+            const pass = document.getElementById('login-password').value;
+            const user = USERS.find(u => u.id === id && u.pass === pass);
+            if(user) {
+                sessionStorage.setItem('session', JSON.stringify(user));
+                location.reload();
+            } else alert("Mauvais identifiants");
+        };
+
+        function logout() { sessionStorage.clear(); location.reload(); }
+
+        // --- MATCHES ---
+        function launchMatch() {
+            const tA = document.getElementById('sel-A').value;
+            const tB = document.getElementById('sel-B').value;
+            if(tA === tB) return alert("Sélectionnez deux équipes différentes");
+
+            document.getElementById('name-A').innerText = tA;
+            document.getElementById('name-B').innerText = tB;
+            document.getElementById('opt-A').innerText = tA;
+            document.getElementById('opt-B').innerText = tB;
+            
+            arrivalOrder = []; activePens = { A: [], B: [] };
+            
+            ['A', 'B'].forEach(side => {
+                document.getElementById(`items-${side}`).innerHTML = RULES.map(r => `
+                    <div class="score-row" onclick="handleCheck('${side}', '${r.l}', this)">
+                        <span>${r.l}</span>
+                        <input type="checkbox" class="chk-${side}" data-pts="${r.p}" data-label="${r.l}" style="width:20px;height:20px" onclick="event.stopPropagation(); calc();">
+                    </div>
+                `).join('');
+                document.getElementById(`pens-${side}`).innerHTML = '';
+            });
+
+            document.getElementById('main-dashboard').classList.add('hidden');
+            document.getElementById('match-area').classList.remove('hidden');
+            calc();
+        }
+
+        function handleCheck(side, label, el) {
+            const cb = el.querySelector('input');
+            cb.checked = !cb.checked;
+            if(label === 'Arrivée (Lune)') {
+                if(cb.checked && !arrivalOrder.includes(side)) arrivalOrder.push(side);
+                else if(!cb.checked) arrivalOrder = arrivalOrder.filter(s => s !== side);
+            }
+            calc();
+        }
+
+        function calc() {
+            ['A', 'B'].forEach(s => {
+                let pts = 0;
+                document.querySelectorAll(`.chk-${s}`).forEach(c => { 
+                    if(c.checked) { pts += parseInt(c.dataset.pts); c.parentElement.classList.add('active'); } 
+                    else c.parentElement.classList.remove('active'); 
+                });
+                
+                const rank = arrivalOrder.indexOf(s);
+                if(rank === 0) pts += 25; else if(rank === 1) pts += 10;
+                
+                const t = parseInt(document.getElementById(`time-${s}`).value) || 0;
+                if(t < 120) pts += Math.min(60, (120 - t) * 2);
+                
+                activePens[s].forEach(p => pts -= p.pts);
+                document.getElementById(`total-${s}`).innerText = Math.max(0, pts);
+            });
+        }
+
+        function applyPenalty() {
+            const s = document.getElementById('pen-team').value;
+            const r = document.getElementById('pen-reason').value || "Pénalité";
+            const v = parseInt(document.getElementById('pen-value').value);
+            activePens[s].push({pts:v, reason:r});
+            document.getElementById(`pens-${s}`).innerHTML += `<span class="penalty-tag">-${v} ${r}</span>`;
+            calc();
+            closeModal('penalty-modal');
+        }
+
+        async function finishMatch() {
+            if(!confirm("Envoyer les scores sur Discord ?")) return;
+            const arb = JSON.parse(sessionStorage.getItem('session')).name;
+            const data = {
+                teamA: { n: document.getElementById('name-A').innerText, s: document.getElementById('total-A').innerText },
+                teamB: { n: document.getElementById('name-B').innerText, s: document.getElementById('total-B').innerText },
+                com: document.getElementById('match-comment').value,
+                arb: arb,
+                date: new Date().toLocaleTimeString()
+            };
+
+            history.push(data);
+            localStorage.setItem('history_v4', JSON.stringify(history));
+
+            const payload = {
+                embeds: [{
+                    title: "🏁 MATCH TERMINÉ",
+                    color: 5814783,
+                    fields: [
+                        { name: data.teamA.n, value: `**${data.teamA.s} pts**`, inline: true },
+                        { name: data.teamB.n, value: `**${data.teamB.s} pts**`, inline: true },
+                        { name: "Arbitre", value: arb },
+                        { name: "Commentaire", value: data.com || "Aucun" }
+                    ]
+                }]
+            };
+
+            try {
+                await fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                alert("Match enregistré !");
+                location.reload();
+            } catch(e) { alert("Erreur Discord, mais match sauvegardé localement."); location.reload(); }
+        }
+
+        // --- UI ---
+        function updateUI() {
+            const opts = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
+            document.getElementById('sel-A').innerHTML = opts;
+            document.getElementById('sel-B').innerHTML = opts;
+            document.getElementById('teams-list').innerHTML = TEAMS.map((t,i) => `<span class="tag">${t} <i data-lucide="x" size="14" onclick="removeTeam(${i})" style="cursor:pointer"></i></span>`).join('');
+            document.getElementById('history-list').innerHTML = history.slice(-5).reverse().map(h => `
+                <div style="padding:10px; border-bottom:1px solid var(--glass-border); font-size:13px">
+                    ${h.date} - <b>${h.teamA.n}</b> (${h.teamA.s}) vs <b>${h.teamB.n}</b> (${h.teamB.s})
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function addTeam() { 
+            const n = document.getElementById('new-team-name').value; 
+            if(n) { TEAMS.push(n); localStorage.setItem('teams_v4', JSON.stringify(TEAMS)); updateUI(); } 
+        }
+        function removeTeam(i) { TEAMS.splice(i,1); localStorage.setItem('teams_v4', JSON.stringify(TEAMS)); updateUI(); }
+        function smartRandomize() {
+            let t1 = TEAMS[Math.floor(Math.random()*TEAMS.length)], t2;
+            do { t2 = TEAMS[Math.floor(Math.random()*TEAMS.length)]; } while(t1===t2);
+            document.getElementById('sel-A').value = t1; document.getElementById('sel-B').value = t2;
+        }
+        function openPenaltyModal() { document.getElementById('penalty-modal').style.display='flex'; }
+        function closeModal(id) { document.getElementById(id).style.display='none'; }
+        function toggleTheme() { document.body.classList.toggle('theme-light'); }
+        async function sendAnnonce() {
+            const msg = document.getElementById('manual-msg').value;
+            if(!msg) return;
+            await fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ content: "📢 **Annonce Arbitre :** " + msg }) });
+            document.getElementById('manual-msg').value = "";
+            alert("Envoyé !");
+        }
     </script>
 </body>
 </html>
