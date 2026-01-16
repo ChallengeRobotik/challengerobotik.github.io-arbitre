@@ -290,7 +290,15 @@
 
     <script>
         const WEBHOOK_DATA = "https://discord.com/api/webhooks/1458075633979621386/N3Cy87CzNbnIMtWfY1f3jgV77ZDuAUQpjcjv-NN8uczdMnQALZvg1R-SesgZcHqiMX4J";
-        const RULES = [{ l: 'Sortie zone départ', p: 10 }, { l: 'Astronaute sécurisé', p: 15 }, { l: 'Voyant activé', p: 15 }, { l: 'Fusée lancée', p: 15 }, { l: 'Leds opérationnelles', p: 15 }, { l: 'Arrivée (Lune)', p: 0 }];
+        const RULES = [
+            { l: 'Sortie zone départ', p: 10 }, 
+            { l: 'Astronaute sécurisé', p: 15 }, 
+            { l: 'Voyant activé', p: 15 }, 
+            { l: 'Fusée lancée', p: 15 }, 
+            { l: 'Leds opérationnelles', p: 15 }, 
+            { l: 'Fusée en position', p: 15 },
+            { l: 'Arrivée (Lune)', p: 0 }
+        ];
 
         let TEAMS = JSON.parse(localStorage.getItem('teams_list_v3') || '["Condé en Brie", "Neuilly Saint Front", "Saint Joseph", "Charly Sur Marne", "Jean Racine", "Jules Verne"]');
         let USERS = JSON.parse(localStorage.getItem('arbiters_db_v1') || '[{"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"},{"id":"Gabr_3vR2","pass":"K7zP9mQx","name":"Gabriel"},{"id":"Wyat_8nB5","pass":"Y4tS1wVp","name":"Wyate"},{"id":"Milan_5p3D","pass":"04/07/2010","name":"Milandris"},{"id":"Loui_2kL9","pass":"B5vN8mZt","name":"Louis"},{"id":"Maxm_7aJb","pass":"S5uI6oPr","name":"Maximilien"}]');
@@ -313,10 +321,14 @@
             const session = localStorage.getItem('persistent_session');
             if(session) {
                 const u = JSON.parse(session);
-                document.getElementById('login-modal').style.display = 'none';
-                document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name;
-                if(u.id === 'MrFr_G8mC') document.getElementById('admin-btn').classList.remove('hidden');
+                showAppForUser(u);
             }
+        }
+
+        function showAppForUser(user) {
+            document.getElementById('login-modal').style.display = 'none';
+            document.getElementById('arbiter-display').innerText = "Arbitre : " + user.name;
+            if(user.id === 'MrFr_G8mC') document.getElementById('admin-btn').classList.remove('hidden');
         }
 
         function togglePassword(id) {
@@ -332,7 +344,11 @@
             const idVal = document.getElementById('login-id').value;
             const passVal = document.getElementById('login-password').value;
             const user = USERS.find(x => x.id === idVal && x.pass === passVal);
-            if(user) { localStorage.setItem('persistent_session', JSON.stringify(user)); location.reload(); }
+            if(user) { 
+                localStorage.setItem('persistent_session', JSON.stringify(user)); 
+                showAppForUser(user); 
+                showToast("Connexion réussie");
+            }
             else showToast("Identifiants incorrects", "var(--danger)");
         };
 
@@ -420,10 +436,11 @@
         async function finishMatch() {
             const sA = parseInt(document.getElementById('total-A').innerText);
             const sB = parseInt(document.getElementById('total-B').innerText);
+            const user = JSON.parse(localStorage.getItem('persistent_session'));
             pendingMatch = {
                 id: Date.now(),
                 date: new Date().toLocaleString(),
-                arb: JSON.parse(localStorage.getItem('persistent_session')).name,
+                arb: user ? user.name : "Inconnu",
                 teamA: { nom: document.getElementById('name-A').innerText, score: sA, note: teamComments.A },
                 teamB: { nom: document.getElementById('name-B').innerText, score: sB, note: teamComments.B }
             };
@@ -475,10 +492,32 @@
             document.getElementById('opt-B').innerText = document.getElementById('name-B').innerText; 
             document.getElementById('penalty-modal').style.display = 'flex'; 
         }
+
         function applyPenalty() { 
-            const s=document.getElementById('pen-team-select').value, p=parseInt(document.getElementById('pen-value').value); 
-            activePens[s].push({pts:p}); calc(); closeModal('penalty-modal'); 
+            const s = document.getElementById('pen-team-select').value;
+            const p = parseInt(document.getElementById('pen-value').value);
+            const r = document.getElementById('pen-reason').value || "Pénalité";
+            activePens[s].push({ pts: p, reason: r });
+            renderPenalties(s);
+            calc();
+            closeModal('penalty-modal'); 
         }
+
+        function renderPenalties(side) {
+            const container = document.getElementById(`penalties-${side}`);
+            container.innerHTML = activePens[side].map((p, i) => `
+                <span class="tag" style="cursor:pointer" onclick="removePenalty('${side}', ${i})">
+                    -${p.pts} (${p.reason}) ✕
+                </span>
+            `).join('');
+        }
+
+        function removePenalty(side, index) {
+            activePens[side].splice(index, 1);
+            renderPenalties(side);
+            calc();
+        }
+
         function resolveTie(v) { 
             pendingMatch.verdict = v === 'NUL' ? 'Match Nul' : (v === 'A' ? pendingMatch.teamA.nom : pendingMatch.teamB.nom); 
             saveAndSend(); 
@@ -502,6 +541,14 @@
                 document.querySelectorAll('#admin-modal input').forEach(i => i.value = "");
             }
         }
+        function sendAnnonce() {
+            const msg = document.getElementById('manual-msg').value;
+            if(!msg) return;
+            const payload = { content: "@everyone " + msg };
+            fetch(WEBHOOK_DATA, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+            .then(() => { showToast("Annonce envoyée !"); document.getElementById('manual-msg').value = ""; })
+            .catch(() => showToast("Erreur d'envoi", "var(--danger)"));
+        }
     </script>
 </body>
-</html> 
+</html>
