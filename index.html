@@ -20,32 +20,37 @@
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --nav-bg: #1e293b;
         }
 
         body.theme-light { 
-            --bg-dark: #f0f2f5; 
+            --bg-dark: #f0f2f5;
             --glass: rgba(255, 255, 255, 0.95); 
             --glass-border: rgba(0, 0, 0, 0.15);
             --text-main: #0f172a; 
             --text-dim: #475569;
+            --nav-bg: #ffffff;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: 'Montserrat', sans-serif; margin: 0; color: var(--text-main); background-color: var(--bg-dark); transition: var(--transition); overflow-x: hidden; min-height: 100vh; }
         
         #loader {
-            position: fixed; inset: 0; background: var(--bg-dark); z-index: 20000;
+            position: fixed;
+            inset: 0; background: var(--bg-dark); z-index: 20000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.5s ease;
         }
         .loader-wrapper { position: relative; width: 100px; height: 100px; margin-bottom: 20px; }
         .spinner {
-            position: absolute; inset: 0; border: 4px solid transparent;
+            position: absolute;
+            inset: 0; border: 4px solid transparent;
             border-top-color: var(--primary-blue); border-radius: 50%;
             animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
         }
         .spinner-inner {
-            position: absolute; inset: 12px; border: 4px solid transparent;
+            position: absolute;
+            inset: 12px; border: 4px solid transparent;
             border-top-color: var(--primary-green); border-radius: 50%;
             animation: spin 1.5s linear infinite reverse;
         }
@@ -55,16 +60,20 @@
 
         .input-group { position: relative; width: 100%; margin-bottom: 12px; }
         .eye-btn { 
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            position: absolute;
+            right: 12px; top: 50%; transform: translateY(-50%);
             background: none; border: none; color: var(--text-dim); cursor: pointer;
             padding: 5px; display: flex; align-items: center;
         }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         header { 
-            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 10px 20px; 
+            display: grid;
+            grid-template-columns: 1fr auto 1fr; align-items: center; padding: 10px 20px; 
             margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); 
-            background: #4b5563; border-radius: 15px; backdrop-filter: blur(10px);
+            background: var(--nav-bg); border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: background 0.3s ease;
         }
 
         .header-left { display: flex; flex-direction: column; }
@@ -73,7 +82,8 @@
         .nav-logo { height: 55px; }
 
         .card { 
-            background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); 
+            background: var(--glass);
+            border: 1px solid var(--glass-border); backdrop-filter: blur(20px); 
             border-radius: 20px; padding: 20px; height: 100%; display: flex; flex-direction: column;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
@@ -82,10 +92,12 @@
         @media (max-width: 850px) { .grid-main { grid-template-columns: 1fr; } header { grid-template-columns: 1fr auto; } .header-center { display: none; } }
 
         .score-row {
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex;
+            justify-content: space-between; align-items: center;
             padding: 12px 14px; border-radius: 12px; margin-bottom: 6px;
             border: 1px solid var(--glass-border); transition: var(--transition);
-            cursor: pointer; background: rgba(0,0,0,0.02);
+            cursor: pointer;
+            background: rgba(0,0,0,0.02);
         }
         .score-row.active { background: rgba(16, 185, 129, 0.15); border-color: var(--primary-green); }
 
@@ -94,9 +106,11 @@
         .checkbox-custom:checked::after { content: ""; position: absolute; left: 7px; top: 3px; width: 5px; height: 10px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
 
         input, select, textarea { 
-            width: 100%; background: var(--bg-dark); border: 1px solid var(--glass-border); 
+            width: 100%;
+            background: var(--bg-dark); border: 1px solid var(--glass-border); 
             color: var(--text-main); padding: 12px; border-radius: 10px; margin-bottom: 8px; 
-            outline: none; font-family: inherit; transition: border 0.3s;
+            outline: none; font-family: inherit;
+            transition: border 0.3s;
         }
         input:focus, select:focus { border-color: var(--primary-blue); }
 
@@ -117,9 +131,11 @@
         .hist-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--glass-border); font-size: 13px; cursor: pointer; }
 
         .toast-notif {
-            position: fixed; bottom: 20px; right: 20px; background: var(--primary-green); color: white;
+            position: fixed;
+            bottom: 20px; right: 20px; background: var(--primary-green); color: white;
             padding: 12px 20px; border-radius: 10px; z-index: 10001; display: flex;
-            align-items: center; gap: 10px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            align-items: center;
+            gap: 10px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             animation: slideIn 0.3s ease-out;
         }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -159,10 +175,10 @@
     </div>
 
     <div class="container">
-        <header>
+        <header id="app-header">
             <div class="header-left">
                 <h2 style="margin: 0; font-weight: 800; letter-spacing: -0.5px; font-size: 1.2rem;">CHALLENGE 2026</h2>
-                <div id="arbiter-display" style="color: #e2e8f0; font-size: 11px; font-weight: 500; text-transform: uppercase;">Non connecté</div>
+                <div id="arbiter-display" style="color: var(--text-dim); font-size: 11px; font-weight: 500; text-transform: uppercase;">Non connecté</div>
             </div>
             <div class="header-center">
                 <img id="main-logo" src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" alt="Logo" class="nav-logo">
@@ -227,7 +243,7 @@
                         <button class="btn btn-success" onclick="launchMatch()" style="flex: 2;">Commencer</button>
                     </div>
                 </div>
-            </div>
+             </div>
         </div>
 
         <div id="match-area" class="card hidden" style="margin-top: 20px;">
@@ -242,12 +258,12 @@
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
                             <h2 id="name-A" style="margin:0; color: var(--primary-blue);"></h2>
-                            <span id="note-A-tag" class="team-note-indicator hidden">Note ajoutée</span>
+                            <span id="note-A-tag" class="team-note-indicator hidden">Note active</span>
                         </div>
                         <button class="btn btn-outline btn-icon" onclick="openCommentModal('A')"><i data-lucide="message-square"></i></button>
                     </div>
                     <label style="font-size: 11px; opacity: 0.6; margin-top: 15px; display: block;">CHRONO (SEC)</label>
-                    <input type="number" id="time-A" value="120" oninput="calc()">
+                    <input type="number" id="time-A" value="70" max="70" oninput="calc()">
                     <div id="items-A" style="margin-top: 15px;"></div>
                     <div id="penalties-A" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px;"></div>
                     <div class="big-score" id="total-A" style="font-size:56px; text-align:center; font-weight:800">0</div>
@@ -256,12 +272,12 @@
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
                             <h2 id="name-B" style="margin:0; color: var(--primary-green);"></h2>
-                            <span id="note-B-tag" class="team-note-indicator hidden">Note ajoutée</span>
+                            <span id="note-B-tag" class="team-note-indicator hidden">Note active</span>
                         </div>
                         <button class="btn btn-outline btn-icon" onclick="openCommentModal('B')"><i data-lucide="message-square"></i></button>
                     </div>
                     <label style="font-size: 11px; opacity: 0.6; margin-top: 15px; display: block;">CHRONO (SEC)</label>
-                    <input type="number" id="time-B" value="120" oninput="calc()">
+                    <input type="number" id="time-B" value="70" max="70" oninput="calc()">
                     <div id="items-B" style="margin-top: 15px;"></div>
                     <div id="penalties-B" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px;"></div>
                     <div class="big-score" id="total-B" style="font-size:56px; text-align:center; font-weight:800">0</div>
@@ -276,10 +292,11 @@
     <div id="comment-modal" class="modal">
         <div class="modal-content">
             <h3 id="comment-target-title">Note d'équipe</h3>
-            <p style="font-size:12px; color:var(--text-dim)">Notez les points techniques ou le comportement.</p>
+            <p style="font-size:12px; color:var(--text-dim)">Note technique/comportement (persistante par équipe).</p>
             <input type="hidden" id="current-comment-side">
             <textarea id="match-comment-input" placeholder="Observations..." style="min-height: 120px;"></textarea>
-            <button class="btn btn-primary" style="width:100%" onclick="saveTeamComment()">Enregistrer la note</button>
+            <button class="btn btn-primary" style="width:100%" onclick="saveTeamComment()">Enregistrer</button>
+            <button class="btn btn-danger" style="width:100%; margin-top:5px" onclick="deleteTeamComment()">Supprimer la note</button>
             <button class="btn btn-outline" style="width:100%; margin-top:10px" onclick="closeModal('comment-modal')">Annuler</button>
         </div>
     </div>
@@ -289,7 +306,8 @@
     <div id="tie-modal" class="modal"><div class="modal-content" style="text-align: center;"><h2>Égalité</h2><div style="display: grid; gap: 12px;"><button id="tie-btn-A" class="btn btn-primary" onclick="resolveTie('A')"></button><button id="tie-btn-B" class="btn btn-success" onclick="resolveTie('B')"></button><button class="btn btn-outline" onclick="resolveTie('NUL')">Match Nul</button></div></div></div>
 
     <script>
-        const WEBHOOK_DATA = "https://discord.com/api/webhooks/1458075633979621386/N3Cy87CzNbnIMtWfY1f3jgV77ZDuAUQpjcjv-NN8uczdMnQALZvg1R-SesgZcHqiMX4J";
+        const WEBHOOK_PUBLIC = "https://discord.com/api/webhooks/1468257126278369373/KBf6IOwyshtyPH3kZaZM6lXltg_NP2NgsFnsLmLUYPWqD4U6xyb6laV5osNs4CaL9ohX";
+        
         const RULES = [
             { l: 'Sortie zone départ', p: 10 }, 
             { l: 'Astronaute sécurisé', p: 15 }, 
@@ -303,6 +321,7 @@
         let TEAMS = JSON.parse(localStorage.getItem('teams_list_v3') || '["Condé en Brie", "Neuilly Saint Front", "Saint Joseph", "Charly Sur Marne", "Jean Racine", "Jules Verne"]');
         let USERS = JSON.parse(localStorage.getItem('arbiters_db_v1') || '[{"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"},{"id":"Gabr_3vR2","pass":"K7zP9mQx","name":"Gabriel"},{"id":"Wyat_8nB5","pass":"Y4tS1wVp","name":"Wyate"},{"id":"Milan_5p3D","pass":"04/07/2010","name":"Milandris"},{"id":"Loui_2kL9","pass":"B5vN8mZt","name":"Louis"},{"id":"Maxm_7aJb","pass":"S5uI6oPr","name":"Maximilien"}]');
         let history = JSON.parse(localStorage.getItem('matches_history_v10') || '[]');
+        let PERSISTENT_NOTES = JSON.parse(localStorage.getItem('teams_notes_v1') || '{}');
         let activePens = { A: [], B: [] }, arrivalOrder = [], pendingMatch = null;
         let teamComments = { A: "", B: "" };
 
@@ -319,10 +338,7 @@
 
         function checkSession() {
             const session = localStorage.getItem('persistent_session');
-            if(session) {
-                const u = JSON.parse(session);
-                showAppForUser(u);
-            }
+            if(session) { showAppForUser(JSON.parse(session)); }
         }
 
         function showAppForUser(user) {
@@ -334,8 +350,8 @@
         function togglePassword(id) {
             const input = document.getElementById(id);
             const icon = document.getElementById('eye-icon');
-            if (input.type === "password") { input.type = "text"; icon.setAttribute('data-lucide', 'eye-off'); }
-            else { input.type = "password"; icon.setAttribute('data-lucide', 'eye'); }
+            input.type = input.type === "password" ? "text" : "password";
+            icon.setAttribute('data-lucide', input.type === "password" ? 'eye' : 'eye-off');
             lucide.createIcons();
         }
 
@@ -345,16 +361,17 @@
             const passVal = document.getElementById('login-password').value;
             const user = USERS.find(x => x.id === idVal && x.pass === passVal);
             if(user) { 
-                localStorage.setItem('persistent_session', JSON.stringify(user)); 
+                localStorage.setItem('persistent_session', JSON.stringify(user));
                 showAppForUser(user); 
                 showToast("Connexion réussie");
-            }
-            else showToast("Identifiants incorrects", "var(--danger)");
+            } else showToast("Identifiants incorrects", "var(--danger)");
         };
 
         function updateUI() {
             localStorage.setItem('teams_list_v3', JSON.stringify(TEAMS));
             localStorage.setItem('matches_history_v10', JSON.stringify(history));
+            localStorage.setItem('teams_notes_v1', JSON.stringify(PERSISTENT_NOTES));
+            
             document.getElementById('teams-list').innerHTML = TEAMS.map((t, i) => `<span class="tag">${t} <i data-lucide="x" size="14" style="cursor:pointer" onclick="removeTeam(${i})"></i></span>`).join('');
             const opts = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
             document.getElementById('sel-A').innerHTML = opts; 
@@ -374,10 +391,16 @@
             if(tA === tB) return showToast("Équipes identiques !", "var(--danger)");
             document.getElementById('name-A').innerText = tA; 
             document.getElementById('name-B').innerText = tB;
-            teamComments = { A: "", B: "" };
-            document.getElementById('note-A-tag').classList.add('hidden');
-            document.getElementById('note-B-tag').classList.add('hidden');
-            arrivalOrder = []; activePens = { A: [], B: [] };
+            
+            teamComments = { A: PERSISTENT_NOTES[tA] || "", B: PERSISTENT_NOTES[tB] || "" };
+            document.getElementById('note-A-tag').classList.toggle('hidden', !teamComments.A);
+            document.getElementById('note-B-tag').classList.toggle('hidden', !teamComments.B);
+            
+            document.getElementById('time-A').value = 70;
+            document.getElementById('time-B').value = 70;
+
+            arrivalOrder = [];
+            activePens = { A: [], B: [] };
             ['A', 'B'].forEach(s => {
                 document.getElementById(`items-${s}`).innerHTML = RULES.map(r => `
                     <div class="score-row" onclick="handleCheck('${s}', '${r.l}', this)">
@@ -393,7 +416,7 @@
         }
 
         function handleCheck(side, label, el) {
-            const cb = el.querySelector('input'); 
+            const cb = el.querySelector('input');
             cb.checked = !cb.checked;
             el.classList.toggle('active', cb.checked);
             if(label === 'Arrivée (Lune)') {
@@ -410,15 +433,14 @@
                 const rank = arrivalOrder.indexOf(s); 
                 if(rank === 0) pts += 25; else if(rank === 1) pts += 10;
                 const time = parseInt(document.getElementById(`time-${s}`).value) || 0;
-                if(time < 120) pts += Math.min(60, (120 - time) * 2);
+                if(time < 70) pts += Math.min(60, (70 - time) * 2);
                 activePens[s].forEach(p => pts -= p.pts);
                 document.getElementById(`total-${s}`).innerText = Math.max(0, pts);
             });
         }
 
         function openCommentModal(side) {
-            const name = document.getElementById(`name-${side}`).innerText;
-            document.getElementById('comment-target-title').innerText = "Note : " + name;
+            document.getElementById('comment-target-title').innerText = "Note : " + document.getElementById(`name-${side}`).innerText;
             document.getElementById('current-comment-side').value = side;
             document.getElementById('match-comment-input').value = teamComments[side];
             document.getElementById('comment-modal').style.display = 'flex';
@@ -426,10 +448,21 @@
 
         function saveTeamComment() {
             const side = document.getElementById('current-comment-side').value;
-            const val = document.getElementById('match-comment-input').value;
+            const teamName = document.getElementById(`name-${side}`).innerText;
+            const val = document.getElementById('match-comment-input').value.trim();
             teamComments[side] = val;
-            if(val.trim() !== "") document.getElementById(`note-${side}-tag`).classList.remove('hidden');
-            else document.getElementById(`note-${side}-tag`).classList.add('hidden');
+            if(val) PERSISTENT_NOTES[teamName] = val; else delete PERSISTENT_NOTES[teamName];
+            document.getElementById(`note-${side}-tag`).classList.toggle('hidden', !val);
+            localStorage.setItem('teams_notes_v1', JSON.stringify(PERSISTENT_NOTES));
+            closeModal('comment-modal');
+        }
+
+        function deleteTeamComment() {
+            const side = document.getElementById('current-comment-side').value;
+            delete PERSISTENT_NOTES[document.getElementById(`name-${side}`).innerText];
+            teamComments[side] = "";
+            document.getElementById(`note-${side}-tag`).classList.add('hidden');
+            localStorage.setItem('teams_notes_v1', JSON.stringify(PERSISTENT_NOTES));
             closeModal('comment-modal');
         }
 
@@ -457,22 +490,34 @@
         async function saveAndSend() {
             history.push(pendingMatch);
             updateUI();
-            showToast("Match enregistré !");
+            showToast("Match publié !");
+            
+            const discordPayload = {
+                content: "@everyone",
+                embeds: [{
+                    title: "🏆 Match Terminé",
+                    color: 5814783,
+                    fields: [
+                        { name: "Gagnant", value: `**${pendingMatch.verdict}**`, inline: false },
+                        { name: "Arbitre", value: pendingMatch.arb, inline: true },
+                        { name: "Scores", value: `${pendingMatch.teamA.nom}: **${pendingMatch.teamA.score}** | ${pendingMatch.teamB.nom}: **${pendingMatch.teamB.score}**`, inline: true }
+                    ],
+                    footer: { text: `Challenge Robotik 2026 • ${pendingMatch.date}` }
+                }]
+            };
             try {
-                const blob = new Blob([JSON.stringify(pendingMatch, null, 2)], { type: 'application/json' });
-                const fd = new FormData();
-                const content = `🏆 **${pendingMatch.verdict}** gagne ! (${pendingMatch.teamA.score}-${pendingMatch.teamB.score})\n` + 
-                                `📝 **Note ${pendingMatch.teamA.nom}**: ${pendingMatch.teamA.note || "/"}\n` +
-                                `📝 **Note ${pendingMatch.teamB.nom}**: ${pendingMatch.teamB.note || "/"}`;
-                fd.append('payload_json', JSON.stringify({ content: content }));
-                fd.append('file', blob, `match.json`);
-                await fetch(WEBHOOK_DATA, { method: 'POST', body: fd });
-            } catch(e) { console.error("Discord error"); }
-            setTimeout(() => location.reload(), 1000);
+                await fetch(WEBHOOK_PUBLIC, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(discordPayload) 
+                });
+            } catch(e) { console.error("Discord error", e); }
+            setTimeout(() => location.reload(), 1200);
         }
 
         function showToast(m, c = 'var(--primary-green)') {
-            const t = document.createElement('div'); t.className = 'toast-notif'; t.style.background = c;
+            const t = document.createElement('div');
+            t.className = 'toast-notif'; t.style.background = c;
             t.innerHTML = `<span>${m}</span>`; document.body.appendChild(t);
             setTimeout(() => t.remove(), 3000);
         }
@@ -480,74 +525,78 @@
         function logout() { localStorage.removeItem('persistent_session'); location.reload(); }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function addTeam() { const n = document.getElementById('new-team-name').value; if(n){ TEAMS.push(n); updateUI(); document.getElementById('new-team-name').value=""; } }
-        function removeTeam(i) { TEAMS.splice(i, 1); updateUI(); }
+        function removeTeam(i) { delete PERSISTENT_NOTES[TEAMS[i]]; TEAMS.splice(i, 1); updateUI(); }
         function randomizeTeams() {
             if (TEAMS.length < 2) return;
             let t = [...TEAMS].sort(() => 0.5 - Math.random());
-            document.getElementById('sel-A').value = t[0]; 
-            document.getElementById('sel-B').value = t[1];
+            document.getElementById('sel-A').value = t[0]; document.getElementById('sel-B').value = t[1];
         }
         function openPenaltyModal() { 
-            document.getElementById('opt-A').innerText = document.getElementById('name-A').innerText; 
+            document.getElementById('opt-A').innerText = document.getElementById('name-A').innerText;
             document.getElementById('opt-B').innerText = document.getElementById('name-B').innerText; 
             document.getElementById('penalty-modal').style.display = 'flex'; 
         }
-
         function applyPenalty() { 
             const s = document.getElementById('pen-team-select').value;
-            const p = parseInt(document.getElementById('pen-value').value);
-            const r = document.getElementById('pen-reason').value || "Pénalité";
-            activePens[s].push({ pts: p, reason: r });
-            renderPenalties(s);
-            calc();
-            closeModal('penalty-modal'); 
+            activePens[s].push({ pts: parseInt(document.getElementById('pen-value').value), reason: document.getElementById('pen-reason').value || "Pénalité" });
+            renderPenalties(s); calc(); closeModal('penalty-modal');
         }
-
         function renderPenalties(side) {
-            const container = document.getElementById(`penalties-${side}`);
-            container.innerHTML = activePens[side].map((p, i) => `
-                <span class="tag" style="cursor:pointer" onclick="removePenalty('${side}', ${i})">
-                    -${p.pts} (${p.reason}) ✕
-                </span>
-            `).join('');
+            document.getElementById(`penalties-${side}`).innerHTML = activePens[side].map((p, i) => `<span class="tag" onclick="activePens['${side}'].splice(${i}, 1); renderPenalties('${side}'); calc();">-${p.pts} (${p.reason}) ✕</span>`).join('');
         }
-
-        function removePenalty(side, index) {
-            activePens[side].splice(index, 1);
-            renderPenalties(side);
-            calc();
-        }
-
         function resolveTie(v) { 
             pendingMatch.verdict = v === 'NUL' ? 'Match Nul' : (v === 'A' ? pendingMatch.teamA.nom : pendingMatch.teamB.nom); 
-            saveAndSend(); 
+            saveAndSend();
         }
         function openAdminModal() {
-            const list = document.getElementById('arbiters-list');
-            list.innerHTML = USERS.map((u, i) => `
+            document.getElementById('arbiters-list').innerHTML = USERS.map((u, i) => `
                 <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--glass-border)">
                     <span>${u.name} (ID: ${u.id})</span>
-                    ${u.id !== 'MrFr_G8mC' ? `<button onclick="USERS.splice(${i},1); localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS)); openAdminModal()" style="color:var(--danger); background:none; border:none; cursor:pointer">Supprimer</button>` : '<b>SuperAdmin</b>'}
-                </div>
-            `).join('');
+                    ${u.id !== 'MrFr_G8mC' ? `<button onclick="USERS.splice(${i},1); localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS)); openAdminModal()" style="color:var(--danger); background:none; border:none; cursor:pointer">Supprimer</button>` : '<b>Admin</b>'}
+                </div>`).join('');
             document.getElementById('admin-modal').style.display = 'flex';
         }
         function addArbiter() {
             const n = document.getElementById('adm-new-name').value, id = document.getElementById('adm-new-id').value, p = document.getElementById('adm-new-pass').value;
-            if(n && id && p) {
-                USERS.push({id:id, pass:p, name:n});
-                localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS));
-                openAdminModal();
-                document.querySelectorAll('#admin-modal input').forEach(i => i.value = "");
-            }
+            if(n && id && p) { USERS.push({id, pass:p, name:n}); localStorage.setItem('arbiters_db_v1', JSON.stringify(USERS)); openAdminModal(); }
         }
+
+        // --- FONCTION MODIFIÉE : ANNONCE MANUELLE AVEC EMBED ET NOM D'ARBITRE ---
         function sendAnnonce() {
             const msg = document.getElementById('manual-msg').value;
             if(!msg) return;
-            const payload = { content: "@everyone " + msg };
-            fetch(WEBHOOK_DATA, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-            .then(() => { showToast("Annonce envoyée !"); document.getElementById('manual-msg').value = ""; })
-            .catch(() => showToast("Erreur d'envoi", "var(--danger)"));
+
+            // Récupération de l'utilisateur via la session persistante
+            const userSession = JSON.parse(localStorage.getItem('persistent_session'));
+            const arbiterName = userSession ? userSession.name : "Arbitre non identifié";
+
+            const discordPayload = {
+                content: "@everyone",
+                embeds: [{
+                    title: "📢 Annonce Officielle",
+                    description: msg,
+                    color: 5814783, // Couleur Discord Blurple
+                    fields: [
+                        { name: "Transmis par", value: `⭐ ${arbiterName}`, inline: true }
+                    ],
+                    footer: { text: "Challenge Robotik 2026 • Info en direct" },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            fetch(WEBHOOK_PUBLIC, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(discordPayload) 
+            })
+            .then(() => { 
+                showToast("Annonce publiée !"); 
+                document.getElementById('manual-msg').value = ""; 
+            })
+            .catch(err => {
+                console.error("Erreur d'envoi", err);
+                showToast("Erreur d'envoi", "var(--danger)");
+            });
         }
     </script>
 </body>
