@@ -173,7 +173,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Configuration récupérée de ton image
         const firebaseConfig = {
             apiKey: "AIzaSyCayfDcG1_UgtucU1sExenPfcXozBL2HoQ",
             authDomain: "challengerobotik.firebaseapp.com",
@@ -187,7 +186,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Données Globales
         const WEBHOOK_PUBLIC = "https://discord.com/api/webhooks/1469228329293840385/ca2i2wZpF__gC7lNFYVL5TdDNG02wFAjaLtwMvCPQaQohGRFBdIDEBT6xaCmiqE43JFB";
         const RULES = [{ l: 'Sortie zone départ', p: 10 }, { l: 'Astronaute sécurisé', p: 15 }, { l: 'Voyant activé', p: 15 }, { l: 'Fusée lancée', p: 15 }, { l: 'Leds opérationnelles', p: 15 }, { l: 'Fusée en position', p: 15 }, { l: 'Arrivée (Lune)', p: 0 }];
 
@@ -200,11 +198,20 @@
 
         // --- Synchronisation Firebase ---
         onValue(ref(db, 'teams'), (snap) => { TEAMS = snap.val() || []; updateUI(); });
+        
+        // CORRECTION : On force Mr Frambourt dans la liste des arbitres
         onValue(ref(db, 'arbiters'), (snap) => { 
             const d = snap.val(); 
-            USERS = d ? Object.values(d) : [{"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"}]; 
+            const admin = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
+            if(d) {
+                const list = Object.values(d);
+                USERS = list.some(u => u.id === admin.id) ? list : [admin, ...list];
+            } else {
+                USERS = [admin];
+            }
             if(document.getElementById('admin-modal').style.display === 'flex') openAdminModal();
         });
+
         onValue(ref(db, 'history'), (snap) => { const d = snap.val(); history = d ? Object.values(d) : []; updateUI(); });
         onValue(ref(db, 'notes'), (snap) => { PERSISTENT_NOTES = snap.val() || {}; });
 
@@ -285,7 +292,6 @@
         window.removeArbiter = (id) => { if(id !== 'MrFr_G8mC') remove(ref(db, 'arbiters/'+id)); };
         window.sendAnnonce = () => { const msg = document.getElementById('manual-msg').value; if(!msg) return; const u = JSON.parse(localStorage.getItem('persistent_session')); fetch(WEBHOOK_PUBLIC, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ content: "@everyone", embeds: [{ title: "📢 Annonce Officielle", description: msg, color: 5814783, fields: [{ name: "Par", value: u?u.name:"Staff" }], timestamp: new Date().toISOString() }] }) }).then(() => { showToast("Annonce envoyée !"); document.getElementById('manual-msg').value = ""; }); };
         
-        // Utilitaires
         window.toggleTheme = () => document.body.classList.toggle('theme-light');
         window.logout = () => { localStorage.removeItem('persistent_session'); location.reload(); };
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
