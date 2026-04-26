@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accès Arbitrage - Challenge Robotik</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/XxJybFzH/Design-sans-titre.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { --accent: #3b82f6; --text: #ffffff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #000; 
+            color: var(--text); 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        #bg-canvas { position: absolute; inset: 0; z-index: 1; }
+
+        .login-card {
+            position: relative;
+            z-index: 10;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logo { width: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
+        
+        h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+        p { color: #888; font-size: 14px; margin-bottom: 30px; }
+
+        .input-group { position: relative; margin-bottom: 15px; }
+        
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 16px;
+            padding-right: 45px; /* Espace pour l'icône */
+            border-radius: 14px;
+            color: white;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent); background: rgba(255, 255, 255, 0.08); outline: none; }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+        .toggle-password:hover { color: #fff; }
+
+        .btn-submit {
+            width: 100%;
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn-submit:hover { transform: scale(1.02); background: #f0f0f0; }
+
+        .error-msg {
+            color: #ff4b4b;
+            background: rgba(255, 75, 75, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="login-card">
+        <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" class="logo" alt="Logo">
+        <h1>Portail Arbitrage</h1>
+        <p>Challenge Robotik • Session 2026</p>
+        
+        <div id="error-msg" class="error-msg">Identifiants incorrects ou accès restreint.</div>
+
+        <form id="login-form">
+            <div class="input-group">
+                <input type="text" id="login-id" placeholder="Identifiant" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="login-password" placeholder="Mot de passe" required>
+                <button type="button" class="toggle-password" id="eye-btn" onclick="togglePass()">
+                    <i data-lucide="eye" id="eye-icon" size="20"></i>
+                </button>
+            </div>
+            <button type="submit" class="btn-submit">
+                Entrer <i data-lucide="arrow-right" size="18"></i>
+            </button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCayfDcG1_UgtucU1sExenPfcXozBL2HoQ",
+            authDomain: "challengerobotik.firebaseapp.com",
+            databaseURL: "https://challengerobotik-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "challengerobotik",
+            storageBucket: "challengerobotik.firebasestorage.app",
+            messagingSenderId: "414754555947",
+            appId: "1:414754555947:web:8021bb3d33e2b7fd37026e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const REDIRECT_URL = "index.html";
+
+        // Toggle Password Visibility
+        window.togglePass = () => {
+            const input = document.getElementById('login-password');
+            const icon = document.getElementById('eye-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        };
+
+        // Particles Animation
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        function createParticles() {
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', initCanvas);
+        initCanvas(); createParticles(); animate();
+        lucide.createIcons();
+
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('login-id').value;
+            const pass = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('error-msg');
+
+            onValue(ref(db, 'arbiters'), (snap) => {
+                const admin = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
+                const users = snap.val() ? [admin, ...Object.values(snap.val())] : [admin];
+                const user = users.find(x => x.id === id && x.pass === pass);
+
+                if(user && (!user.suspended || user.id === 'MrFr_G8mC')) {
+                    localStorage.setItem('persistent_session', JSON.stringify(user));
+                    window.location.href = REDIRECT_URL;
+                } else {
+                    errorEl.style.display = 'block';
+                }
+            }, { onlyOnce: true });
+        };
+    </script>
+</body>
+</html>
