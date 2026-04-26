@@ -47,9 +47,6 @@
         
         input, select, textarea { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; color: var(--text-main); width: 100%; margin-bottom: 15px; font-family: inherit; }
         
-        .pass-container { position: relative; width: 100%; }
-        .pass-toggle { position: absolute; right: 12px; top: 12px; color: var(--text-mute); cursor: pointer; }
-
         .score-row { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 8px; cursor: pointer; }
         .score-row.active { border-color: var(--green); background: rgba(16, 185, 129, 0.05); }
         .score-display { font-size: 70px; font-weight: 700; text-align: center; margin: 15px 0; }
@@ -80,22 +77,6 @@
         <h1>COMPTE SUSPENDU</h1>
         <p style="color: var(--text-mute); margin-top: 10px;">Veuillez contacter l'administrateur.</p>
         <button class="btn btn-sub" style="margin-top: 30px;" onclick="logout()">Retour</button>
-    </div>
-
-    <div id="login-modal" class="modal" style="display: flex;">
-        <div class="modal-inner" style="text-align: center;">
-            <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="width: 60px; margin-bottom: 15px;">
-            <h1 style="margin-bottom: 5px;">Bienvenue</h1>
-            <p style="color: var(--text-mute); margin-bottom: 25px;">Arbitrage - Challenge Robotik</p>
-            <form id="login-form">
-                <input type="text" id="login-id" placeholder="Identifiant" required>
-                <div class="pass-container">
-                    <input type="password" id="login-password" placeholder="Mot de passe" required>
-                    <i data-lucide="eye" class="pass-toggle" id="eye-icon" onclick="togglePass()"></i>
-                </div>
-                <button type="submit" class="btn btn-main" style="width: 100%; justify-content: center;">Connexion</button>
-            </form>
-        </div>
     </div>
 
     <nav id="main-nav">
@@ -215,7 +196,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const WEBHOOK_PUBLIC = "https://discord.com/api/webhooks/1469228329293840385/ca2i2wZpF__gC7lNFYVL5TdDNG02wFAjaLtwMvCPQaQohGRFBdIDEBT6xaCmiqE43JFB";
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1469228329293840385/ca2i2wZpF__gC7lNFYVL5TdDNG02wFAjaLtwMvCPQaQohGRFBdIDEBT6xaCmiqE43JFB";
         
         const RULES = [
             { l: 'Zone de départ validée', p: 10 }, { l: 'Astronaute en sécurité', p: 15 }, 
@@ -227,18 +208,11 @@
         let TEAMS = [], USERS = [], NOTES = {}, GLOBAL_HISTORY = [];
         let activePens = { A: [], B: [] }, arrivalOrder = [], pendingMatch = null;
 
-        window.togglePass = () => {
-            const input = document.getElementById('login-password');
-            const icon = document.getElementById('eye-icon');
-            const isPass = input.type === 'password';
-            input.type = isPass ? 'text' : 'password';
-            icon.setAttribute('data-lucide', isPass ? 'eye-off' : 'eye');
-            lucide.createIcons();
-        };
-
         window.toggleTheme = () => {
             const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
             document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            const icon = document.getElementById('theme-icon');
+            icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
             lucide.createIcons();
         };
 
@@ -275,29 +249,17 @@
         window.onload = () => { 
             lucide.createIcons(); 
             const s = localStorage.getItem('persistent_session'); 
-            if(s) showApp(JSON.parse(s));
+            if(s) {
+                showApp(JSON.parse(s));
+            } else {
+                window.location.href = "page.html";
+            }
         };
 
         window.showApp = (u) => { 
-            document.getElementById('login-modal').style.display = 'none'; 
             document.getElementById('main-nav').style.display = 'flex';
             document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name; 
             if(u.id === 'MrFr_G8mC') document.getElementById('admin-nav-btn').classList.remove('hidden');
-        };
-
-        document.getElementById('login-form').onsubmit = (e) => {
-            e.preventDefault();
-            const id = document.getElementById('login-id').value;
-            const pass = document.getElementById('login-password').value;
-            const user = USERS.find(x => x.id === id && x.pass === pass);
-            if(user) {
-                if (user.suspended && user.id !== 'MrFr_G8mC') {
-                    document.getElementById('suspended-screen').style.display = 'flex';
-                    return;
-                }
-                localStorage.setItem('persistent_session', JSON.stringify(user)); 
-                showApp(user);
-            } else alert("Identifiants incorrects");
         };
 
         const renderHistory = () => {
@@ -333,20 +295,17 @@
                 <div style="background:var(--surface); padding:15px; border-radius:15px; margin-bottom:20px; font-size:13px; border-left: 4px solid var(--blue);">
                     <p><b>Arbitre :</b> ${m.arb || 'Inconnu'}</p>
                     <p><b>Date :</b> ${m.date}</p>
-                    <p><b>Vainqueur final :</b> <span style="color:var(--green); font-weight:bold;">${m.verdict}</span></p>
+                    <p><b>Vainqueur :</b> <span style="color:var(--green); font-weight:bold;">${m.verdict}</span></p>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                     <div style="padding:15px; border-radius:12px; border:1px solid ${m.verdict === m.teamA.nom ? 'var(--green)' : 'var(--border)'}">
                         <b style="color:var(--blue)">${m.teamA.nom}</b><br>
                         <span style="font-size:26px; font-weight:800">${m.teamA.score} pts</span>
                         <div class="detail-box">
-                            <div class="detail-title">Actions & Bonus</div>
+                            <div class="detail-title">Actions</div>
                             <div class="detail-points">
                                 ${m.teamA.actions && m.teamA.actions.length > 0 ? m.teamA.actions.map(a => `• ${a}`).join('<br>') : 'Aucun point'}
                                 ${m.teamA.penalties > 0 ? `<br><span style="color:var(--red)">• Malus: -${m.teamA.penalties}</span>` : ''}
-                            </div>
-                            <div style="margin-top:10px; padding-top:5px; border-top:1px solid var(--border); font-weight:700; color:var(--text-mute)">
-                                Temps : ${m.teamA.temps}s
                             </div>
                         </div>
                     </div>
@@ -354,13 +313,10 @@
                         <b style="color:var(--green)">${m.teamB.nom}</b><br>
                         <span style="font-size:26px; font-weight:800">${m.teamB.score} pts</span>
                         <div class="detail-box">
-                            <div class="detail-title">Actions & Bonus</div>
+                            <div class="detail-title">Actions</div>
                             <div class="detail-points">
                                 ${m.teamB.actions && m.teamB.actions.length > 0 ? m.teamB.actions.map(a => `• ${a}`).join('<br>') : 'Aucun point'}
                                 ${m.teamB.penalties > 0 ? `<br><span style="color:var(--red)">• Malus: -${m.teamB.penalties}</span>` : ''}
-                            </div>
-                            <div style="margin-top:10px; padding-top:5px; border-top:1px solid var(--border); font-weight:700; color:var(--text-mute)">
-                                Temps : ${m.teamB.temps}s
                             </div>
                         </div>
                     </div>
@@ -457,6 +413,28 @@
         };
 
         const saveMatch = async () => {
+            // Envoi Webhook Discord
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: "🏁 Fin de Match - Challenge Robotik",
+                            color: 5814783,
+                            fields: [
+                                { name: "Équipe A", value: `**${pendingMatch.teamA.nom}**\nScore: ${pendingMatch.teamA.score}`, inline: true },
+                                { name: "Équipe B", value: `**${pendingMatch.teamB.nom}**\nScore: ${pendingMatch.teamB.score}`, inline: true },
+                                { name: "Résultat", value: `🏆 Victoire : **${pendingMatch.verdict}**` },
+                                { name: "Arbitre", value: pendingMatch.arb, inline: true }
+                            ],
+                            footer: { text: "Session 2026" },
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+            } catch (e) { console.error(e); }
+
             await push(ref(db, 'history'), pendingMatch);
             window.location.reload();
         };
@@ -521,10 +499,11 @@
 
         window.sendAnnonce = () => {
             const msg = document.getElementById('manual-msg').value; if(!msg) return;
-            fetch(WEBHOOK_PUBLIC, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ 
+            fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ 
                 content: "@everyone", embeds: [{ title: "📢 Annonce", description: msg, color: 16777215 }]
             }) });
             document.getElementById('manual-msg').value = "";
+            alert("Annonce envoyée !");
         };
 
         window.resolveTie = (v) => { pendingMatch.verdict = v === 'A' ? pendingMatch.teamA.nom : pendingMatch.teamB.nom; saveMatch(); };
@@ -532,7 +511,11 @@
         window.randomizeTeams = () => { if(TEAMS.length < 2) return; let p = [...TEAMS].sort(() => 0.5 - Math.random()); document.getElementById('sel-A').value = p[0]; document.getElementById('sel-B').value = p[1]; };
         window.addTeam = () => { const n = document.getElementById('new-team-name').value; if(n){ set(ref(db, 'teams'), [...TEAMS, n]); document.getElementById('new-team-name').value=""; } };
         window.removeTeam = (i) => { if(confirm("Supprimer l'équipe ?")) set(ref(db, 'teams'), TEAMS.filter((_, idx) => idx !== i)); };
-        window.logout = () => { localStorage.removeItem('persistent_session'); location.reload(); };
+        
+        window.logout = () => { 
+            localStorage.removeItem('persistent_session'); 
+            window.location.href = "page.html";
+        };
     </script>
 </body>
 </html>
