@@ -95,6 +95,11 @@
         </header>
 
         <section id="tab-match" class="tab-pane active">
+            <div id="live-arbiters-box" class="glass-card hidden" style="padding: 15px; margin-bottom: 15px;">
+                <span style="font-size: 10px; text-transform: uppercase; color: var(--text-mute); font-weight: 700; display: block; margin-bottom: 8px;">Arbitres sur ce match :</span>
+                <div id="live-arbiters-list" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+
             <div id="setup-view">
                 <div class="glass-card">
                     <h3>Préparation du Duel</h3>
@@ -116,7 +121,10 @@
             <div id="match-area" class="hidden">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                     <div class="tag">Duel Live</div>
-                    <button class="btn btn-danger" style="padding: 5px 15px;" onclick="openPenaltyModal()">+ Faute</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-danger" style="padding: 5px 15px;" onclick="openPenaltyModal()">+ Faute</button>
+                        <button class="btn btn-sub" style="padding: 5px 15px;" onclick="cancelLiveMatch()">Annuler le match</button>
+                    </div>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                     <div class="glass-card">
@@ -126,7 +134,7 @@
                         </div>
                         <div class="score-display" id="total-A">0</div>
                         <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps écoulé (s)</label>
-                        <input type="number" id="time-A" value="70" oninput="calc()">
+                        <input type="number" id="time-A" value="70" oninput="updateLiveTime('A', this.value)">
                         <div id="items-A"></div>
                         <div id="penalties-A" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
                     </div>
@@ -137,7 +145,7 @@
                         </div>
                         <div class="score-display" id="total-B">0</div>
                         <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps écoulé (s)</label>
-                        <input type="number" id="time-B" value="70" oninput="calc()">
+                        <input type="number" id="time-B" value="70" oninput="updateLiveTime('B', this.value)">
                         <div id="items-B"></div>
                         <div id="penalties-B" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
                     </div>
@@ -207,6 +215,7 @@
 
         let TEAMS = [], USERS = [], NOTES = {}, GLOBAL_HISTORY = [];
         let activePens = { A: [], B: [] }, arrivalOrder = [], pendingMatch = null;
+        let CURRENT_USER = null;
 
         window.toggleTheme = () => {
             const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -246,11 +255,78 @@
             }
         });
 
+        // Écoute synchronisée en temps réel du match en direct
+        onValue(ref(db, 'liveMatch'), (snap) => {
+            const live = snap.val();
+            if (live && live.active) {
+                arrivalOrder = live.arrivalOrder || [];
+                activePens = live.activePens || { A: [], B: [] };
+                
+                document.getElementById('name-A').innerText = live.teamA;
+                document.getElementById('name-B').innerText = live.teamB;
+                document.getElementById('time-A').value = live.timeA ?? 70;
+                document.getElementById('time-B').value = live.timeB ?? 70;
+
+                // Construction dynamique des cases cochées selon l'état Firebase
+                ['A','B'].forEach(s => {
+                    const checks = live[`checks${s}`] || {};
+                    document.getElementById(`items-${s}`).innerHTML = RULES.map(r => {
+                        const isChecked = !!checks[r.l];
+                        return `<div class="score-row ${isChecked ? 'active' : ''}" onclick="handleCheck('${s}', '${r.l.replace(/'/g, "\\'")}', this)">
+                            <span>${r.l}</span>
+                            <input type="checkbox" class="chk-${s}" data-pts="${r.p}" ${isChecked ? 'checked' : ''} style="display:none">
+                        </div>`;
+                    }).join('');
+                });
+
+                renderPenalties('A');
+                renderPenalties('B');
+                
+                document.getElementById('setup-view').classList.add('hidden');
+                document.getElementById('match-area').classList.remove('hidden');
+                document.getElementById('live-arbiters-box').classList.remove('hidden');
+                
+                calc();
+                registerPresence();
+            } else {
+                // Si aucun match n'est en direct, on réinitialise l'affichage vers la préparation
+                document.getElementById('setup-view').classList.remove('hidden');
+                document.getElementById('match-area').classList.add('hidden');
+                document.getElementById('live-arbiters-box').classList.add('hidden');
+                removePresence();
+            }
+        });
+
+        // Écoute de la présence des arbitres sur le match en cours
+        onValue(ref(db, 'livePresence'), (snap) => {
+            const data = snap.val();
+            const box = document.getElementById('live-arbiters-list');
+            if (data) {
+                box.innerHTML = Object.values(data).map(name => `<span class="tag" style="background:var(--surface); border:1px solid var(--border); font-weight:600;"><i data-lucide="user" style="width:12px; height:12px;"></i> ${name}</span>`).join('');
+            } else {
+                box.innerHTML = '';
+            }
+            lucide.createIcons();
+        });
+
+        const registerPresence = () => {
+            if (CURRENT_USER) {
+                set(ref(db, `livePresence/${CURRENT_USER.id}`), CURRENT_USER.name);
+            }
+        };
+
+        const removePresence = () => {
+            if (CURRENT_USER) {
+                remove(ref(db, `livePresence/${CURRENT_USER.id}`));
+            }
+        };
+
         window.onload = () => { 
             lucide.createIcons(); 
             const s = localStorage.getItem('persistent_session'); 
             if(s) {
-                showApp(JSON.parse(s));
+                CURRENT_USER = JSON.parse(s);
+                showApp(CURRENT_USER);
             } else {
                 window.location.href = "page.html";
             }
@@ -328,30 +404,63 @@
         window.launchMatch = () => {
             const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
             if(tA === tB) return alert("Choisissez deux équipes différentes");
-            document.getElementById('name-A').innerText = tA; document.getElementById('name-B').innerText = tB;
-            arrivalOrder = []; activePens = { A: [], B: [] };
-            ['A','B'].forEach(s => {
-                document.getElementById(`items-${s}`).innerHTML = RULES.map(r => `<div class="score-row" onclick="handleCheck('${s}', '${r.l}', this)"><span>${r.l}</span><input type="checkbox" class="chk-${s}" data-pts="${r.p}" style="display:none"></div>`).join('');
-                document.getElementById(`penalties-${s}`).innerHTML = '';
+            
+            // Initialisation de la structure live synchronisée sur Firebase
+            const initialChecks = {};
+            RULES.forEach(r => initialChecks[r.l] = false);
+
+            set(ref(db, 'liveMatch'), {
+                active: true,
+                teamA: tA,
+                teamB: tB,
+                timeA: 70,
+                timeB: 70,
+                arrivalOrder: [],
+                activePens: { A: [], B: [] },
+                checksA: initialChecks,
+                checksB: initialChecks
             });
-            document.getElementById('setup-view').classList.add('hidden'); document.getElementById('match-area').classList.remove('hidden');
-            calc();
+        };
+
+        window.cancelLiveMatch = () => {
+            if (confirm("Voulez-vous annuler le match en cours pour tout le monde ?")) {
+                remove(ref(db, 'liveMatch'));
+                remove(ref(db, 'livePresence'));
+            }
         };
 
         window.handleCheck = (side, label, el) => {
-            const cb = el.querySelector('input'); cb.checked = !cb.checked; el.classList.toggle('active', cb.checked);
-            if(label === 'Arrivée sur Lune') { if(cb.checked) arrivalOrder.push(side); else arrivalOrder = arrivalOrder.filter(s => s !== side); }
-            calc();
+            const cb = el.querySelector('input'); 
+            const newCheckedState = !cb.checked;
+            
+            // Mise à jour synchrone de la case sur Firebase
+            update(ref(db, `liveMatch/checks${side}`), { [label]: newCheckedState });
+
+            if(label === 'Arrivée sur Lune') { 
+                let newOrder = [...arrivalOrder];
+                if(newCheckedState) {
+                    if (!newOrder.includes(side)) newOrder.push(side);
+                } else { 
+                    newOrder = newOrder.filter(s => s !== side); 
+                }
+                update(ref(db, 'liveMatch'), { arrivalOrder: newOrder });
+            }
+        };
+
+        window.updateLiveTime = (side, val) => {
+            const num = parseInt(val) || 0;
+            update(ref(db, 'liveMatch'), { [`time${side}`]: num });
         };
 
         window.removePenalty = (side, idx) => {
-            activePens[side].splice(idx, 1);
-            renderPenalties(side);
-            calc();
+            let pens = [...activePens[side]];
+            pens.splice(idx, 1);
+            update(ref(db, `liveMatch/activePens/${side}`), pens);
         };
 
         const renderPenalties = (side) => {
-            document.getElementById(`penalties-${side}`).innerHTML = activePens[side].map((p, i) => 
+            const pens = activePens[side] || [];
+            document.getElementById(`penalties-${side}`).innerHTML = pens.map((p, i) => 
                 `<span class="tag" style="color:var(--red); border:1px solid var(--red)">-${p.pts} <i data-lucide="x" style="width:10px; cursor:pointer" onclick="event.stopPropagation(); removePenalty('${side}', ${i})"></i></span>`
             ).join('');
             lucide.createIcons();
@@ -362,14 +471,15 @@
                 let p = 0; document.querySelectorAll(`.chk-${s}`).forEach(c => { if(c.checked) p += parseInt(c.dataset.pts); });
                 const r = arrivalOrder.indexOf(s); if(r === 0) p += 25; else if(r === 1) p += 10;
                 const t = parseInt(document.getElementById(`time-${s}`).value) || 0; if(t < 70) p += Math.min(60, (70-t)*2);
-                activePens[s].forEach(pen => p -= pen.pts);
+                const pens = activePens[s] || [];
+                pens.forEach(pen => p -= pen.pts);
                 document.getElementById(`total-${s}`).innerText = Math.max(0, p);
             });
         };
 
         window.finishMatch = () => {
             const sA = parseInt(document.getElementById('total-A').innerText), sB = parseInt(document.getElementById('total-B').innerText);
-            const user = JSON.parse(localStorage.getItem('persistent_session'));
+            const user = CURRENT_USER || { name: "Inconnu" };
             
             const getActs = (s) => { 
                 let a = []; 
@@ -381,7 +491,10 @@
                 if(rank === 1) a.push("Bonus 2ème arrivé (+10)");
                 return a; 
             };
-            const getPens = (s) => activePens[s].reduce((acc, p) => acc + p.pts, 0);
+            const getPens = (s) => {
+                const pens = activePens[s] || [];
+                return pens.reduce((acc, p) => acc + p.pts, 0);
+            };
 
             pendingMatch = { 
                 date: new Date().toLocaleString('fr-FR'), 
@@ -436,6 +549,9 @@
             } catch (e) { console.error(e); }
 
             await push(ref(db, 'history'), pendingMatch);
+            // On nettoie la session live en cours
+            await remove(ref(db, 'liveMatch'));
+            await remove(ref(db, 'livePresence'));
             window.location.reload();
         };
 
@@ -492,9 +608,10 @@
         };
         window.applyPenalty = () => { 
             const s = document.getElementById('pen-team-select').value, val = parseInt(document.getElementById('pen-value').value);
-            activePens[s].push({ pts: val }); 
-            renderPenalties(s);
-            calc(); closeModal('penalty-modal'); 
+            let pens = activePens[s] ? [...activePens[s]] : [];
+            pens.push({ pts: val }); 
+            update(ref(db, `liveMatch/activePens/${s}`), pens);
+            closeModal('penalty-modal'); 
         };
 
         window.sendAnnonce = () => {
@@ -513,6 +630,7 @@
         window.removeTeam = (i) => { if(confirm("Supprimer l'équipe ?")) set(ref(db, 'teams'), TEAMS.filter((_, idx) => idx !== i)); };
         
         window.logout = () => { 
+            removePresence();
             localStorage.removeItem('persistent_session'); 
             window.location.href = "page.html";
         };
