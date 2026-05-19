@@ -67,12 +67,12 @@
         .detail-title { font-size: 10px; text-transform: uppercase; color: var(--text-mute); letter-spacing: 1px; margin-bottom: 5px; }
         .detail-points { font-size: 12px; line-height: 1.5; }
 
-        .validation-screen { position: fixed; inset: 0; z-index: 11000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; color: #ffffff; }
-        #validation-screen-A { background: #0044cc; }
-        #validation-screen-B { background: #006633; }
-        .validation-content { background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); padding: 30px; border-radius: 24px; max-width: 500px; width: 100%; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .validation-score { font-size: 80px; font-weight: 800; margin: 10px 0; }
-        .validation-actions { text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin: 15px 0; max-height: 200px; overflow-y: auto; font-size: 14px; }
+        .badge-homologation { width: 16px; height: 16px; vertical-align: middle; margin-left: 6px; object-fit: contain; }
+        .presence-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px dashed var(--border); }
+        .validation-screen { position: fixed; inset: 0; z-index: 11000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; color: #ffffff; }
+        .validation-screen.blue-side { background: #1e3a8a; }
+        .validation-screen.green-side { background: #064e3b; }
+        .validation-box { background: rgba(0,0,0,0.4); padding: 30px; border-radius: 24px; max-width: 500px; width: 100%; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -86,23 +86,16 @@
         <button class="btn btn-sub" style="margin-top: 30px;" onclick="logout()">Retour</button>
     </div>
 
-    <div id="validation-screen-A" class="validation-screen">
-        <div class="validation-content">
-            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 2px; opacity: 0.8;">Validation Équipe A</span>
-            <h1 id="val-name-A" style="font-size: 32px; margin-top: 5px;"></h1>
-            <div class="validation-score" id="val-score-A">0</div>
-            <div class="validation-actions" id="val-actions-A"></div>
-            <button class="btn" style="background:#ffffff; color:#0044cc; width:100%; justify-content:center; padding:18px; font-size:16px; font-weight:700; border-radius:14px;" onclick="confirmValidationA()">Confirmer Équipe A</button>
-        </div>
-    </div>
-
-    <div id="validation-screen-B" class="validation-screen">
-        <div class="validation-content">
-            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 2px; opacity: 0.8;">Validation Équipe B</span>
-            <h1 id="val-name-B" style="font-size: 32px; margin-top: 5px;"></h1>
-            <div class="validation-score" id="val-score-B">0</div>
-            <div class="validation-actions" id="val-actions-B"></div>
-            <button class="btn" style="background:#ffffff; color:#006633; width:100%; justify-content:center; padding:18px; font-size:16px; font-weight:700; border-radius:14px;" onclick="confirmValidationB()">Confirmer Équipe B & Enregistrer</button>
+    <div id="team-validation-screen" class="validation-screen">
+        <div class="validation-box">
+            <h1 id="val-side-title" style="font-size: 32px; margin-bottom: 10px;"></h1>
+            <p style="opacity: 0.8; margin-bottom: 20px;">Veuillez valider le récapitulatif de vos scores ci-dessous :</p>
+            <div id="val-score-big" style="font-size: 80px; font-weight: 800; margin-bottom: 15px;">0 pts</div>
+            <div style="text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 25px; font-size: 14px; max-height: 200px; overflow-y: auto;">
+                <b style="text-transform: uppercase; font-size: 10px; opacity: 0.6; letter-spacing: 1px;">Actions accomplies :</b>
+                <div id="val-actions-list" style="margin-top: 5px; line-height: 1.6;"></div>
+            </div>
+            <button id="val-confirm-btn" class="btn btn-main" style="width: 100%; justify-content: center; padding: 16px; font-size: 16px;" onclick="confirmTeamValidation()">Valider et signer le score</button>
         </div>
     </div>
 
@@ -122,12 +115,17 @@
         </header>
 
         <section id="tab-match" class="tab-pane active">
-            <div id="live-arbiters-box" class="glass-card hidden" style="padding: 15px; margin-bottom: 15px;">
-                <span style="font-size: 10px; text-transform: uppercase; color: var(--text-mute); font-weight: 700; display: block; margin-bottom: 8px;">Arbitres sur ce match :</span>
-                <div id="live-arbiters-list" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
-            </div>
-
             <div id="setup-view">
+                <div id="live-match-banner" class="glass-card hidden" style="border-color: var(--blue); background: rgba(59, 130, 246, 0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span class="tag" style="background: var(--blue); color: #fff; margin-bottom: 5px;">Match en direct</span>
+                            <h4 id="live-banner-text" style="margin-top:5px;"></h4>
+                        </div>
+                        <button class="btn btn-main" onclick="joinLiveMatch()">Rejoindre l'arbitrage</button>
+                    </div>
+                </div>
+
                 <div class="glass-card">
                     <h3>Préparation du Duel</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top:15px;">
@@ -146,13 +144,15 @@
             </div>
 
             <div id="match-area" class="hidden">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                    <div class="tag">Duel Live</div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-danger" style="padding: 5px 15px;" onclick="openPenaltyModal()">+ Faute</button>
-                        <button class="btn btn-sub" style="padding: 5px 15px;" onclick="cancelLiveMatch()">Annuler le match</button>
-                    </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div class="tag">Duel Live Collaboratif</div>
+                    <button class="btn btn-danger" style="padding: 5px 15px;" onclick="openPenaltyModal()">+ Faute</button>
                 </div>
+                
+                <div id="presence-box" class="presence-container">
+                    <span style="font-size: 11px; color: var(--text-mute); width: 100%;">Arbitres présents sur ce match :</span>
+                </div>
+
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                     <div class="glass-card">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -161,7 +161,7 @@
                         </div>
                         <div class="score-display" id="total-A">0</div>
                         <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps écoulé (s)</label>
-                        <input type="number" id="time-A" value="70" oninput="updateLiveTime('A', this.value)">
+                        <input type="number" id="time-A" value="70" oninput="pushLiveState()">
                         <div id="items-A"></div>
                         <div id="penalties-A" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
                     </div>
@@ -172,7 +172,7 @@
                         </div>
                         <div class="score-display" id="total-B">0</div>
                         <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps écoulé (s)</label>
-                        <input type="number" id="time-B" value="70" oninput="updateLiveTime('B', this.value)">
+                        <input type="number" id="time-B" value="70" oninput="pushLiveState()">
                         <div id="items-B"></div>
                         <div id="penalties-B" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
                     </div>
@@ -208,7 +208,23 @@
     </div>
 
     <div id="penalty-modal" class="modal"><div class="modal-inner"><h3>Signaler une faute</h3><select id="pen-team-select"></select><input type="number" id="pen-value" value="5"><button class="btn btn-main" style="width:100%;" onclick="applyPenalty()">Appliquer malus</button><button class="btn btn-sub" style="width:100%; margin-top:10px;" onclick="closeModal('penalty-modal')">Annuler</button></div></div>
-    <div id="comment-modal" class="modal"><div class="modal-inner"><h3>Note d'équipe</h3><textarea id="team-comment" style="height:100px;"></textarea><input type="hidden" id="comment-side"><button class="btn btn-main" style="width:100%" onclick="saveComment()">Sauvegarder</button><button class="btn btn-sub" style="width:100%; margin-top:10px;" onclick="closeModal('comment-modal')">Fermer</button></div></div>
+    
+    <div id="comment-modal" class="modal">
+        <div class="modal-inner">
+            <h3>Note d'équipe & Homologation</h3>
+            <div style="display:flex; align-items:center; gap:10px; background:var(--surface); padding:10px; border-radius:10px; margin-bottom:15px; border:1px solid var(--border);">
+                <input type="checkbox" id="team-homologation-chk" style="width:auto; margin-bottom:0; cursor:pointer;">
+                <label for="team-homologation-chk" style="font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                    Équipe homologuée <img src="https://image.noelshack.com/fichiers/2026/21/2/1779198035-homologation.png" style="width:16px; height:16px;">
+                </label>
+            </div>
+            <textarea id="team-comment" style="height:100px;" placeholder="Commentaires additionnels..."></textarea>
+            <input type="hidden" id="comment-side">
+            <button class="btn btn-main" style="width:100%" onclick="saveComment()">Sauvegarder</button>
+            <button class="btn btn-sub" style="width:100%; margin-top:10px;" onclick="closeModal('comment-modal')">Fermer</button>
+        </div>
+    </div>
+    
     <div id="tie-modal" class="modal"><div class="modal-inner" style="text-align: center;"><h2>Egalité</h2><p>Désignez un vainqueur tactique :</p><div style="display: grid; gap: 10px; margin-top: 20px;"><button id="tie-btn-A" class="btn btn-main" onclick="resolveTie('A')"></button><button id="tie-btn-B" class="btn btn-main" onclick="resolveTie('B')"></button></div></div></div>
     
     <div id="detail-modal" class="modal">
@@ -242,7 +258,8 @@
 
         let TEAMS = [], USERS = [], NOTES = {}, GLOBAL_HISTORY = [];
         let activePens = { A: [], B: [] }, arrivalOrder = [], pendingMatch = null;
-        let CURRENT_USER = null;
+        let currentUser = null;
+        let currentValidationStep = ""; 
 
         window.toggleTheme = () => {
             const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -265,17 +282,13 @@
             renderHistory(); 
         });
 
-        // Masquage immédiat du loader dès que Firebase répond, même si c'est vide
-        onValue(ref(db, 'teams'), (snap) => { 
-            TEAMS = snap.val() || []; 
-            updateUI(); 
-            document.getElementById('loader').classList.add('hidden'); 
-        }, (error) => {
-            document.getElementById('loader').classList.add('hidden');
+        onValue(ref(db, 'teams'), (snap) => { TEAMS = snap.val() || []; updateUI(); document.getElementById('loader').classList.add('hidden'); });
+        
+        onValue(ref(db, 'notes'), (snap) => { 
+            NOTES = snap.val() || {}; 
+            updateTeamBadges();
         });
 
-        onValue(ref(db, 'notes'), (snap) => { NOTES = snap.val() || {}; });
-        
         onValue(ref(db, 'arbiters'), (snap) => { 
             const admin = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
             USERS = snap.val() ? [admin, ...Object.values(snap.val())] : [admin];
@@ -293,75 +306,30 @@
 
         onValue(ref(db, 'liveMatch'), (snap) => {
             const live = snap.val();
+            const banner = document.getElementById('live-match-banner');
             if (live && live.active) {
-                arrivalOrder = live.arrivalOrder || [];
-                activePens = live.activePens || { A: [], B: [] };
+                document.getElementById('live-banner-text').innerText = `${live.teamA} vs ${live.teamB}`;
+                banner.classList.remove('hidden');
                 
-                document.getElementById('name-A').innerText = live.teamA;
-                document.getElementById('name-B').innerText = live.teamB;
-                document.getElementById('time-A').value = live.timeA ?? 70;
-                document.getElementById('time-B').value = live.timeB ?? 70;
-
-                ['A','B'].forEach(s => {
-                    const checks = live[`checks${s}`] || {};
-                    document.getElementById(`items-${s}`).innerHTML = RULES.map(r => {
-                        const isChecked = !!checks[r.l];
-                        return `<div class="score-row ${isChecked ? 'active' : ''}" onclick="handleCheck('${s}', '${r.l.replace(/'/g, "\\'")}', this)">
-                            <span>${r.l}</span>
-                            <input type="checkbox" class="chk-${s}" data-pts="${r.p}" ${isChecked ? 'checked' : ''} style="display:none">
-                        </div>`;
-                    }).join('');
-                });
-
-                renderPenalties('A');
-                renderPenalties('B');
-                
-                document.getElementById('setup-view').classList.add('hidden');
-                document.getElementById('match-area').classList.remove('hidden');
-                document.getElementById('live-arbiters-box').classList.remove('hidden');
-                
-                calc();
-                registerPresence();
+                if (document.getElementById('setup-view').classList.contains('hidden')) {
+                    syncLiveState(live);
+                }
             } else {
-                document.getElementById('setup-view').classList.remove('hidden');
-                document.getElementById('match-area').classList.add('hidden');
-                document.getElementById('live-arbiters-box').classList.add('hidden');
-                removePresence();
+                banner.classList.add('hidden');
+                if (!document.getElementById('match-area').classList.contains('hidden')) {
+                    document.getElementById('match-area').classList.add('hidden');
+                    document.getElementById('setup-view').classList.remove('hidden');
+                }
             }
         });
-
-        onValue(ref(db, 'livePresence'), (snap) => {
-            const data = snap.val();
-            const box = document.getElementById('live-arbiters-list');
-            if (data) {
-                box.innerHTML = Object.values(data).map(name => `<span class="tag" style="background:var(--surface); border:1px solid var(--border); font-weight:600;"><i data-lucide="user" style="width:12px; height:12px;"></i> ${name}</span>`).join('');
-            } else {
-                box.innerHTML = '';
-            }
-            lucide.createIcons();
-        });
-
-        const registerPresence = () => {
-            if (CURRENT_USER) {
-                set(ref(db, `livePresence/${CURRENT_USER.id}`), CURRENT_USER.name);
-            }
-        };
-
-        const removePresence = () => {
-            if (CURRENT_USER) {
-                remove(ref(db, `livePresence/${CURRENT_USER.id}`));
-            }
-        };
 
         window.onload = () => { 
             lucide.createIcons(); 
             const s = localStorage.getItem('persistent_session'); 
             if(s) {
-                CURRENT_USER = JSON.parse(s);
-                showApp(CURRENT_USER);
+                currentUser = JSON.parse(s);
+                showApp(currentUser);
             } else {
-                // Si aucune session n'est détectée, on force la suppression du loader pour voir la redirection ou l'interface
-                document.getElementById('loader').classList.add('hidden');
                 window.location.href = "page.html";
             }
         };
@@ -439,8 +407,8 @@
             const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
             if(tA === tB) return alert("Choisissez deux équipes différentes");
             
-            const initialChecks = {};
-            RULES.forEach(r => initialChecks[r.l] = false);
+            const freshPresence = {};
+            if(currentUser) freshPresence[currentUser.id] = currentUser.name;
 
             set(ref(db, 'liveMatch'), {
                 active: true,
@@ -450,49 +418,110 @@
                 timeB: 70,
                 arrivalOrder: [],
                 activePens: { A: [], B: [] },
-                checksA: initialChecks,
-                checksB: initialChecks
+                checksA: {},
+                checksB: {},
+                presence: freshPresence
             });
+
+            setupMatchDOM(tA, tB);
+            document.getElementById('setup-view').classList.add('hidden'); 
+            document.getElementById('match-area').classList.remove('hidden');
         };
 
-        window.cancelLiveMatch = () => {
-            if (confirm("Voulez-vous annuler le match en cours pour tout le monde ?")) {
-                remove(ref(db, 'liveMatch'));
-                remove(ref(db, 'livePresence'));
-            }
-        };
-
-        window.handleCheck = (side, label, el) => {
-            const cb = el.querySelector('input'); 
-            const newCheckedState = !cb.checked;
-            
-            update(ref(db, `liveMatch/checks${side}`), { [label]: newCheckedState });
-
-            if(label === 'Arrivée sur Lune') { 
-                let newOrder = [...arrivalOrder];
-                if(newCheckedState) {
-                    if (!newOrder.includes(side)) newOrder.push(side);
-                } else { 
-                    newOrder = newOrder.filter(s => s !== side); 
+        window.joinLiveMatch = () => {
+            onValue(ref(db, 'liveMatch'), (snap) => {
+                const live = snap.val();
+                if(live && live.active && currentUser) {
+                    setupMatchDOM(live.teamA, live.teamB);
+                    update(ref(db, `liveMatch/presence`), { [currentUser.id]: currentUser.name });
+                    document.getElementById('setup-view').classList.add('hidden');
+                    document.getElementById('match-area').classList.remove('hidden');
                 }
-                update(ref(db, 'liveMatch'), { arrivalOrder: newOrder });
+            }, { onlyOnce: true });
+        };
+
+        const setupMatchDOM = (tA, tB) => {
+            document.getElementById('name-A').innerText = tA; 
+            document.getElementById('name-B').innerText = tB;
+            updateTeamBadges();
+            
+            arrivalOrder = []; 
+            activePens = { A: [], B: [] };
+            
+            ['A','B'].forEach(s => {
+                document.getElementById(`items-${s}`).innerHTML = RULES.map((r, i) => `
+                    <div class="score-row" id="row-${s}-${i}" onclick="handleCheckClick('${s}', ${i}, '${r.l}')">
+                        <span>${r.l}</span>
+                        <input type="checkbox" class="chk-${s}" data-pts="${r.p}" style="display:none" id="chk-${s}-${i}">
+                    </div>
+                `).join('');
+                document.getElementById(`penalties-${s}`).innerHTML = '';
+            });
+            calc();
+        };
+
+        window.handleCheckClick = (side, index, label) => {
+            const row = document.getElementById(`row-${side}-${index}`);
+            const cb = row.querySelector('input');
+            const targetState = !cb.checked;
+            
+            update(ref(db, `liveMatch/checks${side}`), { [index]: targetState });
+
+            if(label === 'Arrivée sur Lune') {
+                if(targetState) {
+                    if(!arrivalOrder.includes(side)) arrivalOrder.push(side);
+                } else {
+                    arrivalOrder = arrivalOrder.filter(s => s !== side);
+                }
+                set(ref(db, 'liveMatch/arrivalOrder'), arrivalOrder);
             }
         };
 
-        window.updateLiveTime = (side, val) => {
-            const num = parseInt(val) || 0;
-            update(ref(db, 'liveMatch'), { [`time${side}`]: num });
+        window.pushLiveState = () => {
+            const tA = parseInt(document.getElementById('time-A').value) || 0;
+            const tB = parseInt(document.getElementById('time-B').value) || 0;
+            update(ref(db, 'liveMatch'), { timeA: tA, timeB: tB });
+        };
+
+        const syncLiveState = (live) => {
+            if (!live) return;
+            
+            document.getElementById('time-A').value = live.timeA ?? 70;
+            document.getElementById('time-B').value = live.timeB ?? 70;
+            
+            arrivalOrder = live.arrivalOrder || [];
+            activePens = live.activePens || { A: [], B: [] };
+            if(!activePens.A) activePens.A = [];
+            if(!activePens.B) activePens.B = [];
+
+            ['A', 'B'].forEach(s => {
+                const checks = live[`checks${s}`] || {};
+                RULES.forEach((r, i) => {
+                    const row = document.getElementById(`row-${s}-${i}`);
+                    const cb = document.getElementById(`chk-${s}-${i}`);
+                    if (row && cb) {
+                        cb.checked = !!checks[i];
+                        row.classList.toggle('active', cb.checked);
+                    }
+                });
+                renderPenalties(s);
+            });
+
+            const presenceBox = document.getElementById('presence-box');
+            const pr = live.presence || {};
+            presenceBox.innerHTML = '<span style="font-size: 11px; color: var(--text-mute); width: 100%;">Arbitres présents sur ce match :</span>' + 
+                Object.values(pr).map(name => `<span class="tag" style="background:var(--border)">${name}</span>`).join('');
+
+            calc();
         };
 
         window.removePenalty = (side, idx) => {
-            let pens = [...activePens[side]];
-            pens.splice(idx, 1);
-            update(ref(db, `liveMatch/activePens/${side}`), pens);
+            activePens[side].splice(idx, 1);
+            set(ref(db, `liveMatch/activePens/${side}`), activePens[side]);
         };
 
         const renderPenalties = (side) => {
-            const pens = activePens[side] || [];
-            document.getElementById(`penalties-${side}`).innerHTML = pens.map((p, i) => 
+            document.getElementById(`penalties-${side}`).innerHTML = activePens[side].map((p, i) => 
                 `<span class="tag" style="color:var(--red); border:1px solid var(--red)">-${p.pts} <i data-lucide="x" style="width:10px; cursor:pointer" onclick="event.stopPropagation(); removePenalty('${side}', ${i})"></i></span>`
             ).join('');
             lucide.createIcons();
@@ -500,18 +529,20 @@
 
         window.calc = () => {
             ['A', 'B'].forEach(s => {
-                let p = 0; document.querySelectorAll(`.chk-${s}`).forEach(c => { if(c.checked) p += parseInt(c.dataset.pts); });
+                let p = 0; 
+                document.querySelectorAll(`.chk-${s}`).forEach(c => { if(c.checked) p += parseInt(c.dataset.pts); });
                 const r = arrivalOrder.indexOf(s); if(r === 0) p += 25; else if(r === 1) p += 10;
                 const t = parseInt(document.getElementById(`time-${s}`).value) || 0; if(t < 70) p += Math.min(60, (70-t)*2);
-                const pens = activePens[s] || [];
-                pens.forEach(pen => p -= pen.pts);
+                if(activePens[s]) {
+                    activePens[s].forEach(pen => p -= pen.pts);
+                }
                 document.getElementById(`total-${s}`).innerText = Math.max(0, p);
             });
         };
 
         window.finishMatch = () => {
             const sA = parseInt(document.getElementById('total-A').innerText), sB = parseInt(document.getElementById('total-B').innerText);
-            const user = CURRENT_USER || { name: "Inconnu" };
+            const user = JSON.parse(localStorage.getItem('persistent_session'));
             
             const getActs = (s) => { 
                 let a = []; 
@@ -521,14 +552,9 @@
                 const rank = arrivalOrder.indexOf(s);
                 if(rank === 0) a.push("Bonus 1er arrivé (+25)");
                 if(rank === 1) a.push("Bonus 2ème arrivé (+10)");
-                const t = parseInt(document.getElementById(`time-${s}`).value) || 0;
-                if(t < 70) a.push(`Bonus Temps : ${70 - t}s restantes (+${Math.min(60, (70-t)*2)} pts)`);
                 return a; 
             };
-            const getPens = (s) => {
-                const pens = activePens[s] || [];
-                return pens.reduce((acc, p) => acc + p.pts, 0);
-            };
+            const getPens = (s) => (activePens[s] || []).reduce((acc, p) => acc + p.pts, 0);
 
             pendingMatch = { 
                 date: new Date().toLocaleString('fr-FR'), 
@@ -549,43 +575,59 @@
                 } 
             };
 
-            document.getElementById('val-name-A').innerText = pendingMatch.teamA.nom;
-            document.getElementById('val-score-A').innerText = pendingMatch.teamA.score + " pts";
-            document.getElementById('val-actions-A').innerHTML = `
-                <strong>Actions réussies :</strong><br>
-                ${pendingMatch.teamA.actions.length > 0 ? pendingMatch.teamA.actions.map(a => `• ${a}`).join('<br>') : 'Aucune action'}<br>
-                ${pendingMatch.teamA.penalties > 0 ? `<span style="color:#ffcccc;"><br>• Total Malus : -${pendingMatch.teamA.penalties} pts</span>` : ''}
-            `;
-
-            document.getElementById('val-name-B').innerText = pendingMatch.teamB.nom;
-            document.getElementById('val-score-B').innerText = pendingMatch.teamB.score + " pts";
-            document.getElementById('val-actions-B').innerHTML = `
-                <strong>Actions réussies :</strong><br>
-                ${pendingMatch.teamB.actions.length > 0 ? pendingMatch.teamB.actions.map(a => `• ${a}`).join('<br>') : 'Aucune action'}<br>
-                ${pendingMatch.teamB.penalties > 0 ? `<span style="color:#ffcccc;"><br>• Total Malus : -${pendingMatch.teamB.penalties} pts</span>` : ''}
-            `;
-
-            document.getElementById('validation-screen-A').style.display = 'flex';
-        };
-
-        window.confirmValidationA = () => {
-            document.getElementById('validation-screen-A').style.display = 'none';
-            document.getElementById('validation-screen-B').style.display = 'flex';
-        };
-
-        window.confirmValidationB = () => {
-            document.getElementById('validation-screen-B').style.display = 'none';
-            
-            const sA = pendingMatch.teamA.score;
-            const sB = pendingMatch.teamB.score;
-
             if(sA === sB) { 
                 document.getElementById('tie-btn-A').innerText = pendingMatch.teamA.nom; 
                 document.getElementById('tie-btn-B').innerText = pendingMatch.teamB.nom; 
                 document.getElementById('tie-modal').style.display = 'flex'; 
             } else { 
                 pendingMatch.verdict = sA > sB ? pendingMatch.teamA.nom : pendingMatch.teamB.nom; 
-                saveMatch(); 
+                startDualValidation();
+            }
+        };
+
+        const startDualValidation = () => {
+            currentValidationStep = "A";
+            showValidationScreen();
+        };
+
+        const showValidationScreen = () => {
+            const scr = document.getElementById('team-validation-screen');
+            const titleEl = document.getElementById('val-side-title');
+            const scoreEl = document.getElementById('val-score-big');
+            const actionsEl = document.getElementById('val-actions-list');
+            
+            scr.classList.remove('blue-side', 'green-side');
+            
+            if (currentValidationStep === "A") {
+                scr.classList.add('blue-side');
+                titleEl.innerText = `Équipe Bleue : ${pendingMatch.teamA.nom}`;
+                scoreEl.innerText = `${pendingMatch.teamA.score} pts`;
+                
+                let acts = pendingMatch.teamA.actions.map(a => `✓ ${a}`).join('<br>');
+                if(pendingMatch.teamA.penalties > 0) acts += `<br><span style="color:#ff4b4b; font-weight:bold;">⚠ Malus fautes: -${pendingMatch.teamA.penalties} pts</span>`;
+                actionsEl.innerHTML = acts || "Aucune action complétée.";
+                
+                scr.style.display = 'flex';
+            } else if (currentValidationStep === "B") {
+                scr.classList.add('green-side');
+                titleEl.innerText = `Équipe Verte : ${pendingMatch.teamB.nom}`;
+                scoreEl.innerText = `${pendingMatch.teamB.score} pts`;
+                
+                let acts = pendingMatch.teamB.actions.map(a => `✓ ${a}`).join('<br>');
+                if(pendingMatch.teamB.penalties > 0) acts += `<br><span style="color:#ff4b4b; font-weight:bold;">⚠ Malus fautes: -${pendingMatch.teamB.penalties} pts</span>`;
+                actionsEl.innerHTML = acts || "Aucune action complétée.";
+                
+                scr.style.display = 'flex';
+            }
+        };
+
+        window.confirmTeamValidation = () => {
+            if (currentValidationStep === "A") {
+                currentValidationStep = "B";
+                showValidationScreen();
+            } else {
+                document.getElementById('team-validation-screen').style.display = 'none';
+                saveMatch();
             }
         };
 
@@ -612,8 +654,7 @@
             } catch (e) { console.error(e); }
 
             await push(ref(db, 'history'), pendingMatch);
-            await remove(ref(db, 'liveMatch'));
-            await remove(ref(db, 'livePresence'));
+            await set(ref(db, 'liveMatch'), null); 
             window.location.reload();
         };
 
@@ -645,34 +686,77 @@
         };
 
         window.updateUI = () => {
-            const opts = TEAMS.length > 0 ? TEAMS.map(t => `<option value="${t}">${t}</option>`).join('') : '<option value="">Aucune équipe</option>';
+            const opts = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
             document.getElementById('sel-A').innerHTML = opts; document.getElementById('sel-B').innerHTML = opts;
-            document.getElementById('teams-list').innerHTML = TEAMS.map((t, i) => `<span class="tag">${t} <i data-lucide="x" style="width:10px; cursor:pointer" onclick="removeTeam(${i})"></i></span>`).join('');
+            renderTeamsTabList();
+        };
+
+        const renderTeamsTabList = () => {
+            document.getElementById('teams-list').innerHTML = TEAMS.map((t, i) => {
+                const isHomologated = NOTES[t] && NOTES[t].homologated;
+                const badge = isHomologated ? `<img src="https://image.noelshack.com/fichiers/2026/21/2/1779198035-homologation.png" class="badge-homologation">` : '';
+                return `<span class="tag">${t}${badge} <i data-lucide="x" style="width:10px; cursor:pointer; margin-left:5px;" onclick="removeTeam(${i})"></i></span>`;
+            }).join('');
             lucide.createIcons();
         };
 
+        const updateTeamBadges = () => {
+            ['A', 'B'].forEach(s => {
+                const el = document.getElementById(`name-${s}`);
+                if (el && el.innerText) {
+                    const name = el.innerText.replace(/<img[^>]*>/, '').trim(); 
+                    const isHomologated = NOTES[name] && NOTES[name].homologated;
+                    el.innerHTML = name + (isHomologated ? ` <img src="https://image.noelshack.com/fichiers/2026/21/2/1779198035-homologation.png" class="badge-homologation" style="width:24px; height:24px;">` : '');
+                }
+            });
+            renderTeamsTabList();
+        };
+
         window.openComment = (side) => {
-            const name = document.getElementById(`name-${side}`).innerText;
+            const name = document.getElementById(`name-${side}`).innerText.replace(/<img[^>]*>/, '').trim();
             document.getElementById('comment-side').value = side;
-            document.getElementById('team-comment').value = NOTES[name] || "";
+            
+            const teamData = NOTES[name] || { text: "", homologated: false };
+            if (typeof teamData === 'string') {
+                document.getElementById('team-comment').value = teamData;
+                document.getElementById('team-homologation-chk').checked = false;
+            } else {
+                document.getElementById('team-comment').value = teamData.text || "";
+                document.getElementById('team-homologation-chk').checked = !!teamData.homologated;
+            }
+            
             document.getElementById('comment-modal').style.display = 'flex';
         };
 
         window.saveComment = () => {
-            const side = document.getElementById('comment-side').value, name = document.getElementById(`name-${side}`).innerText;
-            update(ref(db, 'notes'), { [name]: document.getElementById('team-comment').value });
+            const side = document.getElementById('comment-side').value;
+            const name = document.getElementById(`name-${side}`).innerText.replace(/<img[^>]*>/, '').trim();
+            
+            const commentText = document.getElementById('team-comment').value;
+            const isChecked = document.getElementById('team-homologation-chk').checked;
+            
+            update(ref(db, 'notes'), { 
+                [name]: {
+                    text: commentText,
+                    homologated: isChecked
+                } 
+            });
             closeModal('comment-modal');
         };
 
         window.openPenaltyModal = () => { 
-            document.getElementById('pen-team-select').innerHTML = `<option value="A">${document.getElementById('name-A').innerText}</option><option value="B">${document.getElementById('name-B').innerText}</option>`;
+            const tA = document.getElementById('name-A').innerText.replace(/<img[^>]*>/, '').trim();
+            const tB = document.getElementById('name-B').innerText.replace(/<img[^>]*>/, '').trim();
+            document.getElementById('pen-team-select').innerHTML = `<option value="A">${tA}</option><option value="B">${tB}</option>`;
             document.getElementById('penalty-modal').style.display = 'flex'; 
         };
+        
         window.applyPenalty = () => { 
             const s = document.getElementById('pen-team-select').value, val = parseInt(document.getElementById('pen-value').value);
-            let pens = activePens[s] ? [...activePens[s]] : [];
-            pens.push({ pts: val }); 
-            update(ref(db, `liveMatch/activePens/${s}`), pens);
+            if(!activePens[s]) activePens[s] = [];
+            activePens[s].push({ pts: val }); 
+            
+            set(ref(db, `liveMatch/activePens/${s}`), activePens[s]);
             closeModal('penalty-modal'); 
         };
 
@@ -685,14 +769,18 @@
             alert("Annonce envoyée !");
         };
 
-        window.resolveTie = (v) => { pendingMatch.verdict = v === 'A' ? pendingMatch.teamA.nom : pendingMatch.teamB.nom; saveMatch(); };
+        window.resolveTie = (v) => { 
+            pendingMatch.verdict = v === 'A' ? pendingMatch.teamA.nom : pendingMatch.teamB.nom; 
+            closeModal('tie-modal');
+            startDualValidation();
+        };
+        
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.randomizeTeams = () => { if(TEAMS.length < 2) return; let p = [...TEAMS].sort(() => 0.5 - Math.random()); document.getElementById('sel-A').value = p[0]; document.getElementById('sel-B').value = p[1]; };
         window.addTeam = () => { const n = document.getElementById('new-team-name').value; if(n){ set(ref(db, 'teams'), [...TEAMS, n]); document.getElementById('new-team-name').value=""; } };
         window.removeTeam = (i) => { if(confirm("Supprimer l'équipe ?")) set(ref(db, 'teams'), TEAMS.filter((_, idx) => idx !== i)); };
         
         window.logout = () => { 
-            removePresence();
             localStorage.removeItem('persistent_session'); 
             window.location.href = "page.html";
         };
