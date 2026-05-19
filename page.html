@@ -210,25 +210,42 @@
         initCanvas(); createParticles(); animate();
         lucide.createIcons();
 
-        document.getElementById('login-form').onsubmit = (e) => {
+        // Gestion de la soumission du formulaire corrigée
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const id = document.getElementById('login-id').value;
+            
+            const id = document.getElementById('login-id').value.trim();
             const pass = document.getElementById('login-password').value;
             const errorEl = document.getElementById('error-msg');
+            
+            errorEl.style.display = 'none';
 
             onValue(ref(db, 'arbiters'), (snap) => {
                 const admin = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
-                const users = snap.val() ? [admin, ...Object.values(snap.val())] : [admin];
+                const data = snap.val();
+                
+                let users = [admin];
+                if(data) {
+                    users = [admin, ...Object.values(data)];
+                }
+                
                 const user = users.find(x => x.id === id && x.pass === pass);
 
-                if(user && (!user.suspended || user.id === 'MrFr_G8mC')) {
+                if(user) {
+                    if(user.suspended && user.id !== 'MrFr_G8mC') {
+                        errorEl.innerText = "Ce compte est suspendu.";
+                        errorEl.style.display = 'block';
+                        return;
+                    }
                     localStorage.setItem('persistent_session', JSON.stringify(user));
                     window.location.href = REDIRECT_URL;
                 } else {
+                    errorEl.innerText = "Identifiants incorrects ou accès restreint.";
                     errorEl.style.display = 'block';
                 }
             }, { onlyOnce: true });
-        };
+        });
     </script>
 </body>
 </html>
