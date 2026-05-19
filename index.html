@@ -260,6 +260,7 @@
         let activePens = { A: [], B: [] }, arrivalOrder = [], pendingMatch = null;
         let currentUser = null;
         let currentValidationStep = ""; 
+        let currentLiveMatchData = null; 
 
         window.toggleTheme = () => {
             const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -306,6 +307,7 @@
 
         onValue(ref(db, 'liveMatch'), (snap) => {
             const live = snap.val();
+            currentLiveMatchData = live;
             const banner = document.getElementById('live-match-banner');
             if (live && live.active) {
                 document.getElementById('live-banner-text').innerText = `${live.teamA} vs ${live.teamB}`;
@@ -468,12 +470,13 @@
             update(ref(db, `liveMatch/checks${side}`), { [index]: targetState });
 
             if(label === 'Arrivée sur Lune') {
+                let currentArrival = (currentLiveMatchData && currentLiveMatchData.arrivalOrder) ? [...currentLiveMatchData.arrivalOrder] : [];
                 if(targetState) {
-                    if(!arrivalOrder.includes(side)) arrivalOrder.push(side);
+                    if(!currentArrival.includes(side)) currentArrival.push(side);
                 } else {
-                    arrivalOrder = arrivalOrder.filter(s => s !== side);
+                    currentArrival = currentArrival.filter(s => s !== side);
                 }
-                set(ref(db, 'liveMatch/arrivalOrder'), arrivalOrder);
+                set(ref(db, 'liveMatch/arrivalOrder'), currentArrival);
             }
         };
 
@@ -530,12 +533,29 @@
         window.calc = () => {
             ['A', 'B'].forEach(s => {
                 let p = 0; 
-                document.querySelectorAll(`.chk-${s}`).forEach(c => { if(c.checked) p += parseInt(c.dataset.pts); });
-                const r = arrivalOrder.indexOf(s); if(r === 0) p += 25; else if(r === 1) p += 10;
-                const t = parseInt(document.getElementById(`time-${s}`).value) || 0; if(t < 70) p += Math.min(60, (70-t)*2);
+                
+                // Calcul basé sur l'état réel des checkbox synchronisées
+                RULES.forEach((r, i) => {
+                    const cb = document.getElementById(`chk-${s}-${i}`);
+                    if (cb && cb.checked) {
+                        p += r.p;
+                    }
+                });
+
+                // Bonus d'arrivée d'origine
+                const r = arrivalOrder.indexOf(s); 
+                if(r === 0) p += 25; 
+                else if(r === 1) p += 10;
+
+                // Malus de temps d'origine
+                const t = parseInt(document.getElementById(`time-${s}`).value) || 0; 
+                if(t < 70) p += Math.min(60, (70-t)*2);
+
+                // Déduction des fautes d'origine
                 if(activePens[s]) {
                     activePens[s].forEach(pen => p -= pen.pts);
                 }
+
                 document.getElementById(`total-${s}`).innerText = Math.max(0, p);
             });
         };
@@ -546,9 +566,12 @@
             
             const getActs = (s) => { 
                 let a = []; 
-                document.querySelectorAll(`.chk-${s}`).forEach(c => { 
-                    if(c.checked) a.push(c.parentElement.querySelector('span').innerText); 
-                }); 
+                RULES.forEach((r, i) => {
+                    const cb = document.getElementById(`chk-${s}-${i}`);
+                    if (cb && cb.checked) {
+                        a.push(r.l);
+                    }
+                });
                 const rank = arrivalOrder.indexOf(s);
                 if(rank === 0) a.push("Bonus 1er arrivé (+25)");
                 if(rank === 1) a.push("Bonus 2ème arrivé (+10)");
@@ -701,12 +724,18 @@
         };
 
         const updateTeamBadges = () => {
-            ['A', 'B'].forEach(s => {
-                const el = document.getElementById(`name-${s}`);
-                if (el && el.innerText) {
-                    const name = el.innerText.replace(/<img[^>]*>/, '').trim(); 
+            ['A', 'A'].forEach(() => {
+                const elA = document.getElementById('name-A');
+                if (elA && elA.innerText) {
+                    const name = elA.innerText.replace(/<img[^>]*>/, '').trim(); 
                     const isHomologated = NOTES[name] && NOTES[name].homologated;
-                    el.innerHTML = name + (isHomologated ? ` <img src="https://image.noelshack.com/fichiers/2026/21/2/1779198035-homologation.png" class="badge-homologation" style="width:24px; height:24px;">` : '');
+                    elA.innerHTML = name + (isHomologated ? ` <img src="https://image.noelshack.com/fichiers/2026/21/2/1779198035-homologation.png" class="badge-homologation" style="width:24px; height:24px;">` : '');
+                }
+                const elB = document.getElementById('name-B');
+                if (elB && elB.innerText) {
+                    const name = elB.innerText.replace(/<img[^>]*>/, '').trim(); 
+                    const isHomologated = NOTES[name] && NOTES[name].homologated;
+                    elB.innerHTML = name + (isHomologated ? ` <img src="https://image.noelshack.com/fichiers/2026/21/2/1779198035-homologation.png" class="badge-homologation" style="width:24px; height:24px;">` : '');
                 }
             });
             renderTeamsTabList();
