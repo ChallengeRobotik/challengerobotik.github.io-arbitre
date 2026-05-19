@@ -66,6 +66,13 @@
         .detail-box { background: var(--surface); padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-top: 10px; }
         .detail-title { font-size: 10px; text-transform: uppercase; color: var(--text-mute); letter-spacing: 1px; margin-bottom: 5px; }
         .detail-points { font-size: 12px; line-height: 1.5; }
+
+        .validation-screen { position: fixed; inset: 0; z-index: 11000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; color: #ffffff; }
+        #validation-screen-A { background: #0044cc; }
+        #validation-screen-B { background: #006633; }
+        .validation-content { background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); padding: 30px; border-radius: 24px; max-width: 500px; width: 100%; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .validation-score { font-size: 80px; font-weight: 800; margin: 10px 0; }
+        .validation-actions { text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin: 15px 0; max-height: 200px; overflow-y: auto; font-size: 14px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -77,6 +84,26 @@
         <h1>COMPTE SUSPENDU</h1>
         <p style="color: var(--text-mute); margin-top: 10px;">Veuillez contacter l'administrateur.</p>
         <button class="btn btn-sub" style="margin-top: 30px;" onclick="logout()">Retour</button>
+    </div>
+
+    <div id="validation-screen-A" class="validation-screen">
+        <div class="validation-content">
+            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 2px; opacity: 0.8;">Validation Équipe A</span>
+            <h1 id="val-name-A" style="font-size: 32px; margin-top: 5px;"></h1>
+            <div class="validation-score" id="val-score-A">0</div>
+            <div class="validation-actions" id="val-actions-A"></div>
+            <button class="btn" style="background:#ffffff; color:#0044cc; width:100%; justify-content:center; padding:18px; font-size:16px; font-weight:700; border-radius:14px;" onclick="confirmValidationA()">Confirmer Équipe A</button>
+        </div>
+    </div>
+
+    <div id="validation-screen-B" class="validation-screen">
+        <div class="validation-content">
+            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 2px; opacity: 0.8;">Validation Équipe B</span>
+            <h1 id="val-name-B" style="font-size: 32px; margin-top: 5px;"></h1>
+            <div class="validation-score" id="val-score-B">0</div>
+            <div class="validation-actions" id="val-actions-B"></div>
+            <button class="btn" style="background:#ffffff; color:#006633; width:100%; justify-content:center; padding:18px; font-size:16px; font-weight:700; border-radius:14px;" onclick="confirmValidationB()">Confirmer Équipe B & Enregistrer</button>
+        </div>
     </div>
 
     <nav id="main-nav">
@@ -238,8 +265,17 @@
             renderHistory(); 
         });
 
-        onValue(ref(db, 'teams'), (snap) => { TEAMS = snap.val() || []; updateUI(); document.getElementById('loader').classList.add('hidden'); });
+        // Masquage immédiat du loader dès que Firebase répond, même si c'est vide
+        onValue(ref(db, 'teams'), (snap) => { 
+            TEAMS = snap.val() || []; 
+            updateUI(); 
+            document.getElementById('loader').classList.add('hidden'); 
+        }, (error) => {
+            document.getElementById('loader').classList.add('hidden');
+        });
+
         onValue(ref(db, 'notes'), (snap) => { NOTES = snap.val() || {}; });
+        
         onValue(ref(db, 'arbiters'), (snap) => { 
             const admin = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
             USERS = snap.val() ? [admin, ...Object.values(snap.val())] : [admin];
@@ -255,7 +291,6 @@
             }
         });
 
-        // Écoute synchronisée en temps réel du match en direct
         onValue(ref(db, 'liveMatch'), (snap) => {
             const live = snap.val();
             if (live && live.active) {
@@ -267,7 +302,6 @@
                 document.getElementById('time-A').value = live.timeA ?? 70;
                 document.getElementById('time-B').value = live.timeB ?? 70;
 
-                // Construction dynamique des cases cochées selon l'état Firebase
                 ['A','B'].forEach(s => {
                     const checks = live[`checks${s}`] || {};
                     document.getElementById(`items-${s}`).innerHTML = RULES.map(r => {
@@ -289,7 +323,6 @@
                 calc();
                 registerPresence();
             } else {
-                // Si aucun match n'est en direct, on réinitialise l'affichage vers la préparation
                 document.getElementById('setup-view').classList.remove('hidden');
                 document.getElementById('match-area').classList.add('hidden');
                 document.getElementById('live-arbiters-box').classList.add('hidden');
@@ -297,7 +330,6 @@
             }
         });
 
-        // Écoute de la présence des arbitres sur le match en cours
         onValue(ref(db, 'livePresence'), (snap) => {
             const data = snap.val();
             const box = document.getElementById('live-arbiters-list');
@@ -328,6 +360,8 @@
                 CURRENT_USER = JSON.parse(s);
                 showApp(CURRENT_USER);
             } else {
+                // Si aucune session n'est détectée, on force la suppression du loader pour voir la redirection ou l'interface
+                document.getElementById('loader').classList.add('hidden');
                 window.location.href = "page.html";
             }
         };
@@ -405,7 +439,6 @@
             const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
             if(tA === tB) return alert("Choisissez deux équipes différentes");
             
-            // Initialisation de la structure live synchronisée sur Firebase
             const initialChecks = {};
             RULES.forEach(r => initialChecks[r.l] = false);
 
@@ -433,7 +466,6 @@
             const cb = el.querySelector('input'); 
             const newCheckedState = !cb.checked;
             
-            // Mise à jour synchrone de la case sur Firebase
             update(ref(db, `liveMatch/checks${side}`), { [label]: newCheckedState });
 
             if(label === 'Arrivée sur Lune') { 
@@ -489,6 +521,8 @@
                 const rank = arrivalOrder.indexOf(s);
                 if(rank === 0) a.push("Bonus 1er arrivé (+25)");
                 if(rank === 1) a.push("Bonus 2ème arrivé (+10)");
+                const t = parseInt(document.getElementById(`time-${s}`).value) || 0;
+                if(t < 70) a.push(`Bonus Temps : ${70 - t}s restantes (+${Math.min(60, (70-t)*2)} pts)`);
                 return a; 
             };
             const getPens = (s) => {
@@ -515,6 +549,36 @@
                 } 
             };
 
+            document.getElementById('val-name-A').innerText = pendingMatch.teamA.nom;
+            document.getElementById('val-score-A').innerText = pendingMatch.teamA.score + " pts";
+            document.getElementById('val-actions-A').innerHTML = `
+                <strong>Actions réussies :</strong><br>
+                ${pendingMatch.teamA.actions.length > 0 ? pendingMatch.teamA.actions.map(a => `• ${a}`).join('<br>') : 'Aucune action'}<br>
+                ${pendingMatch.teamA.penalties > 0 ? `<span style="color:#ffcccc;"><br>• Total Malus : -${pendingMatch.teamA.penalties} pts</span>` : ''}
+            `;
+
+            document.getElementById('val-name-B').innerText = pendingMatch.teamB.nom;
+            document.getElementById('val-score-B').innerText = pendingMatch.teamB.score + " pts";
+            document.getElementById('val-actions-B').innerHTML = `
+                <strong>Actions réussies :</strong><br>
+                ${pendingMatch.teamB.actions.length > 0 ? pendingMatch.teamB.actions.map(a => `• ${a}`).join('<br>') : 'Aucune action'}<br>
+                ${pendingMatch.teamB.penalties > 0 ? `<span style="color:#ffcccc;"><br>• Total Malus : -${pendingMatch.teamB.penalties} pts</span>` : ''}
+            `;
+
+            document.getElementById('validation-screen-A').style.display = 'flex';
+        };
+
+        window.confirmValidationA = () => {
+            document.getElementById('validation-screen-A').style.display = 'none';
+            document.getElementById('validation-screen-B').style.display = 'flex';
+        };
+
+        window.confirmValidationB = () => {
+            document.getElementById('validation-screen-B').style.display = 'none';
+            
+            const sA = pendingMatch.teamA.score;
+            const sB = pendingMatch.teamB.score;
+
             if(sA === sB) { 
                 document.getElementById('tie-btn-A').innerText = pendingMatch.teamA.nom; 
                 document.getElementById('tie-btn-B').innerText = pendingMatch.teamB.nom; 
@@ -526,7 +590,6 @@
         };
 
         const saveMatch = async () => {
-            // Envoi Webhook Discord
             try {
                 await fetch(WEBHOOK_URL, {
                     method: 'POST',
@@ -549,7 +612,6 @@
             } catch (e) { console.error(e); }
 
             await push(ref(db, 'history'), pendingMatch);
-            // On nettoie la session live en cours
             await remove(ref(db, 'liveMatch'));
             await remove(ref(db, 'livePresence'));
             window.location.reload();
@@ -583,7 +645,7 @@
         };
 
         window.updateUI = () => {
-            const opts = TEAMS.map(t => `<option value="${t}">${t}</option>`).join('');
+            const opts = TEAMS.length > 0 ? TEAMS.map(t => `<option value="${t}">${t}</option>`).join('') : '<option value="">Aucune équipe</option>';
             document.getElementById('sel-A').innerHTML = opts; document.getElementById('sel-B').innerHTML = opts;
             document.getElementById('teams-list').innerHTML = TEAMS.map((t, i) => `<span class="tag">${t} <i data-lucide="x" style="width:10px; cursor:pointer" onclick="removeTeam(${i})"></i></span>`).join('');
             lucide.createIcons();
