@@ -2,27 +2,26 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Accès Arbitrage - Challenge Robotik</title>
-    <link rel="icon" type="image/png" href="https://image.noelshack.com/fichiers/2026/21/3/1779295482-homologation.png">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://image.noelshack.com/fichiers/2026/21/3/1779300174-homologation-1.png
+">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root { 
-            --accent: #2563eb; 
-            --accent-glow: rgba(37, 99, 235, 0.4);
-            --bg-gradient: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
-            --card-bg: rgba(15, 23, 42, 0.45);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --text: #f8fafc; 
+            --accent: #ffffff; --bg: #000000; --surface: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.08); --text-main: #ffffff; --text-mute: #888888;
+            --blue: #3b82f6; --green: #10b981; --red: #ff4b4b; --input-bg: #1a1a1a;
+            --accent-glow: rgba(255, 255, 255, 0.05);
         }
         
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; outline: none; }
         
         body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg-gradient); 
-            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
             min-height: 100vh; 
             overflow-x: hidden; 
             display: flex; 
@@ -38,6 +37,7 @@
             inset: 0; 
             z-index: 1; 
             pointer-events: none;
+            opacity: 0.4;
         }
 
         /* Countdown Timer Interface */
@@ -46,130 +46,120 @@
             z-index: 10;
             margin-bottom: 30px;
             text-align: center;
-            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .countdown-label {
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #94a3b8;
+            color: var(--text-mute);
             margin-bottom: 12px;
             font-weight: 600;
         }
 
         .countdown {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             justify-content: center;
         }
 
         .countdown-item {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(8px);
-            border: 1px solid var(--card-border);
-            padding: 10px 16px;
-            border-radius: 16px;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 12px 18px;
+            border-radius: 14px;
             min-width: 75px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
+            transition: 0.3s;
         }
         
         .countdown-item:hover {
-            transform: translateY(-2px);
-            border-color: rgba(37, 99, 235, 0.3);
+            border-color: var(--text-mute);
         }
 
         .countdown-value {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
-            color: #fff;
+            color: var(--text-main);
             line-height: 1.2;
             font-variant-numeric: tabular-nums;
-            text-shadow: 0 0 12px rgba(255,255,255,0.1);
         }
 
         .countdown-unit {
             font-size: 10px;
-            color: #64748b;
+            color: var(--text-mute);
             text-transform: uppercase;
             font-weight: 500;
             margin-top: 2px;
         }
 
-        /* Main Login Card */
+        /* Main Login Card - Glassmorphism style matching index.html */
         .login-card {
             position: relative;
             z-index: 10;
-            background: var(--card-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--card-border);
-            padding: 45px 40px;
-            border-radius: 32px;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 40px 30px;
+            border-radius: 24px;
             width: 100%;
-            max-width: 440px;
+            max-width: 400px;
             text-align: center;
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6),
-                        0 0 50px -10px var(--accent-glow);
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
         .logo { 
-            width: 90px; 
+            width: 80px; 
             height: auto;
-            margin-bottom: 24px; 
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.15));
-            transition: transform 0.5s ease;
+            margin-bottom: 20px; 
+            transition: transform 0.4s ease;
         }
         .logo:hover {
-            transform: rotate(5deg) scale(1.05);
+            transform: scale(1.05);
         }
         
         h1 { 
-            font-size: 26px; 
+            font-size: 24px; 
             font-weight: 700; 
             margin-bottom: 6px; 
-            letter-spacing: -0.5px;
-            background: linear-gradient(180deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
         }
         
-        p { color: #64748b; font-size: 14px; margin-bottom: 35px; font-weight: 400; }
+        p { color: var(--text-mute); font-size: 14px; margin-bottom: 30px; font-weight: 400; }
 
-        .input-group { position: relative; margin-bottom: 18px; }
+        .input-group { position: relative; margin-bottom: 15px; }
         
         input {
             width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 16px 20px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            padding: 14px 18px;
             padding-right: 50px;
-            border-radius: 16px;
-            color: #fff;
-            font-size: 15px;
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 14px;
             font-family: inherit;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.2s;
         }
         input:focus { 
-            border-color: var(--accent); 
-            background: rgba(15, 23, 42, 0.8); 
-            outline: none; 
-            box-shadow: 0 0 0 4px var(--accent-glow);
+            border-color: var(--text-mute);
         }
-        input::placeholder { color: #475569; }
+        input::placeholder { color: #555555; }
 
         .toggle-password {
             position: absolute;
-            right: 18px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #475569;
+            color: var(--text-mute);
             transition: color 0.2s ease;
             display: flex;
             align-items: center;
@@ -177,47 +167,42 @@
             border: none;
             padding: 6px;
         }
-        .toggle-password:hover { color: #94a3b8; }
+        .toggle-password:hover { color: var(--text-main); }
 
         .btn-submit {
             width: 100%;
-            background: #fff;
-            color: #020617;
+            background: var(--text-main);
+            color: var(--bg);
             border: none;
-            padding: 16px;
-            border-radius: 16px;
-            font-weight: 600;
-            font-size: 15px;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 14px;
             font-family: inherit;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
+            transition: 0.2s;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+            gap: 8px;
+            margin-top: 10px;
         }
         .btn-submit:hover { 
-            transform: translateY(-2px); 
-            background: #f8fafc; 
-            box-shadow: 0 6px 20px rgba(255,255,255,0.2);
+            opacity: 0.9;
         }
-        .btn-submit:active { transform: translateY(0); }
 
         .error-msg {
-            color: #f87171;
-            background: rgba(248, 113, 113, 0.1);
-            border: 1px solid rgba(248, 113, 113, 0.2);
+            color: var(--red);
+            background: rgba(255, 75, 75, 0.1);
+            border: 1px solid rgba(255, 75, 75, 0.2);
             padding: 12px;
-            border-radius: 14px;
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 500;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             display: none;
             animation: shake 0.4s ease-in-out;
         }
-
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-4px); }
@@ -252,24 +237,26 @@
     </div>
 
     <div class="login-card">
-        <img src="https://image.noelshack.com/fichiers/2026/21/3/1779295482-homologation.png" class="logo" alt="Logo Challenge Robotik">
-        <h1>Portail Arbitrage</h1>
-        <p>Challenge Robotik • Session 2026</p>
-        
-        <div id="error-msg" class="error-msg">Identifiants incorrects ou accès restreint.</div>
+        <img src="https://image.noelshack.com/fichiers/2026/21/3/1779300174-homologation-1.png
+" class="logo" alt="Logo Challenge Robotik">
+        <h1>Challenge Robotik</h1>
+        <p>Espace sécurisé pour les arbitres</p>
+
+        <div class="error-msg" id="error-msg">Identifiants incorrects.</div>
 
         <form id="login-form">
             <div class="input-group">
-                <input type="text" id="login-id" placeholder="Identifiant" required>
+                <input type="text" id="login-id" placeholder="Identifiant" required autocomplete="username">
             </div>
             <div class="input-group">
-                <input type="password" id="login-password" placeholder="Mot de passe" required>
-                <button type="button" class="toggle-password" id="eye-btn" onclick="togglePass()">
-                    <i data-lucide="eye" id="eye-icon" size="18"></i>
+                <input type="password" id="login-password" placeholder="Mot de passe" required autocomplete="current-password">
+                <button type="button" class="toggle-password" id="toggle-password" aria-label="Afficher le mot de passe">
+                    <i data-lucide="eye"></i>
                 </button>
             </div>
             <button type="submit" class="btn-submit">
-                Entrer <i data-lucide="arrow-right" size="18"></i>
+                <span>Se connecter</span>
+                <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
             </button>
         </form>
     </div>
@@ -290,94 +277,96 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
         const REDIRECT_URL = "index.html";
 
-        // Toggle Password Visibility
-        window.togglePass = () => {
-            const input = document.getElementById('login-password');
-            const icon = document.getElementById('eye-icon');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.setAttribute('data-lucide', 'eye-off');
-            } else {
-                input.type = 'password';
-                icon.setAttribute('data-lucide', 'eye');
-            }
+        // Initialisation de Lucide
+        lucide.createIcons();
+
+        // Gestion de l'affichage du mot de passe
+        const togglePassBtn = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('login-password');
+        
+        togglePassBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            togglePassBtn.innerHTML = isPassword ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>';
             lucide.createIcons();
-        };
+        });
 
-        // Compte à rebours scripté pour le 21 mai 2026 à 08:00:00
-        function updateCountdown() {
-            const targetDate = new Date('May 21, 2026 08:00:00').getTime();
-            const now = new Date().getTime();
-            const difference = targetDate - now;
-
-            if (difference <= 0) {
-                document.getElementById('days').innerText = '00';
-                document.getElementById('hours').innerText = '00';
-                document.getElementById('minutes').innerText = '00';
-                document.getElementById('seconds').innerText = '00';
-                return;
-            }
-
-            const d = Math.floor(difference / (1000 * 60 * 60 * 24));
-            const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((difference % (1000 * 60)) / 1000);
-
-            document.getElementById('days').innerText = d < 10 ? '0' + d : d;
-            document.getElementById('hours').innerText = h < 10 ? '0' + h : h;
-            document.getElementById('minutes').innerText = m < 10 ? '0' + m : m;
-            document.getElementById('seconds').innerText = s < 10 ? '0' + s : s;
-        }
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
-
-        // Particles Animation
+        // Animation de fond en Canvas
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        function initCanvas() {
+
+        function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
+        window.addEventListener('resize', resize);
+        resize();
+
         class Particle {
             constructor() {
+                this.reset();
+            }
+            reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 1.5 + 0.1;
-                this.speedX = Math.random() * 0.3 - 0.15;
-                this.speedY = Math.random() * 0.3 - 0.15;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedY = Math.random() * -0.3 - 0.1;
+                this.alpha = Math.random() * 0.5 + 0.1;
             }
             update() {
-                this.x += this.speedX;
                 this.y += this.speedY;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0;
-                if (this.y < 0) this.y = canvas.height;
+                if (this.y < 0) this.reset();
             }
             draw() {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
-        function createParticles() {
-            for (let i = 0; i < 80; i++) particles.push(new Particle());
-        }
+
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => { p.update(); p.draw(); });
             requestAnimationFrame(animate);
         }
-        window.addEventListener('resize', initCanvas);
-        initCanvas(); createParticles(); animate();
-        lucide.createIcons();
+        animate();
 
-        // Gestion de la soumission du formulaire corrigée
+        // Compte à rebours
+        const targetDate = new Date("2026-05-21T08:00:00").getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                document.getElementById('days').innerText = "00";
+                document.getElementById('hours').innerText = "00";
+                document.getElementById('minutes').innerText = "00";
+                document.getElementById('seconds').innerText = "00";
+                return;
+            }
+
+            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = d.toString().padStart(2, '0');
+            document.getElementById('hours').innerText = h.toString().padStart(2, '0');
+            document.getElementById('minutes').innerText = m.toString().padStart(2, '0');
+            document.getElementById('seconds').innerText = s.toString().padStart(2, '0');
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Connexion & Firebase Auth Logique
         const loginForm = document.getElementById('login-form');
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -389,18 +378,19 @@
             errorEl.style.display = 'none';
 
             onValue(ref(db, 'arbiters'), (snap) => {
-                const admin = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
+                const admin1 = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
+                const admin2 = {"id":"Milandris","pass":"Milandris2026","name":"Milandris"};
                 const data = snap.val();
                 
-                let users = [admin];
+                let users = [admin1, admin2];
                 if(data) {
-                    users = [admin, ...Object.values(data)];
+                    users = [admin1, admin2, ...Object.values(data)];
                 }
                 
                 const user = users.find(x => x.id === id && x.pass === pass);
 
                 if(user) {
-                    if(user.suspended && user.id !== 'MrFr_G8mC') {
+                    if(user.suspended && user.id !== 'MrFr_G8mC' && user.id !== 'Milandris') {
                         errorEl.innerText = "Ce compte est suspendu.";
                         errorEl.style.display = 'block';
                         return;
