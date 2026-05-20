@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Erreur 404 - Challenge Robotik</title>
+    <link rel="icon" type="image/png" href="https://image.noelshack.com/fichiers/2026/21/3/1779295482-homologation.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { 
+            --accent: #ffffff; --bg: #000000; --surface: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.08); --text-main: #ffffff; --text-mute: #888888;
+            --blue: #3b82f6; --green: #10b981; --red: #ff4b4b;
+        }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; outline: none; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px;
+            position: relative;
+        }
+
+        #bg-canvas { 
+            position: fixed; 
+            inset: 0; 
+            z-index: 1; 
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* 404 Card - Style identique à index.html et page.html */
+        .error-card {
+            position: relative;
+            z-index: 10;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 50px 30px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInUp { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .error-code {
+            font-size: 84px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            background: linear-gradient(180deg, var(--text-main) 0%, rgba(255, 255, 255, 0.4) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        h1 { 
+            font-size: 20px; 
+            font-weight: 600; 
+            margin-bottom: 12px; 
+            color: var(--text-main);
+        }
+        
+        p { 
+            color: var(--text-mute); 
+            font-size: 14px; 
+            margin-bottom: 35px; 
+            line-height: 1.6;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-home {
+            width: 100%;
+            background: var(--text-main);
+            color: var(--bg);
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn-home:hover { 
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .btn-home:active {
+            transform: translateY(0);
+        }
+
+        .icon-container {
+            color: var(--text-mute);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="error-card">
+        <div class="icon-container">
+            <i data-lucide="compass" style="width: 48px; height: 48px; stroke-width: 1.2;"></i>
+        </div>
+        <div class="error-code">404</div>
+        <h1>Erreur de trajectoire</h1>
+        <p>Le robot a dévié de sa course. La page que vous recherchez est introuvable ou a été déplacée.</p>
+
+        <a href="index.html" class="btn-home">
+            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+            <span>Retour au tableau de bord</span>
+        </a>
+    </div>
+
+    <script type="module">
+        // Initialisation de Lucide
+        lucide.createIcons();
+
+        // Animation de fond en Canvas (Identique à page.html)
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedY = Math.random() * -0.3 - 0.1;
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.y += this.speedY;
+                if (this.y < 0) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
