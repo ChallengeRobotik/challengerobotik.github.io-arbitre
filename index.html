@@ -51,8 +51,11 @@
         .score-row.active { border-color: var(--green); background: rgba(16, 185, 129, 0.05); }
         .score-display { font-size: 70px; font-weight: 700; text-align: center; margin: 15px 0; }
         
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-inner { background: var(--bg); border: 1px solid var(--border); border-radius: 24px; padding: 30px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        /* Animations des Popups / Modales */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease-out; }
+        .modal.modal-open { display: flex; opacity: 1; }
+        .modal-inner { background: var(--bg); border: 1px solid var(--border); border-radius: 24px; padding: 30px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .modal.modal-open .modal-inner { transform: scale(1); }
         
         .hidden { display: none !important; }
         .tag { background: var(--border); padding: 4px 10px; border-radius: 100px; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; }
@@ -69,33 +72,16 @@
 
         .badge-homologation { width: 16px; height: 16px; vertical-align: middle; margin-left: 6px; object-fit: contain; }
         .presence-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px dashed var(--border); }
-        .validation-screen { position: fixed; inset: 0; z-index: 11000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; color: #ffffff; }
+        
+        .validation-screen { position: fixed; inset: 0; z-index: 11000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; color: #ffffff; opacity: 0; transition: opacity 0.25s ease-out; }
+        .validation-screen.validation-open { display: flex; opacity: 1; }
         .validation-screen.blue-side { background: #1e3a8a; }
         .validation-screen.green-side { background: #064e3b; }
-        .validation-box { background: rgba(0,0,0,0.4); padding: 30px; border-radius: 24px; max-width: 500px; width: 100%; border: 1px solid rgba(255,255,255,0.1); }
+        .validation-box { background: rgba(0,0,0,0.4); padding: 30px; border-radius: 24px; max-width: 500px; width: 100%; border: 1px solid rgba(255,255,255,0.1); transform: translateY(20px); transition: transform 0.25s ease-out; }
+        .validation-screen.validation-open .validation-box { transform: translateY(0); }
         
         .team-clickable-tag { cursor: pointer; transition: 0.2s; }
         .team-clickable-tag:hover { border-color: var(--blue); background: rgba(59, 130, 246, 0.1); }
-
-        /* Style pour le logo de l'application positionné en bas à gauche */
-        .app-logo-footer {
-            position: fixed;
-            bottom: 15px;
-            left: 15px;
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            z-index: 90;
-            pointer-events: none;
-        }
-        @media (max-width: 900px) {
-            .app-logo-footer {
-                bottom: 85px; /* Évite la barre de navigation mobile */
-                left: 15px;
-                width: 40px;
-                height: 40px;
-            }
-        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -184,7 +170,7 @@
                         </div>
                         <div class="score-display" id="total-A">0</div>
                         <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps écoulé (s)</label>
-                        <input type="number" id="time-A" value="70" oninput="pushLiveState()">
+                        <input type="number" id="time-A" value="90" oninput="pushLiveState()">
                         <div id="items-A"></div>
                         <div id="penalties-A" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
                     </div>
@@ -195,7 +181,7 @@
                         </div>
                         <div class="score-display" id="total-B">0</div>
                         <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps écoulé (s)</label>
-                        <input type="number" id="time-B" value="70" oninput="pushLiveState()">
+                        <input type="number" id="time-B" value="90" oninput="pushLiveState()">
                         <div id="items-B"></div>
                         <div id="penalties-B" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
                     </div>
@@ -235,8 +221,6 @@
             </div>
         </section>
     </div>
-
-    <img src="https://image.noelshack.com/fichiers/2026/21/3/1779295482-homologation.png" class="app-logo-footer" alt="Logo Application">
 
     <div id="custom-alert-modal" class="modal">
         <div class="modal-inner" style="text-align: center;">
@@ -303,28 +287,23 @@
         let currentValidationStep = ""; 
         let currentLiveMatchData = null; 
 
-        // Blocage complet des outils d'inspection (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U)
-        window.addEventListener('keydown', (e) => {
-            if (
-                e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
-                (e.ctrlKey && e.key === 'u')
-            ) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
+        window.openModal = (id) => {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('modal-open'), 10);
             }
-        }, true);
+        };
 
-        // Détection de l'ouverture de la console via redimensionnement ou via intervalle devtools standard
-        setInterval(() => {
-            const before = new Date().getTime();
-            debugger;
-            const after = new Date().getTime();
-            if (after - before > 100) {
-                document.body.innerHTML = '<div style="color:white;text-align:center;margin-top:20%;font-family:sans-serif;"><h1>Action non autorisée</h1></div>';
+        window.closeModal = (id) => {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('modal-open');
+                setTimeout(() => {
+                    if (!modal.classList.contains('modal-open')) modal.style.display = 'none';
+                }, 200);
             }
-        }, 500);
+        };
 
         window.showCustomAlert = (title, text, type = 'info', buttons = []) => {
             document.getElementById('custom-alert-title').innerText = title;
@@ -349,7 +328,7 @@
                 container.appendChild(btn);
             });
             
-            document.getElementById('custom-alert-modal').style.display = 'flex';
+            openModal('custom-alert-modal');
             lucide.createIcons();
         };
 
@@ -383,10 +362,10 @@
 
         onValue(ref(db, 'arbiters'), (snap) => { 
             const admin1 = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
-            const admin2 = {"id":"Milandris","pass":"Milandris2026","name":"Milandris"};
+            const admin2 = {"id":"mfram","pass":"Mimi2010!","name":"Milandris"};
             
             let currentList = snap.val() ? Object.values(snap.val()) : [];
-            currentList = currentList.filter(x => x.id !== 'MrFr_G8mC' && x.id !== 'Milandris');
+            currentList = currentList.filter(x => x.id !== 'MrFr_G8mC' && x.id !== 'mfram' && x.id !== 'Milandris');
             
             USERS = [admin1, admin2, ...currentList];
             renderArbiters();
@@ -395,7 +374,7 @@
             if(s) {
                 const u = JSON.parse(s);
                 const current = USERS.find(x => x.id === u.id);
-                if(current && current.suspended && current.id !== 'MrFr_G8mC' && current.id !== 'Milandris') {
+                if(current && current.suspended && current.id !== 'MrFr_G8mC' && current.id !== 'mfram') {
                     document.getElementById('suspended-screen').style.display = 'flex';
                 }
             }
@@ -426,6 +405,11 @@
             const s = localStorage.getItem('persistent_session'); 
             if(s) {
                 currentUser = JSON.parse(s);
+                // Si l'ancienne session possédait l'identifiant "Milandris", on aligne sur le nouvel ID "mfram"
+                if(currentUser && currentUser.id === 'Milandris') {
+                    currentUser.id = 'mfram';
+                    localStorage.setItem('persistent_session', JSON.stringify(currentUser));
+                }
                 showApp(currentUser);
             } else {
                 window.location.href = "page.html";
@@ -434,9 +418,8 @@
 
         window.showApp = (u) => { 
             document.getElementById('main-nav').style.display = 'flex';
-            // Application systématique du bouclier de Milandris (🛡️) sur tous les arbitres connectés
-            document.getElementById('arbiter-display').innerText = "Arbitre : 🛡️ " + u.name; 
-            if(u.id === 'MrFr_G8mC' || u.id === 'Milandris') document.getElementById('admin-nav-btn').classList.remove('hidden');
+            document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name; 
+            if(u.id === 'MrFr_G8mC' || u.id === 'mfram') document.getElementById('admin-nav-btn').classList.remove('hidden');
         };
 
         const renderHistory = () => {
@@ -498,7 +481,7 @@
                         </div>
                     </div>
                 </div>`;
-            document.getElementById('detail-modal').style.display = 'flex';
+            openModal('detail-modal');
             lucide.createIcons();
         };
 
@@ -507,14 +490,14 @@
             if(tA === tB) return showCustomAlert("Erreur de sélection", "Veuillez choisir deux équipes différentes pour lancer le duel.", "danger");
             
             const freshPresence = {};
-            if(currentUser) freshPresence[currentUser.id] = "🛡️ " + currentUser.name; // Ajout systématique du bouclier dans la présence live
+            if(currentUser) freshPresence[currentUser.id] = currentUser.name;
 
             set(ref(db, 'liveMatch'), {
                 active: true,
                 teamA: tA,
                 teamB: tB,
-                timeA: 70,
-                timeB: 70,
+                timeA: 90,
+                timeB: 90,
                 arrivalOrder: [],
                 activePens: { A: [], B: [] },
                 checksA: {},
@@ -532,7 +515,7 @@
                 const live = snap.val();
                 if(live && live.active && currentUser) {
                     setupMatchDOM(live.teamA, live.teamB);
-                    update(ref(db, `liveMatch/presence`), { [currentUser.id]: "🛡️ " + currentUser.name }); // Ajout systématique du bouclier en rejoignant
+                    update(ref(db, `liveMatch/presence`), { [currentUser.id]: currentUser.name });
                     document.getElementById('setup-view').classList.add('hidden');
                     document.getElementById('match-area').classList.remove('hidden');
                 }
@@ -603,8 +586,8 @@
         const syncLiveState = (live) => {
             if (!live) return;
             
-            document.getElementById('time-A').value = live.timeA ?? 70;
-            document.getElementById('time-B').value = live.timeB ?? 70;
+            document.getElementById('time-A').value = live.timeA ?? 90;
+            document.getElementById('time-B').value = live.timeB ?? 90;
             
             arrivalOrder = live.arrivalOrder || [];
             activePens = live.activePens || { A: [], B: [] };
@@ -627,7 +610,7 @@
             const presenceBox = document.getElementById('presence-box');
             const pr = live.presence || {};
             presenceBox.innerHTML = '<span style="font-size: 11px; color: var(--text-mute); width: 100%;">Arbitres présents sur ce match :</span>' + 
-                Object.values(pr).map(name => `<span class="tag" style="background:var(--border)">${name.includes('🛡️') ? name : '🛡️ ' + name}</span>`).join('');
+                Object.values(pr).map(name => `<span class="tag" style="background:var(--border)">${name}</span>`).join('');
 
             calc();
         };
@@ -660,7 +643,7 @@
                 else if(r === 1) p += 10;
 
                 const t = parseInt(document.getElementById(`time-${s}`).value) || 0; 
-                if(t < 70) p += Math.min(60, (70-t)*2);
+                if(t < 90) p += Math.min(60, (90-t)*2);
 
                 if(activePens[s]) {
                     activePens[s].forEach(pen => p -= pen.pts);
@@ -691,7 +674,7 @@
 
             pendingMatch = { 
                 date: new Date().toLocaleString('fr-FR'), 
-                arb: user.name.includes('🛡️') ? user.name : "🛡️ " + user.name, 
+                arb: user.name, 
                 teamA: { 
                     nom: document.getElementById('name-A').innerText, 
                     score: sA, 
@@ -711,7 +694,7 @@
             if(sA === sB) { 
                 document.getElementById('tie-btn-A').innerText = pendingMatch.teamA.nom; 
                 document.getElementById('tie-btn-B').innerText = pendingMatch.teamB.nom; 
-                document.getElementById('tie-modal').style.display = 'flex'; 
+                openModal('tie-modal'); 
             } else { 
                 pendingMatch.verdict = sA > sB ? pendingMatch.teamA.nom : pendingMatch.teamB.nom; 
                 startDualValidation();
@@ -741,6 +724,7 @@
                 actionsEl.innerHTML = acts || "Aucune action complétée.";
                 
                 scr.style.display = 'flex';
+                setTimeout(() => scr.classList.add('validation-open'), 10);
             } else if (currentValidationStep === "B") {
                 scr.classList.add('green-side');
                 titleEl.innerText = `Équipe Verte : ${pendingMatch.teamB.nom}`;
@@ -751,17 +735,23 @@
                 actionsEl.innerHTML = acts || "Aucune action complétée.";
                 
                 scr.style.display = 'flex';
+                setTimeout(() => scr.classList.add('validation-open'), 10);
             }
         };
 
         window.confirmTeamValidation = () => {
-            if (currentValidationStep === "A") {
-                currentValidationStep = "B";
-                showValidationScreen();
-            } else {
-                document.getElementById('team-validation-screen').style.display = 'none';
-                saveMatch();
-            }
+            const scr = document.getElementById('team-validation-screen');
+            scr.classList.remove('validation-open');
+            
+            setTimeout(() => {
+                if (currentValidationStep === "A") {
+                    currentValidationStep = "B";
+                    showValidationScreen();
+                } else {
+                    scr.style.display = 'none';
+                    saveMatch();
+                }
+            }, 250);
         };
 
         const saveMatch = async () => {
@@ -809,16 +799,26 @@
         };
 
         window.renderArbiters = () => {
-            document.getElementById('arbiters-list').innerHTML = USERS.map(u => `
+            document.getElementById('arbiters-list').innerHTML = USERS.map(u => {
+                let badgeMarkup = '';
+                if (u.id === 'mfram') {
+                    badgeMarkup = '<span class="tag" style="background: rgba(59, 130, 246, 0.1); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.2);"><i data-lucide="shield" style="width:13px; height:13px;"></i></span>';
+                } else if (u.id === 'MrFr_G8mC') {
+                    badgeMarkup = '<span class="tag">Admin Permanent</span>';
+                }
+
+                return `
                 <div class="glass-card" style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>🛡️ ${u.name}</b><br><small style="opacity:0.6">${u.id}</small></div>
-                    <div style="display:flex; gap:10px;">
-                        ${(u.id !== 'MrFr_G8mC' && u.id !== 'Milandris') ? `
+                    <div><b>${u.name}</b><br><small style="opacity:0.6">${u.id}</small></div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        ${badgeMarkup}
+                        ${(u.id !== 'MrFr_G8mC' && u.id !== 'mfram') ? `
                             <button class="btn btn-sub" onclick="toggleSuspend('${u.id}', ${u.suspended})">${u.suspended ? 'Rétablir' : 'Suspendre'}</button>
                             <button class="btn btn-danger" style="padding:10px" onclick="askRemoveArbiter('${u.id}')"><i data-lucide="trash-2" size="16"></i></button>
-                        ` : '<span class="tag">Admin Permanent</span>'}
+                        ` : ''}
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
             lucide.createIcons();
         };
 
@@ -881,7 +881,7 @@
                 document.getElementById('team-homologation-chk').checked = !!teamData.homologated;
             }
             
-            document.getElementById('comment-modal').style.display = 'flex';
+            openModal('comment-modal');
         };
 
         const updateTeamBadges = () => {
@@ -917,7 +917,7 @@
                 document.getElementById('team-homologation-chk').checked = !!teamData.homologated;
             }
             
-            document.getElementById('comment-modal').style.display = 'flex';
+            openModal('comment-modal');
         };
 
         window.saveComment = () => {
@@ -946,7 +946,7 @@
             const tA = document.getElementById('name-A').innerText.replace(/<img[^>]*>/, '').trim();
             const tB = document.getElementById('name-B').innerText.replace(/<img[^>]*>/, '').trim();
             document.getElementById('pen-team-select').innerHTML = `<option value="A">${tA}</option><option value="B">${tB}</option>`;
-            document.getElementById('penalty-modal').style.display = 'flex'; 
+            openModal('penalty-modal'); 
         };
         
         window.applyPenalty = () => { 
@@ -973,7 +973,6 @@
             startDualValidation();
         };
         
-        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.randomizeTeams = () => { if(TEAMS.length < 2) return; let p = [...TEAMS].sort(() => 0.5 - Math.random()); document.getElementById('sel-A').value = p[0]; document.getElementById('sel-B').value = p[1]; };
         window.addTeam = () => { const n = document.getElementById('new-team-name').value; if(n){ set(ref(db, 'teams'), [...TEAMS, n]); document.getElementById('new-team-name').value=""; } };
         
@@ -998,3 +997,4 @@
     </script>
 </body>
 </html>
+//Jsp juste pour finir les 1000 lignes MDRRRR
