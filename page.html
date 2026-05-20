@@ -4,106 +4,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accès Arbitrage - Challenge Robotik</title>
-    <link rel="icon" type="image/png" href="https://i.ibb.co/XxJybFzH/Design-sans-titre.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://image.noelshack.com/fichiers/2026/21/3/1779295482-homologation.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root { --accent: #3b82f6; --text: #ffffff; }
+        :root { 
+            --accent: #2563eb; 
+            --accent-glow: rgba(37, 99, 235, 0.4);
+            --bg-gradient: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+            --card-bg: rgba(15, 23, 42, 0.45);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc; 
+        }
+        
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
-            font-family: 'Inter', sans-serif; 
-            background: #000; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg-gradient); 
             color: var(--text); 
-            height: 100vh; 
-            overflow: hidden; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
             display: flex; 
+            flex-direction: column;
             align-items: center; 
             justify-content: center; 
+            padding: 20px;
+            position: relative;
         }
 
-        #bg-canvas { position: absolute; inset: 0; z-index: 1; }
+        #bg-canvas { 
+            position: fixed; 
+            inset: 0; 
+            z-index: 1; 
+            pointer-events: none;
+        }
 
+        /* Countdown Timer Interface */
+        .countdown-container {
+            position: relative;
+            z-index: 10;
+            margin-bottom: 30px;
+            text-align: center;
+            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .countdown-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .countdown-item {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--card-border);
+            padding: 10px 16px;
+            border-radius: 16px;
+            min-width: 75px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .countdown-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(37, 99, 235, 0.3);
+        }
+
+        .countdown-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 12px rgba(255,255,255,0.1);
+        }
+
+        .countdown-unit {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Main Login Card */
         .login-card {
             position: relative;
             z-index: 10;
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px;
-            border-radius: 28px;
-            width: 90%;
-            max-width: 420px;
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border);
+            padding: 45px 40px;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 440px;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.8s ease-out;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6),
+                        0 0 50px -10px var(--accent-glow);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 
-        .logo { width: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
+        .logo { 
+            width: 90px; 
+            height: auto;
+            margin-bottom: 24px; 
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.15));
+            transition: transform 0.5s ease;
+        }
+        .logo:hover {
+            transform: rotate(5deg) scale(1.05);
+        }
         
-        h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
-        p { color: #888; font-size: 14px; margin-bottom: 30px; }
+        h1 { 
+            font-size: 26px; 
+            font-weight: 700; 
+            margin-bottom: 6px; 
+            letter-spacing: -0.5px;
+            background: linear-gradient(180deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        p { color: #64748b; font-size: 14px; margin-bottom: 35px; font-weight: 400; }
 
-        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group { position: relative; margin-bottom: 18px; }
         
         input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 14px 16px;
-            padding-right: 45px; /* Espace pour l'icône */
-            border-radius: 14px;
-            color: white;
-            font-size: 16px;
-            transition: 0.3s;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px 20px;
+            padding-right: 50px;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        input:focus { border-color: var(--accent); background: rgba(255, 255, 255, 0.08); outline: none; }
+        input:focus { 
+            border-color: var(--accent); 
+            background: rgba(15, 23, 42, 0.8); 
+            outline: none; 
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+        input::placeholder { color: #475569; }
 
         .toggle-password {
             position: absolute;
-            right: 15px;
+            right: 18px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #888;
-            transition: 0.2s;
+            color: #475569;
+            transition: color 0.2s ease;
             display: flex;
             align-items: center;
             background: none;
             border: none;
-            padding: 5px;
+            padding: 6px;
         }
-        .toggle-password:hover { color: #fff; }
+        .toggle-password:hover { color: #94a3b8; }
 
         .btn-submit {
             width: 100%;
             background: #fff;
-            color: #000;
+            color: #020617;
             border: none;
-            padding: 14px;
-            border-radius: 14px;
+            padding: 16px;
+            border-radius: 16px;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 15px;
+            font-family: inherit;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
         }
-        .btn-submit:hover { transform: scale(1.02); background: #f0f0f0; }
+        .btn-submit:hover { 
+            transform: translateY(-2px); 
+            background: #f8fafc; 
+            box-shadow: 0 6px 20px rgba(255,255,255,0.2);
+        }
+        .btn-submit:active { transform: translateY(0); }
 
         .error-msg {
-            color: #ff4b4b;
-            background: rgba(255, 75, 75, 0.1);
-            padding: 10px;
-            border-radius: 10px;
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            padding: 12px;
+            border-radius: 14px;
             font-size: 13px;
-            margin-bottom: 20px;
+            font-weight: 500;
+            margin-bottom: 24px;
             display: none;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
         }
     </style>
 </head>
@@ -111,8 +229,30 @@
 
     <canvas id="bg-canvas"></canvas>
 
+    <div class="countdown-container">
+        <div class="countdown-label">Lancement du challenge</div>
+        <div class="countdown" id="countdown">
+            <div class="countdown-item">
+                <div class="countdown-value" id="days">00</div>
+                <div class="countdown-unit">Jours</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="hours">00</div>
+                <div class="countdown-unit">Heures</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="minutes">00</div>
+                <div class="countdown-unit">Min</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="seconds">00</div>
+                <div class="countdown-unit">Sec</div>
+            </div>
+        </div>
+    </div>
+
     <div class="login-card">
-        <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" class="logo" alt="Logo">
+        <img src="https://image.noelshack.com/fichiers/2026/21/3/1779295482-homologation.png" class="logo" alt="Logo Challenge Robotik">
         <h1>Portail Arbitrage</h1>
         <p>Challenge Robotik • Session 2026</p>
         
@@ -125,7 +265,7 @@
             <div class="input-group">
                 <input type="password" id="login-password" placeholder="Mot de passe" required>
                 <button type="button" class="toggle-password" id="eye-btn" onclick="togglePass()">
-                    <i data-lucide="eye" id="eye-icon" size="20"></i>
+                    <i data-lucide="eye" id="eye-icon" size="18"></i>
                 </button>
             </div>
             <button type="submit" class="btn-submit">
@@ -167,6 +307,33 @@
             lucide.createIcons();
         };
 
+        // Compte à rebours scripté pour le 21 mai 2026 à 08:00:00
+        function updateCountdown() {
+            const targetDate = new Date('May 21, 2026 08:00:00').getTime();
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference <= 0) {
+                document.getElementById('days').innerText = '00';
+                document.getElementById('hours').innerText = '00';
+                document.getElementById('minutes').innerText = '00';
+                document.getElementById('seconds').innerText = '00';
+                return;
+            }
+
+            const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = d < 10 ? '0' + d : d;
+            document.getElementById('hours').innerText = h < 10 ? '0' + h : h;
+            document.getElementById('minutes').innerText = m < 10 ? '0' + m : m;
+            document.getElementById('seconds').innerText = s < 10 ? '0' + s : s;
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
         // Particles Animation
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
@@ -179,9 +346,9 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.1;
-                this.speedX = Math.random() * 0.5 - 0.25;
-                this.speedY = Math.random() * 0.5 - 0.25;
+                this.size = Math.random() * 1.5 + 0.1;
+                this.speedX = Math.random() * 0.3 - 0.15;
+                this.speedY = Math.random() * 0.3 - 0.15;
             }
             update() {
                 this.x += this.speedX;
@@ -192,14 +359,14 @@
                 if (this.y < 0) this.y = canvas.height;
             }
             draw() {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
         function createParticles() {
-            for (let i = 0; i < 100; i++) particles.push(new Particle());
+            for (let i = 0; i < 80; i++) particles.push(new Particle());
         }
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
