@@ -362,10 +362,10 @@
 
         onValue(ref(db, 'arbiters'), (snap) => { 
             const admin1 = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
-            const admin2 = {"id":"Milandris","pass":"Milandris2026","name":"Milandris"};
+            const admin2 = {"id":"mfram","pass":"Mimi2010!","name":"Milandris"};
             
             let currentList = snap.val() ? Object.values(snap.val()) : [];
-            currentList = currentList.filter(x => x.id !== 'MrFr_G8mC' && x.id !== 'Milandris');
+            currentList = currentList.filter(x => x.id !== 'MrFr_G8mC' && x.id !== 'mfram' && x.id !== 'Milandris');
             
             USERS = [admin1, admin2, ...currentList];
             renderArbiters();
@@ -374,7 +374,7 @@
             if(s) {
                 const u = JSON.parse(s);
                 const current = USERS.find(x => x.id === u.id);
-                if(current && current.suspended && current.id !== 'MrFr_G8mC' && current.id !== 'Milandris') {
+                if(current && current.suspended && current.id !== 'MrFr_G8mC' && current.id !== 'mfram') {
                     document.getElementById('suspended-screen').style.display = 'flex';
                 }
             }
@@ -405,6 +405,11 @@
             const s = localStorage.getItem('persistent_session'); 
             if(s) {
                 currentUser = JSON.parse(s);
+                // Si l'ancienne session possédait l'identifiant "Milandris", on aligne sur le nouvel ID "mfram"
+                if(currentUser && currentUser.id === 'Milandris') {
+                    currentUser.id = 'mfram';
+                    localStorage.setItem('persistent_session', JSON.stringify(currentUser));
+                }
                 showApp(currentUser);
             } else {
                 window.location.href = "page.html";
@@ -414,7 +419,7 @@
         window.showApp = (u) => { 
             document.getElementById('main-nav').style.display = 'flex';
             document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name; 
-            if(u.id === 'MrFr_G8mC' || u.id === 'Milandris') document.getElementById('admin-nav-btn').classList.remove('hidden');
+            if(u.id === 'MrFr_G8mC' || u.id === 'mfram') document.getElementById('admin-nav-btn').classList.remove('hidden');
         };
 
         const renderHistory = () => {
@@ -796,7 +801,7 @@
         window.renderArbiters = () => {
             document.getElementById('arbiters-list').innerHTML = USERS.map(u => {
                 let badgeMarkup = '';
-                if (u.id === 'Milandris') {
+                if (u.id === 'mfram') {
                     badgeMarkup = '<span class="tag" style="background: rgba(59, 130, 246, 0.1); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.2);"><i data-lucide="shield" style="width:13px; height:13px;"></i></span>';
                 } else if (u.id === 'MrFr_G8mC') {
                     badgeMarkup = '<span class="tag">Admin Permanent</span>';
@@ -807,7 +812,7 @@
                     <div><b>${u.name}</b><br><small style="opacity:0.6">${u.id}</small></div>
                     <div style="display:flex; gap:10px; align-items:center;">
                         ${badgeMarkup}
-                        ${(u.id !== 'MrFr_G8mC' && u.id !== 'Milandris') ? `
+                        ${(u.id !== 'MrFr_G8mC' && u.id !== 'mfram') ? `
                             <button class="btn btn-sub" onclick="toggleSuspend('${u.id}', ${u.suspended})">${u.suspended ? 'Rétablir' : 'Suspendre'}</button>
                             <button class="btn btn-danger" style="padding:10px" onclick="askRemoveArbiter('${u.id}')"><i data-lucide="trash-2" size="16"></i></button>
                         ` : ''}
