@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Arbitrage - Challenge Robotik</title>
-    <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/ffffff/referee-jersey.png">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/XxJybFzH/Design-sans-titre.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -103,11 +103,11 @@
     </div>
 
     <nav id="main-nav">
-        <div style="margin-bottom: 20px; color: var(--text-main);"><i data-lucide="shirt" style="width: 35px; height: 35px;"></i></div>
+        <img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="width: 35px; height: 35px; object-fit: contain; margin-bottom: 20px;">
         <button class="nav-btn active" onclick="switchTab('tab-match', this)"><i data-lucide="zap"></i></button>
         <button class="nav-btn" onclick="switchTab('tab-teams', this)"><i data-lucide="users"></i></button>
         <button class="nav-btn" onclick="switchTab('tab-history', this)"><i data-lucide="calendar"></i></button>
-        <button id="admin-nav-btn" class="nav-btn hidden" onclick="switchTab('tab-admin', this)"><i data-lucide="command"></i></button>
+        <button id="admin-nav-btn" class="nav-btn hidden" onclick="switchTab('tab-admin', this)"><i data-lucide="shirt"></i></button>
         <button class="nav-btn" onclick="toggleTheme()"><i data-lucide="sun" id="theme-icon"></i></button>
         <button class="nav-btn" onclick="logout()"><i data-lucide="log-out"></i></button>
     </nav>
@@ -281,7 +281,6 @@
         let currentValidationStep = ""; 
         let currentLiveMatchData = null; 
 
-        // Système d'alerte UI customisé
         window.showCustomAlert = (title, text, type = 'info', buttons = []) => {
             document.getElementById('custom-alert-title').innerText = title;
             document.getElementById('custom-alert-text').innerText = text;
@@ -352,7 +351,6 @@
             if(s) {
                 const u = JSON.parse(s);
                 const current = USERS.find(x => x.id === u.id);
-                // Protection permanente des admins contre la suspension
                 if(current && current.suspended && current.id !== 'MrFr_G8mC' && current.id !== 'Milandris') {
                     document.getElementById('suspended-screen').style.display = 'flex';
                 }
@@ -393,7 +391,6 @@
         window.showApp = (u) => { 
             document.getElementById('main-nav').style.display = 'flex';
             document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name; 
-            // Autorisation d'accès permanente pour l'interface Admin de Milandris et Mr FRAMBOURT
             if(u.id === 'MrFr_G8mC' || u.id === 'Milandris') document.getElementById('admin-nav-btn').classList.remove('hidden');
         };
 
@@ -497,7 +494,6 @@
             }, { onlyOnce: true });
         };
 
-        // Annuler le match pour tous (efface la branche Firebase correspondante)
         window.askCancelMatch = () => {
             showCustomAlert(
                 "Annuler le match ?", 
@@ -813,7 +809,6 @@
             renderTeamsTabList();
         };
 
-        // Rendu mis à jour avec interaction directe au clic sur le nom pour l'homologation
         const renderTeamsTabList = () => {
             document.getElementById('teams-list').innerHTML = TEAMS.map((t, i) => {
                 const isHomologated = NOTES[t] && NOTES[t].homologated;
@@ -827,7 +822,6 @@
             lucide.createIcons();
         };
 
-        // Nouvelle passerelle pour éditer l'homologation depuis le menu Equipes
         window.openDirectTeamConfig = (teamName) => {
             document.getElementById('comment-side').value = "";
             document.getElementById('comment-direct-team-name').value = teamName;
