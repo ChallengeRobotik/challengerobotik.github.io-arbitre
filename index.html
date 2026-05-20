@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Arbitrage - Challenge Robotik</title>
-    <link rel="icon" type="image/png" href="https://i.ibb.co/XxJybFzH/Design-sans-titre.png">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/ios-filled/50/ffffff/referee-jersey.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -73,6 +73,9 @@
         .validation-screen.blue-side { background: #1e3a8a; }
         .validation-screen.green-side { background: #064e3b; }
         .validation-box { background: rgba(0,0,0,0.4); padding: 30px; border-radius: 24px; max-width: 500px; width: 100%; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .team-clickable-tag { cursor: pointer; transition: 0.2s; }
+        .team-clickable-tag:hover { border-color: var(--blue); background: rgba(59, 130, 246, 0.1); }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -100,7 +103,7 @@
     </div>
 
     <nav id="main-nav">
-        <div style="margin-bottom: 20px;"><img src="https://i.ibb.co/XxJybFzH/Design-sans-titre.png" style="width: 35px;"></div>
+        <div style="margin-bottom: 20px; color: var(--text-main);"><i data-lucide="shirt" style="width: 35px; height: 35px;"></i></div>
         <button class="nav-btn active" onclick="switchTab('tab-match', this)"><i data-lucide="zap"></i></button>
         <button class="nav-btn" onclick="switchTab('tab-teams', this)"><i data-lucide="users"></i></button>
         <button class="nav-btn" onclick="switchTab('tab-history', this)"><i data-lucide="calendar"></i></button>
@@ -146,7 +149,7 @@
             <div id="match-area" class="hidden">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div class="tag">Duel Live Collaboratif</div>
-                    <button class="btn btn-danger" style="padding: 5px 15px;" onclick="openPenaltyModal()">+ Faute</button>
+                    <button class="btn btn-danger" style="padding: 8px 15px;" onclick="openPenaltyModal()"><i data-lucide="triangle-alert"></i></button>
                 </div>
                 
                 <div id="presence-box" class="presence-container">
@@ -177,14 +180,20 @@
                         <div id="penalties-B" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
                     </div>
                 </div>
-                <button class="btn btn-main" style="width: 100%; padding: 20px; margin-top: 15px;" onclick="finishMatch()">Valider le score final</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn btn-main" style="flex: 3; padding: 20px;" onclick="finishMatch()">Valider le score final</button>
+                    <button class="btn btn-danger" style="flex: 1; padding: 20px; justify-content: center;" onclick="askCancelMatch()"><i data-lucide="circle-slash"></i> Annuler le match</button>
+                </div>
             </div>
         </section>
 
         <section id="tab-teams" class="tab-pane">
             <div class="glass-card">
                 <h3>Equipes Inscrites</h3>
-                <div style="display: flex; gap: 10px; margin-top:15px;"><input type="text" id="new-team-name" placeholder="Nom équipe"><button class="btn btn-main" onclick="addTeam()">Ajouter</button></div>
+                <div style="display: flex; gap: 10px; margin-top:15px; align-items: center;">
+                    <input type="text" id="new-team-name" placeholder="Nom équipe" style="margin-bottom: 0; flex: 1; height: 45px;">
+                    <button class="btn btn-main" style="height: 45px; padding: 0 25px; font-size: 18px;" onclick="addTeam()">+</button>
+                </div>
                 <div id="teams-list" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
             </div>
         </section>
@@ -202,16 +211,25 @@
             </div>
             <div class="glass-card" style="border-color: var(--red);">
                 <h3 style="color: var(--red);">Réinitialisation</h3>
-                <button class="btn btn-danger" style="width:100%; justify-content: center; margin-top: 10px;" onclick="resetHistory()">Supprimer tout l'historique des matchs</button>
+                <button class="btn btn-danger" style="width:100%; justify-content: center; margin-top: 10px;" onclick="askResetHistory()">Supprimer tout l'historique des matchs</button>
             </div>
         </section>
+    </div>
+
+    <div id="custom-alert-modal" class="modal">
+        <div class="modal-inner" style="text-align: center;">
+            <i id="custom-alert-icon" data-lucide="info" style="width: 50px; height: 50px; margin-bottom: 15px;"></i>
+            <h3 id="custom-alert-title" style="margin-bottom: 10px;"></h3>
+            <p id="custom-alert-text" style="color: var(--text-mute); font-size: 14px; margin-bottom: 20px; line-height: 1.5;"></p>
+            <div id="custom-alert-buttons" style="display: flex; gap: 10px; justify-content: center;"></div>
+        </div>
     </div>
 
     <div id="penalty-modal" class="modal"><div class="modal-inner"><h3>Signaler une faute</h3><select id="pen-team-select"></select><input type="number" id="pen-value" value="5"><button class="btn btn-main" style="width:100%;" onclick="applyPenalty()">Appliquer malus</button><button class="btn btn-sub" style="width:100%; margin-top:10px;" onclick="closeModal('penalty-modal')">Annuler</button></div></div>
     
     <div id="comment-modal" class="modal">
         <div class="modal-inner">
-            <h3>Note d'équipe & Homologation</h3>
+            <h3 id="comment-modal-title">Note d'équipe & Homologation</h3>
             <div style="display:flex; align-items:center; gap:10px; background:var(--surface); padding:10px; border-radius:10px; margin-bottom:15px; border:1px solid var(--border);">
                 <input type="checkbox" id="team-homologation-chk" style="width:auto; margin-bottom:0; cursor:pointer;">
                 <label for="team-homologation-chk" style="font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px;">
@@ -220,6 +238,7 @@
             </div>
             <textarea id="team-comment" style="height:100px;" placeholder="Commentaires additionnels..."></textarea>
             <input type="hidden" id="comment-side">
+            <input type="hidden" id="comment-direct-team-name">
             <button class="btn btn-main" style="width:100%" onclick="saveComment()">Sauvegarder</button>
             <button class="btn btn-sub" style="width:100%; margin-top:10px;" onclick="closeModal('comment-modal')">Fermer</button>
         </div>
@@ -262,6 +281,34 @@
         let currentValidationStep = ""; 
         let currentLiveMatchData = null; 
 
+        // Système d'alerte UI customisé
+        window.showCustomAlert = (title, text, type = 'info', buttons = []) => {
+            document.getElementById('custom-alert-title').innerText = title;
+            document.getElementById('custom-alert-text').innerText = text;
+            
+            const iconEl = document.getElementById('custom-alert-icon');
+            iconEl.style.color = type === 'danger' ? 'var(--red)' : (type === 'success' ? 'var(--green)' : 'var(--blue)');
+            iconEl.setAttribute('data-lucide', type === 'danger' ? 'triangle-alert' : (type === 'success' ? 'check-circle' : 'info'));
+            
+            const container = document.getElementById('custom-alert-buttons');
+            container.innerHTML = '';
+            
+            if(buttons.length === 0) {
+                buttons = [{ text: 'OK', class: 'btn-main', action: () => closeModal('custom-alert-modal') }];
+            }
+            
+            buttons.forEach(b => {
+                const btn = document.createElement('button');
+                btn.className = `btn ${b.class || 'btn-sub'}`;
+                btn.innerText = b.text;
+                btn.onclick = b.action;
+                container.appendChild(btn);
+            });
+            
+            document.getElementById('custom-alert-modal').style.display = 'flex';
+            lucide.createIcons();
+        };
+
         window.toggleTheme = () => {
             const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
             document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -291,15 +338,22 @@
         });
 
         onValue(ref(db, 'arbiters'), (snap) => { 
-            const admin = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
-            USERS = snap.val() ? [admin, ...Object.values(snap.val())] : [admin];
+            // Inscription permanente de Mr FRAMBOURT et Milandris en tant qu'administrateurs
+            const admin1 = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
+            const admin2 = {"id":"Milandris","pass":"Milandris2026","name":"Milandris"};
+            
+            let currentList = snap.val() ? Object.values(snap.val()) : [];
+            currentList = currentList.filter(x => x.id !== 'MrFr_G8mC' && x.id !== 'Milandris');
+            
+            USERS = [admin1, admin2, ...currentList];
             renderArbiters();
             
             const s = localStorage.getItem('persistent_session');
             if(s) {
                 const u = JSON.parse(s);
                 const current = USERS.find(x => x.id === u.id);
-                if(current && current.suspended && current.id !== 'MrFr_G8mC') {
+                // Protection permanente des admins contre la suspension
+                if(current && current.suspended && current.id !== 'MrFr_G8mC' && current.id !== 'Milandris') {
                     document.getElementById('suspended-screen').style.display = 'flex';
                 }
             }
@@ -339,7 +393,8 @@
         window.showApp = (u) => { 
             document.getElementById('main-nav').style.display = 'flex';
             document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name; 
-            if(u.id === 'MrFr_G8mC') document.getElementById('admin-nav-btn').classList.remove('hidden');
+            // Autorisation d'accès permanente pour l'interface Admin de Milandris et Mr FRAMBOURT
+            if(u.id === 'MrFr_G8mC' || u.id === 'Milandris') document.getElementById('admin-nav-btn').classList.remove('hidden');
         };
 
         const renderHistory = () => {
@@ -407,7 +462,7 @@
 
         window.launchMatch = () => {
             const tA = document.getElementById('sel-A').value, tB = document.getElementById('sel-B').value;
-            if(tA === tB) return alert("Choisissez deux équipes différentes");
+            if(tA === tB) return showCustomAlert("Erreur de sélection", "Veuillez choisir deux équipes différentes pour lancer le duel.", "danger");
             
             const freshPresence = {};
             if(currentUser) freshPresence[currentUser.id] = currentUser.name;
@@ -440,6 +495,24 @@
                     document.getElementById('match-area').classList.remove('hidden');
                 }
             }, { onlyOnce: true });
+        };
+
+        // Annuler le match pour tous (efface la branche Firebase correspondante)
+        window.askCancelMatch = () => {
+            showCustomAlert(
+                "Annuler le match ?", 
+                "Cette action annulera définitivement le match en cours pour TOUS les arbitres connectés.", 
+                "danger",
+                [
+                    { text: "Confirmer l'annulation", class: "btn-danger", action: () => {
+                        set(ref(db, 'liveMatch'), null).then(() => {
+                            closeModal('custom-alert-modal');
+                            showCustomAlert("Match annulé", "Le match collaboratif a été supprimé avec succès.", "success");
+                        });
+                    }},
+                    { text: "Retour", class: "btn-sub", action: () => closeModal('custom-alert-modal') }
+                ]
+            );
         };
 
         const setupMatchDOM = (tA, tB) => {
@@ -534,7 +607,6 @@
             ['A', 'B'].forEach(s => {
                 let p = 0; 
                 
-                // Calcul basé sur l'état réel des checkbox synchronisées
                 RULES.forEach((r, i) => {
                     const cb = document.getElementById(`chk-${s}-${i}`);
                     if (cb && cb.checked) {
@@ -542,16 +614,13 @@
                     }
                 });
 
-                // Bonus d'arrivée d'origine
                 const r = arrivalOrder.indexOf(s); 
                 if(r === 0) p += 25; 
                 else if(r === 1) p += 10;
 
-                // Malus de temps d'origine
                 const t = parseInt(document.getElementById(`time-${s}`).value) || 0; 
                 if(t < 70) p += Math.min(60, (70-t)*2);
 
-                // Déduction des fautes d'origine
                 if(activePens[s]) {
                     activePens[s].forEach(pen => p -= pen.pts);
                 }
@@ -681,10 +750,21 @@
             window.location.reload();
         };
 
-        window.resetHistory = () => {
-            if(confirm("Voulez-vous supprimer TOUS les matchs ?")) {
-                remove(ref(db, 'history')).then(() => alert("Historique vidé."));
-            }
+        window.askResetHistory = () => {
+            showCustomAlert(
+                "Supprimer tout l'historique ?", 
+                "Êtes-vous absolument sûr de vouloir supprimer TOUS les matchs enregistrés définitivement ?", 
+                "danger",
+                [
+                    { text: "Supprimer tout", class: "btn-danger", action: () => {
+                        remove(ref(db, 'history')).then(() => {
+                            closeModal('custom-alert-modal');
+                            showCustomAlert("Historique vidé", "Tous les matchs ont été effacés.", "success");
+                        });
+                    }},
+                    { text: "Annuler", class: "btn-sub", action: () => closeModal('custom-alert-modal') }
+                ]
+            );
         };
 
         window.renderArbiters = () => {
@@ -692,20 +772,39 @@
                 <div class="glass-card" style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${u.name}</b><br><small style="opacity:0.6">${u.id}</small></div>
                     <div style="display:flex; gap:10px;">
-                        ${u.id !== 'MrFr_G8mC' ? `
+                        ${(u.id !== 'MrFr_G8mC' && u.id !== 'Milandris') ? `
                             <button class="btn btn-sub" onclick="toggleSuspend('${u.id}', ${u.suspended})">${u.suspended ? 'Rétablir' : 'Suspendre'}</button>
-                            <button class="btn btn-danger" style="padding:10px" onclick="removeArbiter('${u.id}')"><i data-lucide="trash-2" size="16"></i></button>
-                        ` : '<span class="tag">Admin</span>'}
+                            <button class="btn btn-danger" style="padding:10px" onclick="askRemoveArbiter('${u.id}')"><i data-lucide="trash-2" size="16"></i></button>
+                        ` : '<span class="tag">Admin Permanent</span>'}
                     </div>
                 </div>`).join('');
             lucide.createIcons();
         };
 
         window.toggleSuspend = (id, state) => update(ref(db, 'arbiters/'+id), { suspended: !state });
-        window.removeArbiter = (id) => { if(confirm("Supprimer l'arbitre ?")) remove(ref(db, 'arbiters/'+id)); };
+        
+        window.askRemoveArbiter = (id) => {
+            showCustomAlert(
+                "Supprimer l'arbitre ?", 
+                `Voulez-vous vraiment supprimer définitivement le compte de cet arbitre ?`, 
+                "danger",
+                [
+                    { text: "Supprimer", class: "btn-danger", action: () => {
+                        remove(ref(db, 'arbiters/'+id)).then(() => closeModal('custom-alert-modal'));
+                    }},
+                    { text: "Annuler", class: "btn-sub", action: () => closeModal('custom-alert-modal') }
+                ]
+            );
+        };
+
         window.addArbiter = () => {
             const n = document.getElementById('adm-new-name').value, id = document.getElementById('adm-new-id').value, p = document.getElementById('adm-new-pass').value;
-            if(n && id && p) set(ref(db, 'arbiters/'+id), {id, name:n, pass:p, suspended: false});
+            if(n && id && p) {
+                set(ref(db, 'arbiters/'+id), {id, name:n, pass:p, suspended: false});
+                document.getElementById('adm-new-name').value = "";
+                document.getElementById('adm-new-id').value = "";
+                document.getElementById('adm-new-pass').value = "";
+            }
         };
 
         window.updateUI = () => {
@@ -714,17 +813,40 @@
             renderTeamsTabList();
         };
 
+        // Rendu mis à jour avec interaction directe au clic sur le nom pour l'homologation
         const renderTeamsTabList = () => {
             document.getElementById('teams-list').innerHTML = TEAMS.map((t, i) => {
                 const isHomologated = NOTES[t] && NOTES[t].homologated;
                 const badge = isHomologated ? `<img src="https://image.noelshack.com/fichiers/2026/21/2/1779198035-homologation.png" class="badge-homologation">` : '';
-                return `<span class="tag">${t}${badge} <i data-lucide="x" style="width:10px; cursor:pointer; margin-left:5px;" onclick="removeTeam(${i})"></i></span>`;
+                return `
+                <span class="tag team-clickable-tag" onclick="openDirectTeamConfig('${t}')">
+                    <span>${t}${badge}</span> 
+                    <i data-lucide="x" style="width:10px; cursor:pointer; margin-left:5px;" onclick="event.stopPropagation(); askRemoveTeam(${i})"></i>
+                </span>`;
             }).join('');
             lucide.createIcons();
         };
 
+        // Nouvelle passerelle pour éditer l'homologation depuis le menu Equipes
+        window.openDirectTeamConfig = (teamName) => {
+            document.getElementById('comment-side').value = "";
+            document.getElementById('comment-direct-team-name').value = teamName;
+            document.getElementById('comment-modal-title').innerText = `Configuration : ${teamName}`;
+            
+            const teamData = NOTES[teamName] || { text: "", homologated: false };
+            if (typeof teamData === 'string') {
+                document.getElementById('team-comment').value = teamData;
+                document.getElementById('team-homologation-chk').checked = false;
+            } else {
+                document.getElementById('team-comment').value = teamData.text || "";
+                document.getElementById('team-homologation-chk').checked = !!teamData.homologated;
+            }
+            
+            document.getElementById('comment-modal').style.display = 'flex';
+        };
+
         const updateTeamBadges = () => {
-            ['A', 'A'].forEach(() => {
+            ['A', 'B'].forEach(() => {
                 const elA = document.getElementById('name-A');
                 if (elA && elA.innerText) {
                     const name = elA.innerText.replace(/<img[^>]*>/, '').trim(); 
@@ -744,6 +866,8 @@
         window.openComment = (side) => {
             const name = document.getElementById(`name-${side}`).innerText.replace(/<img[^>]*>/, '').trim();
             document.getElementById('comment-side').value = side;
+            document.getElementById('comment-direct-team-name').value = "";
+            document.getElementById('comment-modal-title').innerText = "Note d'équipe & Homologation";
             
             const teamData = NOTES[name] || { text: "", homologated: false };
             if (typeof teamData === 'string') {
@@ -759,7 +883,13 @@
 
         window.saveComment = () => {
             const side = document.getElementById('comment-side').value;
-            const name = document.getElementById(`name-${side}`).innerText.replace(/<img[^>]*>/, '').trim();
+            let name = "";
+            
+            if(side !== "") {
+                name = document.getElementById(`name-${side}`).innerText.replace(/<img[^>]*>/, '').trim();
+            } else {
+                name = document.getElementById('comment-direct-team-name').value;
+            }
             
             const commentText = document.getElementById('team-comment').value;
             const isChecked = document.getElementById('team-homologation-chk').checked;
@@ -795,7 +925,7 @@
                 content: "@everyone", embeds: [{ title: "📢 Annonce", description: msg, color: 16777215 }]
             }) });
             document.getElementById('manual-msg').value = "";
-            alert("Annonce envoyée !");
+            showCustomAlert("Message diffusé", "L'annonce a bien été envoyée sur Discord !", "success");
         };
 
         window.resolveTie = (v) => { 
@@ -807,7 +937,20 @@
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.randomizeTeams = () => { if(TEAMS.length < 2) return; let p = [...TEAMS].sort(() => 0.5 - Math.random()); document.getElementById('sel-A').value = p[0]; document.getElementById('sel-B').value = p[1]; };
         window.addTeam = () => { const n = document.getElementById('new-team-name').value; if(n){ set(ref(db, 'teams'), [...TEAMS, n]); document.getElementById('new-team-name').value=""; } };
-        window.removeTeam = (i) => { if(confirm("Supprimer l'équipe ?")) set(ref(db, 'teams'), TEAMS.filter((_, idx) => idx !== i)); };
+        
+        window.askRemoveTeam = (i) => {
+            showCustomAlert(
+                "Supprimer l'équipe ?", 
+                `Êtes-vous sûr de vouloir retirer cette équipe de la liste ?`, 
+                "danger",
+                [
+                    { text: "Supprimer", class: "btn-danger", action: () => {
+                        set(ref(db, 'teams'), TEAMS.filter((_, idx) => idx !== i)).then(() => closeModal('custom-alert-modal'));
+                    }},
+                    { text: "Annuler", class: "btn-sub", action: () => closeModal('custom-alert-modal') }
+                ]
+            );
+        };
         
         window.logout = () => { 
             localStorage.removeItem('persistent_session'); 
