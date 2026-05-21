@@ -82,6 +82,13 @@
         
         .team-clickable-tag { cursor: pointer; transition: 0.2s; }
         .team-clickable-tag:hover { border-color: var(--blue); background: rgba(59, 130, 246, 0.1); }
+
+        /* Styles spécifiques pour l'indication des couleurs de sélection */
+        #sel-A { background-color: rgba(59, 130, 246, 0.2); border-color: var(--blue); color: #ffffff; font-weight: 600; }
+        #sel-B { background-color: rgba(16, 185, 129, 0.2); border-color: var(--green); color: #ffffff; font-weight: 600; }
+        [data-theme="light"] #sel-A { color: #1e3a8a; }
+        [data-theme="light"] #sel-B { color: #064e3b; }
+        #sel-A option, #sel-B option { background-color: var(--input-bg); color: var(--text-main); }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -138,7 +145,14 @@
                 <div class="glass-card">
                     <h3>Préparation du Duel</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top:15px;">
-                        <select id="sel-A"></select><select id="sel-B"></select>
+                        <div>
+                            <label style="font-size: 11px; color: var(--blue); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">Équipe Bleue</label>
+                            <select id="sel-A"></select>
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--green); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">Équipe Verte</label>
+                            <select id="sel-B"></select>
+                        </div>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn btn-main" style="flex: 1; justify-content: center;" onclick="launchMatch()">Lancer le match</button>
@@ -405,7 +419,6 @@
             const s = localStorage.getItem('persistent_session'); 
             if(s) {
                 currentUser = JSON.parse(s);
-                // Si l'ancienne session possédait l'identifiant "Milandris", on aligne sur le nouvel ID "mfram"
                 if(currentUser && currentUser.id === 'Milandris') {
                     currentUser.id = 'mfram';
                     localStorage.setItem('persistent_session', JSON.stringify(currentUser));
@@ -822,7 +835,7 @@
             lucide.createIcons();
         };
 
-        window.toggleSuspend = (id, state) => update(ref(db, 'arbiters/'+id), { suspended: !state });
+        window.toggleSuspend = (id, state) => update(ref(ref(db, 'arbiters/'+id)), { suspended: !state });
         
         window.askRemoveArbiter = (id) => {
             showCustomAlert(
