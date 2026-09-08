@@ -90,13 +90,10 @@
         [data-theme="light"] #sel-B { color: #064e3b; }
         #sel-A option, #sel-B option { background-color: var(--input-bg); color: var(--text-main); }
 
-        /* Styles pour l'administration et les nouveaux champs de temps */
+        /* Styles pour l'administration */
         .admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
         @media (max-width: 600px) { .admin-form-grid { grid-template-columns: 1fr; } }
         .admin-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-size: 16px; font-weight: 600; }
-        .time-badge { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--blue); padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-        .time-edit-container { display: flex; align-items: center; gap: 8px; }
-        .time-edit-input { width: 70px !important; margin-bottom: 0 !important; padding: 4px 8px !important; text-align: center; height: 32px; font-size: 12px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -338,6 +335,7 @@
         let currentUser = null;
         let currentValidationStep = ""; 
         let currentLiveMatchData = null; 
+        let matchAllocatedTime = 90;
 
         window.openModal = (id) => {
             const modal = document.getElementById(id);
@@ -413,8 +411,8 @@
         });
 
         onValue(ref(db, 'arbiters'), (snap) => { 
-            const admin1 = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT","timeAllocated": 90};
-            const admin2 = {"id":"mfram","pass":"Mimi2010!","name":"Milandris","timeAllocated": 90};
+            const admin1 = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"MR FRAMBOURT"};
+            const admin2 = {"id":"mfram","pass":"Mimi2010!","name":"Milandris"};
             
             let currentList = snap.val() ? Object.values(snap.val()) : [];
             currentList = currentList.filter(x => x.id !== 'MrFr_G8mC' && x.id !== 'mfram' && x.id !== 'Milandris');
@@ -461,6 +459,7 @@
                     currentUser.id = 'mfram';
                     localStorage.setItem('persistent_session', JSON.stringify(currentUser));
                 }
+                matchAllocatedTime = currentUser.timeAllocated !== undefined ? parseInt(currentUser.timeAllocated) : 90;
                 showApp(currentUser);
             } else {
                 window.location.href = "page.html";
@@ -514,7 +513,7 @@
                         <b style="color:var(--blue); font-size:16px;">${m.teamA.nom}</b><br>
                         <span style="font-size:26px; font-weight:800">${m.teamA.score} pts</span>
                         <div style="margin-top:5px; font-size:12px; color:var(--text-mute); display:flex; align-items:center; gap:4px;">
-                            <i data-lucide="timer" style="width:14px; height:14px;"></i> Temps réalisé: <b>${m.teamA.temps !== undefined ? m.teamA.temps : 90}s</b>
+                            <i data-lucide="timer" style="width:14px; height:14px;"></i> Temps réalisé: <b>${m.teamA.temps !== undefined ? m.teamA.temps : matchAllocatedTime}s</b>
                         </div>
                         <div class="detail-box">
                             <div class="detail-title"><i data-lucide="check-square" style="width:12px; height:12px; vertical-align:middle;"></i> Actions</div>
@@ -528,7 +527,7 @@
                         <b style="color:var(--green); font-size:16px;">${m.teamB.nom}</b><br>
                         <span style="font-size:26px; font-weight:800">${m.teamB.score} pts</span>
                         <div style="margin-top:5px; font-size:12px; color:var(--text-mute); display:flex; align-items:center; gap:4px;">
-                            <i data-lucide="timer" style="width:14px; height:14px;"></i> Temps réalisé: <b>${m.teamB.temps !== undefined ? m.teamB.temps : 90}s</b>
+                            <i data-lucide="timer" style="width:14px; height:14px;"></i> Temps réalisé: <b>${m.teamB.temps !== undefined ? m.teamB.temps : matchAllocatedTime}s</b>
                         </div>
                         <div class="detail-box">
                             <div class="detail-title"><i data-lucide="check-square" style="width:12px; height:12px; vertical-align:middle;"></i> Actions</div>
@@ -554,8 +553,8 @@
                 active: true,
                 teamA: tA,
                 teamB: tB,
-                timeA: 90,
-                timeB: 90,
+                timeA: matchAllocatedTime,
+                timeB: matchAllocatedTime,
                 arrivalOrder: [],
                 activePens: { A: [], B: [] },
                 checksA: {},
@@ -600,6 +599,8 @@
         const setupMatchDOM = (tA, tB) => {
             document.getElementById('name-A').innerText = tA; 
             document.getElementById('name-B').innerText = tB;
+            document.getElementById('time-A').value = matchAllocatedTime;
+            document.getElementById('time-B').value = matchAllocatedTime;
             updateTeamBadges();
             
             arrivalOrder = []; 
@@ -644,8 +645,8 @@
         const syncLiveState = (live) => {
             if (!live) return;
             
-            document.getElementById('time-A').value = live.timeA ?? 90;
-            document.getElementById('time-B').value = live.timeB ?? 90;
+            document.getElementById('time-A').value = live.timeA ?? matchAllocatedTime;
+            document.getElementById('time-B').value = live.timeB ?? matchAllocatedTime;
             
             arrivalOrder = live.arrivalOrder || [];
             activePens = live.activePens || { A: [], B: [] };
@@ -701,7 +702,7 @@
                 else if(r === 1) p += 10;
 
                 const t = parseInt(document.getElementById(`time-${s}`).value) || 0; 
-                if(t < 90) p += Math.min(60, (90-t)*2);
+                if(t < matchAllocatedTime) p += Math.min(60, (matchAllocatedTime-t)*2);
 
                 if(activePens[s]) {
                     activePens[s].forEach(pen => p -= pen.pts);
@@ -859,13 +860,9 @@
         window.renderArbiters = () => {
             document.getElementById('arbiters-list').innerHTML = USERS.map(u => {
                 let badgeMarkup = '';
-                if (u.id === 'mfram') {
+                if (u.id === 'mfram' || u.id === 'MrFr_G8mC') {
                     badgeMarkup = '<span class="tag" style="background: rgba(59, 130, 246, 0.1); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.2);"><i data-lucide="shield" style="width:13px; height:13px;"></i> Admin</span>';
-                } else if (u.id === 'MrFr_G8mC') {
-                    badgeMarkup = '<span class="tag">Admin Permanent</span>';
                 }
-
-                const currentTime = u.timeAllocated !== undefined ? u.timeAllocated : 90;
 
                 return `
                 <div class="glass-card" style="padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -877,11 +874,6 @@
                         <small style="opacity:0.6">${u.id}</small>
                     </div>
                     <div style="display:flex; gap:15px; align-items:center; flex-wrap:wrap;">
-                        <div class="time-edit-container">
-                            <span class="time-badge"><i data-lucide="clock" style="width:12px; height:12px;"></i> Temps:</span>
-                            <input type="number" class="time-edit-input" value="${currentTime}" onchange="updateArbiterTime('${u.id}', this.value)">
-                            <span style="font-size:12px; color:var(--text-mute);">s</span>
-                        </div>
                         ${(u.id !== 'MrFr_G8mC' && u.id !== 'mfram') ? `
                             <button class="btn btn-sub" style="padding:6px 12px; font-size:12px;" onclick="toggleSuspend('${u.id}', ${u.suspended})">${u.suspended ? 'Rétablir' : 'Suspendre'}</button>
                             <button class="btn btn-danger" style="padding:6px 10px;" onclick="askRemoveArbiter('${u.id}')"><i data-lucide="trash-2" style="width:14px; height:14px;"></i></button>
@@ -890,16 +882,6 @@
                 </div>`;
             }).join('');
             lucide.createIcons();
-        };
-
-        window.updateArbiterTime = (id, newTime) => {
-            const timeVal = parseInt(newTime) || 90;
-            if (id === 'MrFr_G8mC' || id === 'mfram') {
-                const found = USERS.find(u => u.id === id);
-                if(found) found.timeAllocated = timeVal;
-            } else {
-                update(ref(db, 'arbiters/' + id), { timeAllocated: timeVal });
-            }
         };
 
         window.toggleSuspend = (id, state) => update(ref(db, 'arbiters/'+id), { suspended: !state });
@@ -921,7 +903,7 @@
         window.addArbiter = () => {
             const n = document.getElementById('adm-new-name').value, id = document.getElementById('adm-new-id').value, p = document.getElementById('adm-new-pass').value;
             if(n && id && p) {
-                set(ref(db, 'arbiters/'+id), {id, name:n, pass:p, suspended: false, timeAllocated: 90});
+                set(ref(db, 'arbiters/'+id), {id, name:n, pass:p, suspended: false});
                 document.getElementById('adm-new-name').value = "";
                 document.getElementById('adm-new-id').value = "";
                 document.getElementById('adm-new-pass').value = "";
