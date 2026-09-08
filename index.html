@@ -89,6 +89,14 @@
         [data-theme="light"] #sel-A { color: #1e3a8a; }
         [data-theme="light"] #sel-B { color: #064e3b; }
         #sel-A option, #sel-B option { background-color: var(--input-bg); color: var(--text-main); }
+
+        /* Styles pour l'administration et les nouveaux champs de temps */
+        .admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        @media (max-width: 600px) { .admin-form-grid { grid-template-columns: 1fr; } }
+        .admin-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-size: 16px; font-weight: 600; }
+        .time-badge { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--blue); padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .time-edit-container { display: flex; align-items: center; gap: 8px; }
+        .time-edit-input { width: 70px !important; margin-bottom: 0 !important; padding: 4px 8px !important; text-align: center; height: 32px; font-size: 12px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -183,7 +191,7 @@
                             <button class="btn btn-sub" style="padding:5px;" onclick="openComment('A')"><i data-lucide="message-square"></i></button>
                         </div>
                         <div class="score-display" id="total-A">0</div>
-                        <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps écoulé (s)</label>
+                        <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps réalisé (s)</label>
                         <input type="number" id="time-A" value="90" oninput="pushLiveState()">
                         <div id="items-A"></div>
                         <div id="penalties-A" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
@@ -194,7 +202,7 @@
                             <button class="btn btn-sub" style="padding:5px;" onclick="openComment('B')"><i data-lucide="message-square"></i></button>
                         </div>
                         <div class="score-display" id="total-B">0</div>
-                        <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps écoulé (s)</label>
+                        <label class="subtitle" style="font-size: 12px; color: var(--text-mute)">Temps réalisé (s)</label>
                         <input type="number" id="time-B" value="90" oninput="pushLiveState()">
                         <div id="items-B"></div>
                         <div id="penalties-B" style="margin-top:10px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
@@ -224,14 +232,42 @@
 
         <section id="tab-admin" class="tab-pane">
             <div class="glass-card">
-                <h3>Gestion des Arbitres</h3>
-                <div id="arbiters-list" style="margin-bottom: 20px;"></div>
-                <input type="text" id="adm-new-name" placeholder="Nom complet"><input type="text" id="adm-new-id" placeholder="Identifiant"><input type="text" id="adm-new-pass" placeholder="Mot de passe">
-                <button class="btn btn-main" style="width:100%" onclick="addArbiter()">Créer compte</button>
+                <div class="admin-card-header">
+                    <i data-lucide="user-plus" style="color: var(--blue);"></i>
+                    <span>Ajouter un Arbitre</span>
+                </div>
+                <div class="admin-form-grid">
+                    <div>
+                        <label style="font-size: 11px; color: var(--text-mute); display: block; margin-bottom: 5px;">Nom complet</label>
+                        <input type="text" id="adm-new-name" placeholder="Ex: Jean Dupont" style="margin-bottom:0;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: var(--text-mute); display: block; margin-bottom: 5px;">Identifiant</label>
+                        <input type="text" id="adm-new-id" placeholder="Ex: jdupont" style="margin-bottom:0;">
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 11px; color: var(--text-mute); display: block; margin-bottom: 5px;">Mot de passe</label>
+                    <input type="text" id="adm-new-pass" placeholder="Mot de passe sécurisé" style="margin-bottom:0;">
+                </div>
+                <button class="btn btn-main" style="width:100%; justify-content: center;" onclick="addArbiter()"><i data-lucide="plus-circle"></i> Créer le compte</button>
             </div>
-            <div class="glass-card" style="border-color: var(--red);">
-                <h3 style="color: var(--red);">Réinitialisation</h3>
-                <button class="btn btn-danger" style="width:100%; justify-content: center; margin-top: 10px;" onclick="askResetHistory()">Supprimer tout l'historique des matchs</button>
+
+            <div class="glass-card">
+                <div class="admin-card-header">
+                    <i data-lucide="users" style="color: var(--green);"></i>
+                    <span>Liste des Arbitres</span>
+                </div>
+                <div id="arbiters-list"></div>
+            </div>
+
+            <div class="glass-card" style="border-color: rgba(255, 75, 75, 0.3);">
+                <div class="admin-card-header" style="color: var(--red);">
+                    <i data-lucide="alert-triangle"></i>
+                    <span>Zone de Danger</span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-mute); margin-bottom: 15px;">Les actions suivantes sont irréversibles. Veuillez procéder avec précaution.</p>
+                <button class="btn btn-danger" style="width:100%; justify-content: center;" onclick="askResetHistory()"><i data-lucide="trash"></i> Supprimer tout l'historique des matchs</button>
             </div>
         </section>
     </div>
@@ -289,10 +325,12 @@
         const WEBHOOK_URL = "https://discord.com/api/webhooks/1506349233723408526/tibCSjp4jFzBXnOaoQqFFIH8Ss6QXDBq_d6_4jmnhk3odU0eKOwbZo00YvsTmjJ5RAo0";
         
         const RULES = [
-            { l: 'Zone de départ validée', p: 10 }, { l: 'Astronaute en sécurité', p: 15 }, 
-            { l: 'Activation voyant', p: 15 }, { l: 'Lancement fusée', p: 15 }, 
-            { l: 'Système Leds ok', p: 15 }, { l: 'Fusée stabilisée', p: 15 }, 
-            { l: 'Arrivée sur Lune', p: 0 }
+            { l: 'Etape 1 : Panneau solaire poussé', p: 10 }, 
+            { l: 'Etape 2: Réseau électrique alimenté', p: 15 }, 
+            { l: 'Etape 3: Baril de déchet bien placé', p: 15 }, 
+            { l: 'Etape 4: Arbre connecté', p: 15 }, 
+            { l: 'Etape 5: Livraison effectuée', p: 15 }, 
+            { l: 'Etape 6: Retour a la maison', p: 15 }
         ];
 
         let TEAMS = [], USERS = [], NOTES = {}, GLOBAL_HISTORY = [];
@@ -375,8 +413,8 @@
         });
 
         onValue(ref(db, 'arbiters'), (snap) => { 
-            const admin1 = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT"};
-            const admin2 = {"id":"mfram","pass":"Mimi2010!","name":"Milandris"};
+            const admin1 = {"id":"MrFr_G8mC","pass":"Fc-01061970","name":"Mr FRAMBOURT","timeAllocated": 90};
+            const admin2 = {"id":"mfram","pass":"Mimi2010!","name":"Milandris","timeAllocated": 90};
             
             let currentList = snap.val() ? Object.values(snap.val()) : [];
             currentList = currentList.filter(x => x.id !== 'MrFr_G8mC' && x.id !== 'mfram' && x.id !== 'Milandris');
@@ -447,14 +485,15 @@
                 <div class="glass-card history-card" onclick="showMatchDetail(${realIdx})">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <b>${m.teamA.nom} <span style="color:var(--text-mute)">vs</span> ${m.teamB.nom}</b>
-                        <small style="opacity:0.6">${m.date}</small>
+                        <small style="opacity:0.6"><i data-lucide="clock" style="width:12px; height:12px; vertical-align:middle;"></i> ${m.date}</small>
                     </div>
                     <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-                        <span class="tag" style="background:var(--green); color:#000; font-weight:700">Gagnant : ${m.verdict}</span>
+                        <span class="tag" style="background:var(--green); color:#000; font-weight:700"><i data-lucide="trophy" style="width:12px; height:12px;"></i> Gagnant : ${m.verdict}</span>
                         <span style="font-weight:700; font-size:18px;">${m.teamA.score} - ${m.teamB.score}</span>
                     </div>
                 </div>`
             }).join('');
+            lucide.createIcons();
         };
 
         window.showMatchDetail = (idx) => {
@@ -462,20 +501,23 @@
             if(!m) return;
             document.getElementById('detail-content').innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h2 style="margin:0">Détails du Match</h2>
+                    <h2 style="margin:0; display:flex; align-items:center; gap:8px;"><i data-lucide="file-text" style="color:var(--blue);"></i> Détails du Match</h2>
                     <button class="btn btn-sub" onclick="closeModal('detail-modal')" style="padding:5px;"><i data-lucide="x"></i></button>
                 </div>
                 <div style="background:var(--surface); padding:15px; border-radius:15px; margin-bottom:20px; font-size:13px; border-left: 4px solid var(--blue);">
-                    <p><b>Arbitre :</b> ${m.arb || 'Inconnu'}</p>
-                    <p><b>Date :</b> ${m.date}</p>
-                    <p><b>Vainqueur :</b> <span style="color:var(--green); font-weight:bold;">${m.verdict}</span></p>
+                    <p style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><i data-lucide="user" style="width:14px; height:14px;"></i> <b>Arbitre :</b> ${m.arb || 'Inconnu'}</p>
+                    <p style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><i data-lucide="calendar" style="width:14px; height:14px;"></i> <b>Date :</b> ${m.date}</p>
+                    <p style="display:flex; align-items:center; gap:6px;"><i data-lucide="award" style="width:14px; height:14px; color:var(--green);"></i> <b>Vainqueur :</b> <span style="color:var(--green); font-weight:bold;">${m.verdict}</span></p>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                     <div style="padding:15px; border-radius:12px; border:1px solid ${m.verdict === m.teamA.nom ? 'var(--green)' : 'var(--border)'}">
-                        <b style="color:var(--blue)">${m.teamA.nom}</b><br>
+                        <b style="color:var(--blue); font-size:16px;">${m.teamA.nom}</b><br>
                         <span style="font-size:26px; font-weight:800">${m.teamA.score} pts</span>
+                        <div style="margin-top:5px; font-size:12px; color:var(--text-mute); display:flex; align-items:center; gap:4px;">
+                            <i data-lucide="timer" style="width:14px; height:14px;"></i> Temps réalisé: <b>${m.teamA.temps !== undefined ? m.teamA.temps : 90}s</b>
+                        </div>
                         <div class="detail-box">
-                            <div class="detail-title">Actions</div>
+                            <div class="detail-title"><i data-lucide="check-square" style="width:12px; height:12px; vertical-align:middle;"></i> Actions</div>
                             <div class="detail-points">
                                 ${m.teamA.actions && m.teamA.actions.length > 0 ? m.teamA.actions.map(a => `• ${a}`).join('<br>') : 'Aucun point'}
                                 ${m.teamA.penalties > 0 ? `<br><span style="color:var(--red)">• Malus: -${m.teamA.penalties}</span>` : ''}
@@ -483,10 +525,13 @@
                         </div>
                     </div>
                     <div style="padding:15px; border-radius:12px; border:1px solid ${m.verdict === m.teamB.nom ? 'var(--green)' : 'var(--border)'}">
-                        <b style="color:var(--green)">${m.teamB.nom}</b><br>
+                        <b style="color:var(--green); font-size:16px;">${m.teamB.nom}</b><br>
                         <span style="font-size:26px; font-weight:800">${m.teamB.score} pts</span>
+                        <div style="margin-top:5px; font-size:12px; color:var(--text-mute); display:flex; align-items:center; gap:4px;">
+                            <i data-lucide="timer" style="width:14px; height:14px;"></i> Temps réalisé: <b>${m.teamB.temps !== undefined ? m.teamB.temps : 90}s</b>
+                        </div>
                         <div class="detail-box">
-                            <div class="detail-title">Actions</div>
+                            <div class="detail-title"><i data-lucide="check-square" style="width:12px; height:12px; vertical-align:middle;"></i> Actions</div>
                             <div class="detail-points">
                                 ${m.teamB.actions && m.teamB.actions.length > 0 ? m.teamB.actions.map(a => `• ${a}`).join('<br>') : 'Aucun point'}
                                 ${m.teamB.penalties > 0 ? `<br><span style="color:var(--red)">• Malus: -${m.teamB.penalties}</span>` : ''}
@@ -579,7 +624,7 @@
             
             update(ref(db, `liveMatch/checks${side}`), { [index]: targetState });
 
-            if(label === 'Arrivée sur Lune') {
+            if(label === 'Etape 6: Retour a la maison') {
                 let currentArrival = (currentLiveMatchData && currentLiveMatchData.arrivalOrder) ? [...currentLiveMatchData.arrivalOrder] : [];
                 if(targetState) {
                     if(!currentArrival.includes(side)) currentArrival.push(side);
@@ -815,19 +860,31 @@
             document.getElementById('arbiters-list').innerHTML = USERS.map(u => {
                 let badgeMarkup = '';
                 if (u.id === 'mfram') {
-                    badgeMarkup = '<span class="tag" style="background: rgba(59, 130, 246, 0.1); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.2);"><i data-lucide="shield" style="width:13px; height:13px;"></i></span>';
+                    badgeMarkup = '<span class="tag" style="background: rgba(59, 130, 246, 0.1); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.2);"><i data-lucide="shield" style="width:13px; height:13px;"></i> Admin</span>';
                 } else if (u.id === 'MrFr_G8mC') {
                     badgeMarkup = '<span class="tag">Admin Permanent</span>';
                 }
 
+                const currentTime = u.timeAllocated !== undefined ? u.timeAllocated : 90;
+
                 return `
-                <div class="glass-card" style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${u.name}</b><br><small style="opacity:0.6">${u.id}</small></div>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        ${badgeMarkup}
+                <div class="glass-card" style="padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <b>${u.name}</b>
+                            ${badgeMarkup}
+                        </div>
+                        <small style="opacity:0.6">${u.id}</small>
+                    </div>
+                    <div style="display:flex; gap:15px; align-items:center; flex-wrap:wrap;">
+                        <div class="time-edit-container">
+                            <span class="time-badge"><i data-lucide="clock" style="width:12px; height:12px;"></i> Temps:</span>
+                            <input type="number" class="time-edit-input" value="${currentTime}" onchange="updateArbiterTime('${u.id}', this.value)">
+                            <span style="font-size:12px; color:var(--text-mute);">s</span>
+                        </div>
                         ${(u.id !== 'MrFr_G8mC' && u.id !== 'mfram') ? `
-                            <button class="btn btn-sub" onclick="toggleSuspend('${u.id}', ${u.suspended})">${u.suspended ? 'Rétablir' : 'Suspendre'}</button>
-                            <button class="btn btn-danger" style="padding:10px" onclick="askRemoveArbiter('${u.id}')"><i data-lucide="trash-2" size="16"></i></button>
+                            <button class="btn btn-sub" style="padding:6px 12px; font-size:12px;" onclick="toggleSuspend('${u.id}', ${u.suspended})">${u.suspended ? 'Rétablir' : 'Suspendre'}</button>
+                            <button class="btn btn-danger" style="padding:6px 10px;" onclick="askRemoveArbiter('${u.id}')"><i data-lucide="trash-2" style="width:14px; height:14px;"></i></button>
                         ` : ''}
                     </div>
                 </div>`;
@@ -835,7 +892,17 @@
             lucide.createIcons();
         };
 
-        window.toggleSuspend = (id, state) => update(ref(ref(db, 'arbiters/'+id)), { suspended: !state });
+        window.updateArbiterTime = (id, newTime) => {
+            const timeVal = parseInt(newTime) || 90;
+            if (id === 'MrFr_G8mC' || id === 'mfram') {
+                const found = USERS.find(u => u.id === id);
+                if(found) found.timeAllocated = timeVal;
+            } else {
+                update(ref(db, 'arbiters/' + id), { timeAllocated: timeVal });
+            }
+        };
+
+        window.toggleSuspend = (id, state) => update(ref(db, 'arbiters/'+id), { suspended: !state });
         
         window.askRemoveArbiter = (id) => {
             showCustomAlert(
@@ -854,7 +921,7 @@
         window.addArbiter = () => {
             const n = document.getElementById('adm-new-name').value, id = document.getElementById('adm-new-id').value, p = document.getElementById('adm-new-pass').value;
             if(n && id && p) {
-                set(ref(db, 'arbiters/'+id), {id, name:n, pass:p, suspended: false});
+                set(ref(db, 'arbiters/'+id), {id, name:n, pass:p, suspended: false, timeAllocated: 90});
                 document.getElementById('adm-new-name').value = "";
                 document.getElementById('adm-new-id').value = "";
                 document.getElementById('adm-new-pass').value = "";
