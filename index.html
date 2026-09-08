@@ -51,7 +51,6 @@
         .score-row.active { border-color: var(--green); background: rgba(16, 185, 129, 0.05); }
         .score-display { font-size: 70px; font-weight: 700; text-align: center; margin: 15px 0; }
         
-        /* Animations des Popups / Modales */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease-out; }
         .modal.modal-open { display: flex; opacity: 1; }
         .modal-inner { background: var(--bg); border: 1px solid var(--border); border-radius: 24px; padding: 30px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -83,14 +82,12 @@
         .team-clickable-tag { cursor: pointer; transition: 0.2s; }
         .team-clickable-tag:hover { border-color: var(--blue); background: rgba(59, 130, 246, 0.1); }
 
-        /* Styles spécifiques pour l'indication des couleurs de sélection */
         #sel-A { background-color: rgba(59, 130, 246, 0.2); border-color: var(--blue); color: #ffffff; font-weight: 600; }
         #sel-B { background-color: rgba(16, 185, 129, 0.2); border-color: var(--green); color: #ffffff; font-weight: 600; }
         [data-theme="light"] #sel-A { color: #1e3a8a; }
         [data-theme="light"] #sel-B { color: #064e3b; }
         #sel-A option, #sel-B option { background-color: var(--input-bg); color: var(--text-main); }
 
-        /* Styles pour l'administration */
         .admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
         @media (max-width: 600px) { .admin-form-grid { grid-template-columns: 1fr; } }
         .admin-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-size: 16px; font-weight: 600; }
@@ -228,6 +225,20 @@
         </section>
 
         <section id="tab-admin" class="tab-pane">
+            <div class="glass-card">
+                <div class="admin-card-header">
+                    <i data-lucide="settings" style="color: var(--blue);"></i>
+                    <span>Paramètres du Match</span>
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: var(--text-mute); display: block; margin-bottom: 5px;">Temps de base attitré par défaut (en secondes)</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" id="adm-default-time" placeholder="90" style="margin-bottom:0; flex:1;">
+                        <button class="btn btn-main" onclick="saveDefaultTime()"><i data-lucide="save"></i> Enregistrer</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="glass-card">
                 <div class="admin-card-header">
                     <i data-lucide="user-plus" style="color: var(--blue);"></i>
@@ -397,6 +408,17 @@
             btn.classList.add('active');
         };
 
+        onValue(ref(db, 'config/matchAllocatedTime'), (snap) => {
+            const val = snap.val();
+            if (val !== null && val !== undefined) {
+                matchAllocatedTime = parseInt(val);
+                document.getElementById('adm-default-time').value = matchAllocatedTime;
+            } else {
+                matchAllocatedTime = 90;
+                document.getElementById('adm-default-time').value = 90;
+            }
+        });
+
         onValue(ref(db, 'history'), (snap) => { 
             const data = snap.val();
             GLOBAL_HISTORY = data ? Object.values(data) : [];
@@ -459,7 +481,6 @@
                     currentUser.id = 'mfram';
                     localStorage.setItem('persistent_session', JSON.stringify(currentUser));
                 }
-                matchAllocatedTime = currentUser.timeAllocated !== undefined ? parseInt(currentUser.timeAllocated) : 90;
                 showApp(currentUser);
             } else {
                 window.location.href = "page.html";
@@ -470,6 +491,17 @@
             document.getElementById('main-nav').style.display = 'flex';
             document.getElementById('arbiter-display').innerText = "Arbitre : " + u.name; 
             if(u.id === 'MrFr_G8mC' || u.id === 'mfram') document.getElementById('admin-nav-btn').classList.remove('hidden');
+        };
+
+        window.saveDefaultTime = () => {
+            const val = parseInt(document.getElementById('adm-default-time').value);
+            if (!isNaN(val) && val > 0) {
+                set(ref(db, 'config/matchAllocatedTime'), val).then(() => {
+                    showCustomAlert("Paramètre enregistré", `Le temps de base attitré est désormais fixé à ${val} secondes.`, "success");
+                });
+            } else {
+                showCustomAlert("Valeur invalide", "Veuillez entrer une valeur en secondes valide.", "danger");
+            }
         };
 
         const renderHistory = () => {
